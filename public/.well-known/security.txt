@@ -1,0 +1,29 @@
+# https://securitytxt.org/
+# Fields marked with * are required
+
+# Contact *
+Contact: mailto:your.email@example.com
+
+# Expires *(max 1)
+Expires: YYYY-MM-DDThh:mm:ss.SSSZ
+
+# Encryption
+Encryption: https://example.com/encryption
+
+# Acknowledgments
+Acknowledgments: https://example.com/acknowledgments
+
+# Preferred languages (max 1)
+Preferred-Languages: en,no
+
+# Canonical
+Canonical: https://example.com/security.txt
+
+# Policy
+Policy: https://example.com/policy
+
+# Hiring
+Hiring: https://example.com/hiring
+
+# CSAF
+CSAF: https://example.com/csaf-provider-metadata.json

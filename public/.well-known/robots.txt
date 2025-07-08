@@ -1,0 +1,7 @@
+# https://en.wikipedia.org/wiki/Robots.txt
+# https://www.geeksforgeeks.org/robots-txt-file/
+
+User-agent: *
+Disallow:
+Sitemap:
+Crawl-Delay:
