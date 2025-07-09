@@ -1,14 +1,9 @@
 "use client";
 
-import { Button } from "@mantine/core";
-import { t } from "i18next";
+import { redirect } from "next/navigation";
 
 const Page = () => {
-    return (
-        <Button>
-            {t("common.HelloWorld")}
-        </Button>
-    );
+    return redirect("/domains");
 };
 
 export default Page;

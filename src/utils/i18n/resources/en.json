@@ -1,7 +1,17 @@
 {
     "translation": {
         "common": {
-            "HelloWorld": "Hello world!"
+            "Renew": "Renew",
+            "Open": "Open"
+        },
+        "domains": {
+            "Domain": "Domain",
+            "DomainName": "Domain name"
+        },
+        "other": {
+            "ChatOpen": "The chat seems to be open at this time",
+            "ChatNotOpen": "The chat doesn't seem to be open at this time",
+            "DoNotSellMyData": "Do not sell my data"
         }
     }
 }
