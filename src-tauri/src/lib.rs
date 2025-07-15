@@ -1,20 +1,21 @@
 use tauri::Manager;
+use tauri_plugin_sql::{Builder, Migration, MigrationKind};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let migrations = vec![
+        Migration {
+            version: 1,
+            description: "InitialMigration",
+            sql: include_str!("./sql_migrations/v_1.sql"),
+            kind: MigrationKind::Up
+        }
+    ];
+
     tauri::Builder::default()
+        .plugin(tauri_plugin_sql::Builder::new().add_migrations("sqlite:appdata.sqlite", migrations).build())
         .plugin(tauri_plugin_http::init())
-        .plugin(tauri_plugin_stronghold::Builder::new(|_| todo!()).build())
         .setup(|app| {
-            let salt_path = app
-                .path()
-                .app_local_data_dir()
-                .expect("Could not resolve path!")
-                .join("salt");
-
-            app.handle()
-                .plugin(tauri_plugin_stronghold::Builder::with_argon2(&salt_path).build())?;
-
             if cfg!(debug_assertions) {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
@@ -25,5 +26,5 @@ pub fn run() {
             Ok(())
         })
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("Error while running Tauri application!");
 }

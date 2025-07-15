@@ -2,15 +2,19 @@
     "translation": {
         "common": {
             "Renew": "Renew",
-            "Open": "Open"
+            "Open": "Open",
+            "Yes": "Yes",
+            "No": "No"
         },
         "domains": {
             "Domain": "Domain",
             "DomainName": "Domain name"
         },
+        "profiles": {
+            "Profile": "Profile",
+            "Profiles": "Profiles"
+        },
         "other": {
-            "ChatOpen": "The chat seems to be open at this time",
-            "ChatNotOpen": "The chat doesn't seem to be open at this time",
             "DoNotSellMyData": "Do not sell my data"
         }
     }
