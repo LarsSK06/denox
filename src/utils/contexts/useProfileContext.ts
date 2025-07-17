@@ -5,14 +5,14 @@ import { createContext, createElement, Dispatch, SetStateAction, useContext, use
 import { invalidContextUsageError } from "../globals";
 
 type ProfileContextValue = {
-    profile: ProfileGetModel | null;
-    setProfile: Dispatch<SetStateAction<ProfileGetModel | null>>;
+    profile: ProfileGetModel;
+    setProfile: Dispatch<SetStateAction<ProfileGetModel>>;
 };
 
 const ProfileContext = createContext<ProfileContextValue | undefined>(undefined);
 
 export const ProfileContextProvider = ({ children }: ParentProps) => {
-    const [profile, setProfile] = useState<ProfileGetModel | null>(null);
+    const [profile, setProfile] = useState<ProfileGetModel>(null!);
 
     const value = useMemo<ProfileContextValue>(() => ({ profile, setProfile }), [profile]);
 

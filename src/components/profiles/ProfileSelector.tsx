@@ -1,8 +1,7 @@
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
-import { Button, Popover, Skeleton, Text } from "@mantine/core";
-import { IconArrowRight, IconUser } from "@tabler/icons-react";
+import { ActionIcon, Button, Popover, Skeleton, Text } from "@mantine/core";
+import { IconArrowRight, IconRefresh, IconUser } from "@tabler/icons-react";
 import { useEffect } from "react";
-import { redirect } from "next/navigation";
 import { t } from "i18next";
 
 import useDbSelect from "@/utils/hooks/useDbSelect";
@@ -21,17 +20,9 @@ const ProfileSelector = () => {
 
     useEffect(() => {
         getProfiles();
-
-        const onFocus = () => {
-            getProfiles();
-        };
-
-        window.addEventListener("focus", onFocus);
-
-        return () => window.removeEventListener("focus", onFocus);
     }, []);
 
-    return (profiles?.length === 0 || !profile) ? redirect("/profiles") : (
+    return (
         <Popover closeOnClickOutside>
             <Popover.Target>
                 <Button
@@ -45,9 +36,15 @@ const ProfileSelector = () => {
 
             <Popover.Dropdown>
                 <figure>
-                    <Text size="sm">
-                        {t("profiles.Profiles")}
-                    </Text>
+                    <div className="flex justify-between items-center gap-2">
+                        <Text component="figcaption" size="sm">
+                            {t("profiles.Profiles")}
+                        </Text>
+                        
+                        <ActionIcon variant="subtle" size="sm">
+                            <IconRefresh />
+                        </ActionIcon>
+                    </div>
 
                     <ul aria-live="assertive" aria-busy={isProfilesLoading}>
                         {isProfilesLoading ? (

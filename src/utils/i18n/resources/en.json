@@ -4,7 +4,14 @@
             "Renew": "Renew",
             "Open": "Open",
             "Yes": "Yes",
-            "No": "No"
+            "No": "No",
+            "Name": "Name",
+            "Actions": "Actions",
+            "Save": "Save",
+            "Token": "Token",
+            "Secret": "Secret",
+            "Cancel": "Cancel",
+            "Continue": "Continue"
         },
         "domains": {
             "Domain": "Domain",
@@ -12,10 +19,18 @@
         },
         "profiles": {
             "Profile": "Profile",
-            "Profiles": "Profiles"
+            "Profiles": "Profiles",
+            "SelectProfile": "Select profile",
+            "CreateProfile": "Create profile",
+            "CreateProfileError": "Could not create profile",
+            "EditProfile": "Edit profile",
+            "EditProfileError": "Could not edit profile",
+            "DeleteProfile": "Delete profile",
+            "DeleteProfileError": "Could not delete profile"
         },
         "other": {
-            "DoNotSellMyData": "Do not sell my data"
+            "DoNotSellMyData": "Do not sell my data",
+            "EditItem": "Edit {{item}}"
         }
     }
 }

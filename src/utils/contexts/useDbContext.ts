@@ -19,7 +19,7 @@ export const DbContextProvider = ({ children }: ParentProps) => {
 
     const value = useMemo<DbContextState>(() => ({ database }), [database]);
 
-    return createElement(DbContext.Provider, { value }, children);
+    return createElement(DbContext.Provider, { value }, database && children);
 };
 
 export const useDbContext = () => {

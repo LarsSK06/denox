@@ -1,8 +1,9 @@
 import HTTPMethod from "@/types/http/HTTPMethod";
-import snakeToCamelCase from "../functions/snakeToCamelCase";
 
 import { fetch } from "@tauri-apps/plugin-http";
 import { useState } from "react";
+import { useProfileContext } from "../contexts/useProfileContext";
+import snakeToCamelCase from "../functions/snakeToCamelCase";
 
 type UseHttpClientOptions<RequestBody> = {
     endpoint: any;
@@ -20,6 +21,8 @@ const useHttpClient = <ResponseBody extends {}, RequestBody = undefined>({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<ResponseBody | null>(null);
 
+    const { profile: { token, secret } } = useProfileContext();
+
     const call = async () => new Promise<ResponseBody>((resolve, reject) => {
         setIsLoading(true);
 
@@ -35,15 +38,17 @@ const useHttpClient = <ResponseBody extends {}, RequestBody = undefined>({
         fetch(address, {
             method,
             headers: {
-                authentication: ""
+                authorization: "Basic " + btoa(`${token}:${secret}`)
             },
             body: body && JSON.stringify(body)
         }).then(async response => {
             if (!response.ok) return reject();
 
             response.json().then(json => {
-                resolve(json);
-                setData(json);
+                const formattedJson = snakeToCamelCase<ResponseBody>(json);
+
+                resolve(formattedJson);
+                setData(formattedJson);
             }).catch(_ => {
                 reject();
             })

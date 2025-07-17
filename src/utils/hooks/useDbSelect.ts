@@ -23,7 +23,7 @@ const useDbSelect = <T>({ query }: UseDbSelectOptions) => {
             .finally(() => setIsLoading(false));
     });
 
-    return { isLoading, data, call };
+    return { isLoading, data, setData, call };
 };
 
 export default useDbSelect;

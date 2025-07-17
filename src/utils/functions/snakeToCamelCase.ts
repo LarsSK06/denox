@@ -7,7 +7,9 @@ const singularSnakeToCamelCase = (str: string) =>
         return `${first.toLowerCase()}${last.toUpperCase()}`;
     });
 
-const snakeToCamelCase = <ReturnType extends ParsableObj>(obj: ParsableObj): ReturnType => {
+const snakeToCamelCase = <ReturnType extends ParsableObj | []>(obj: ParsableObj | []): ReturnType => {
+    if (obj instanceof Array) return obj.map(i => snakeToCamelCase(i)) as ReturnType;
+
     return Object.keys(obj).reduce<ParsableObj>((root, current) => {
         return {
             ...root,
