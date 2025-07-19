@@ -1,4 +1,5 @@
-import { ComponentProps, ElementType, JSX, JSXElementConstructor, useState } from "react";
+import usePrimaryColorShade from "@/utils/hooks/usePrimaryColorShade";
+import { ComponentProps, useState } from "react";
 
 type SidebarProps = {
     initialWidth: number;
@@ -15,9 +16,15 @@ const Sidebar = ({
     const [width, setWidth] = useState<number>(150);
     const [isGrabbing, setIsGrabbing] = useState<boolean>(false);
 
+    const primaryColorShade = usePrimaryColorShade();
+
     return (
         <aside style={{ width }} className="relative" {...restProps}>
-            <div className="">
+            <button>
+                <div className="" style={{ backgroundColor: primaryColorShade }} />
+            </button>
+
+            <div className="w-full h-full">
 
             </div>
         </aside>

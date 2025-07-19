@@ -1,15 +1,11 @@
 "use client";
 
-import TableBodySkeleton from "@/components/common/TableBodySkeleton";
 import ParentProps from "@/types/common/ParentProps";
 import DomainGetModel from "@/types/domains/DomainGetModel";
 import Endpoint from "@/types/http/Endpoint";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 
-import { Table } from "@mantine/core";
-import { IconCircleCheck, IconCircleX } from "@tabler/icons-react";
 import { useEffect } from "react";
-import { t } from "i18next";
 
 const Layout = ({ children }: ParentProps) => {
 

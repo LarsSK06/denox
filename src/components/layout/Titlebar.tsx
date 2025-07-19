@@ -7,14 +7,37 @@ import { useEffect, useState } from "react";
 import { getCurrentWindow, Window } from "@tauri-apps/api/window";
 
 import ProfileSelector from "../profiles/ProfileSelector";
+import Logo from "../common/Logo";
+import useDbSelect from "@/utils/hooks/useDbSelect";
+import ProfileGetModel from "@/types/profiles/ProfileGetModel";
 
 const Titlebar = () => {
     const [currentWindow, setCurrentWindow] = useState<Window | null>(null);
 
-    const { profile } = useProfileContext();
+    const { profile: currentProfile, setProfile: setCurrentProfile } = useProfileContext();
+
+    const { call: getProfiles } = useDbSelect<ProfileGetModel[]>({ query: "SELECT * FROM profiles" });
 
     useEffect(() => {
         setCurrentWindow(getCurrentWindow());
+
+        (() => {
+            const cachedProfileIdRaw = window.localStorage.getItem("lastProfileId");
+    
+            if (!cachedProfileIdRaw) return;
+    
+            const cachedProfileId = Number(cachedProfileIdRaw);
+    
+            if (Number.isNaN(cachedProfileId)) return;
+    
+            getProfiles().then(profiles => {
+                const targetProfile = profiles.find(p => p.id === cachedProfileId);
+    
+                if (!targetProfile) return;
+    
+                if (!currentProfile) setCurrentProfile(targetProfile);
+            }).catch(() => {});
+        })();
     }, []);
 
     const handleMinimize = () => currentWindow?.minimize();
@@ -32,8 +55,10 @@ const Titlebar = () => {
             withBorder
             data-tauri-drag-region
             className="flex justify-between border-t-0 border-r-0 border-l-0 rounded-none">
-            <div className="px-1 flex items-center">
-                {profile ? (
+            <div className="px-1 flex items-center gap-2">
+                <Logo width={28} height={28} aria-hidden />
+
+                {currentProfile ? (
                     <ProfileSelector />
                 ) : null}
             </div>

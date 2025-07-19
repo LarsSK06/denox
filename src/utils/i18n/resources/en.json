@@ -26,7 +26,8 @@
             "EditProfile": "Edit profile",
             "EditProfileError": "Could not edit profile",
             "DeleteProfile": "Delete profile",
-            "DeleteProfileError": "Could not delete profile"
+            "DeleteProfileError": "Could not delete profile",
+            "ManageProfiles": "Manage profiles"
         },
         "other": {
             "DoNotSellMyData": "Do not sell my data",

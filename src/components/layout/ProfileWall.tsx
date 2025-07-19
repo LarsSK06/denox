@@ -10,7 +10,7 @@ import IllustrationChill from "../illustrations/IllustrationChill";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
 import { useEffect, useState } from "react";
 import { ActionIcon, Button, Menu, Paper, Radio, Table, Text } from "@mantine/core";
-import { IconAlertCircle, IconDots, IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconAlertCircle, IconChevronRight, IconDots, IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { notifications } from "@mantine/notifications";
 import { t } from "i18next";
@@ -39,6 +39,10 @@ const ProfileWall = ({ children }: ParentProps) => {
         if (profiles) setSelectedProfileId(profiles.find(p => p.id === selectedProfileId)?.id ?? null);
         else setSelectedProfileId(null);
     }, [profiles]);
+
+    useEffect(() => {
+        window.localStorage.setItem("lastProfileId", `${currentProfile?.id}`);
+    }, [currentProfile]);
 
     const isList =
         !isProfilesLoading &&
@@ -108,7 +112,7 @@ const ProfileWall = ({ children }: ParentProps) => {
                                     <TableBodySkeleton rows={5} columns={3} />
                                 ) : (
                                     profiles?.map(profile => (
-                                        <Table.Tr key={profile.id}>
+                                        <Table.Tr className="transition-all" key={profile.id} style={{ backdropFilter: selectedProfileId === profile.id ? "brightness(90%)" : undefined }}>
                                             <Table.Td>
                                                 <Radio
                                                     size="xs"
@@ -123,7 +127,7 @@ const ProfileWall = ({ children }: ParentProps) => {
                                                 {profile.name}
                                             </Table.Td>
 
-                                            <Table.Td>
+                                            <Table.Td className="flex">
                                                 <Menu>
                                                     <Menu.Target>
                                                         <ActionIcon variant="subtle" size="sm">
@@ -165,7 +169,8 @@ const ProfileWall = ({ children }: ParentProps) => {
                     <Button
                         onClick={() => setCurrentProfile(profiles!.find(p => p.id === selectedProfileId)!)}
                         disabled={!selectedProfileId}
-                        className="ml-auto transition-colors">
+                        className="ml-auto transition-colors"
+                        rightSection={<IconChevronRight />}>
                         {t("common.Continue")}
                     </Button>
                 </Paper>
