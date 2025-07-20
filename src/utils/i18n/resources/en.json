@@ -17,7 +17,8 @@
         "domains": {
             "Domain": "Domain",
             "Domains": "Domains",
-            "DomainName": "Domain name"
+            "DomainName": "Domain name",
+            "PurchaseDomains": "Purchase domains"
         },
         "profiles": {
             "Profile": "Profile",

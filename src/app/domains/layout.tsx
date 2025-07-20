@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Sidebar from "@/components/common/Sidebar";
 import ParentProps from "@/types/common/ParentProps";
 import DomainGetModel from "@/types/domains/DomainGetModel";
@@ -7,13 +8,13 @@ import Endpoint from "@/types/http/Endpoint";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import useWindowTitle from "@/utils/hooks/useWindowTitle";
 import getArrayFromNumber from "@/utils/functions/getArrayFromNumber";
+import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
+import useSearchParamId from "@/utils/hooks/useSearchParamId";
 
 import { useEffect } from "react";
 import { t } from "i18next";
-import { ActionIcon, Button, Paper, Skeleton } from "@mantine/core";
-import { useParams } from "next/navigation";
-import { IconRefresh } from "@tabler/icons-react";
-import Link from "next/link";
+import { Button, Divider, Skeleton } from "@mantine/core";
+import { IconExternalLink } from "@tabler/icons-react";
 
 const Layout = ({ children }: ParentProps) => {
 
@@ -25,29 +26,19 @@ const Layout = ({ children }: ParentProps) => {
         endpoint: Endpoint.Domains
     });
 
-    const { domainId } = useParams();
+    const domainId = useSearchParamId({ key: "domainId", type: "number" });
 
     useEffect(() => {
-        getDomains().catch(() => {});
+        getDomains();
     }, []);
 
     useWindowTitle({ title: t("domains.Domains") });
-
-    const isEmpty = !isDomainsLoading && !domains;
-    const isList = !isDomainsLoading && domains && domains.length > 0;
 
     return (
         <div className="h-full flex gap-2">
             <Sidebar>
                 <div className="w-full h-full overflow-auto relative flex flex-col gap-2">
-
-                    {isEmpty ? (
-                        <Button>
-
-                        </Button>
-                    ) : null}
-
-                    {isList || isDomainsLoading ? (
+                    <div className="w-full">
                         <ul aria-live="assertive" aria-busy={isDomainsLoading}>
                             {isDomainsLoading ? (
                                 getArrayFromNumber(domains?.length ?? 10).map(i => (
@@ -68,11 +59,22 @@ const Layout = ({ children }: ParentProps) => {
                                 ))
                             )}
                         </ul>
-                    ) : null}
+
+                        <Divider />
+
+                        <Button
+                            className="m-2"
+                            component={Link}
+                            href="https://domene.shop"
+                            rightSection={<IconExternalLink />}
+                            onClick={openInBrowserOnClick()}>
+                            {t("domains.PurchaseDomains")}
+                        </Button>
+                    </div>
                 </div>
             </Sidebar>
 
-            <main>
+            <main className="flex-grow">
                 {children}
             </main>
         </div>

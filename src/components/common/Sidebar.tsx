@@ -62,7 +62,7 @@ const Sidebar = ({
 
     return (
         <Paper withBorder component="aside" ref={paperRef} style={{ width }} className="h-full border-t-0 border-b-0 border-l-0 rounded-none relative" {...restProps}>
-            <button onMouseDown={onMouseDown} onKeyDown={onKeyDown} className="w-[10px] h-full absolute top-0 right-[-5px] z-1 group outline-none" style={{ cursor: isGrabbing ? "grabbing" : "grab" }}>
+            <button onMouseDown={onMouseDown} onKeyDown={onKeyDown} className="w-[8px] h-full absolute top-0 right-[-4px] z-1 group outline-none" style={{ cursor: isGrabbing ? "grabbing" : "grab" }}>
                 <div className="w-0 h-full mx-auto group-hover:w-full group-focus-visible:w-full transition-all" style={{ width: isGrabbing ? "100%" : undefined, backgroundColor: primaryColorShade }} />
             </button>
 
