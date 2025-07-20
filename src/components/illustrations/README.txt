@@ -1,0 +1,1 @@
+Replace "#066FD1" with {primaryColorShade} for primary color synchronization

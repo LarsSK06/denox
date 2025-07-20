@@ -11,10 +11,12 @@
             "Token": "Token",
             "Secret": "Secret",
             "Cancel": "Cancel",
-            "Continue": "Continue"
+            "Continue": "Continue",
+            "GoBack": "Go back"
         },
         "domains": {
             "Domain": "Domain",
+            "Domains": "Domains",
             "DomainName": "Domain name"
         },
         "profiles": {
@@ -32,6 +34,9 @@
         "other": {
             "DoNotSellMyData": "Do not sell my data",
             "EditItem": "Edit {{item}}"
+        },
+        "genericErrors": {
+            "404NotFound": "This page could not be found"
         }
     }
 }

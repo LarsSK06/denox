@@ -1,7 +1,6 @@
 "use client";
 
 import ParentProps from "@/types/common/ParentProps";
-import ProfileWall from "../layout/ProfileWall";
 
 import { createTheme, MantineProvider } from "@mantine/core";
 import { DbContextProvider } from "@/utils/contexts/useDbContext";
@@ -11,7 +10,7 @@ import { Notifications } from "@mantine/notifications";
 import "@/utils/i18n";
 
 const theme = createTheme({
-    primaryColor: "indigo"
+    primaryColor: "grape"
 });
 
 const Providers = ({ children }: ParentProps) => (

@@ -8,7 +8,7 @@ const ProfileSelector = () => {
     const { profile, setProfile } = useProfileContext();
 
     return (
-        <Popover closeOnClickOutside>
+        <Popover closeOnClickOutside position="bottom-start">
             <Popover.Target>
                 <Button
                     leftSection={<IconUser />}

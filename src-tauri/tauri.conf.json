@@ -10,7 +10,7 @@
     "app": {
         "windows": [
             {
-                "title": "DS Client",
+                "title": "Domeneshop Client",
                 "width": 900,
                 "height": 600,
                 "resizable": true,
@@ -26,12 +26,9 @@
         "active": true,
         "targets": "all",
         "icon": [
-            "icons/logo64x64.png",
-            "icons/logo128x128.png",
-            "icons/logo256x256.png",
-            "icons/logo512x512.png",
-            "icons/logo1024x1024.png",
-            "icons/logo1024x1024.ico"
+            "icons/logo.svg",
+            "icons/logo.png",
+            "icons/logo.ico"
         ]
     }
 }
