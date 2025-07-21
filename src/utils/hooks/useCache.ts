@@ -32,7 +32,13 @@ const useCache = <
             case "number": {
                 const _options = options as TypeMap["number"]["options"];
 
-                
+                if (!raw) return setValue(null);
+
+                const parsed = Number(raw);
+
+                if (Number.isNaN(parsed)) return setValue(null);
+
+                setValue(parsed as T);
 
                 break;
             }
@@ -48,6 +54,8 @@ const useCache = <
             }
         }
     }, []);
+
+    return value;
 };
 
 export default useCache;

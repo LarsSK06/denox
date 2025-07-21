@@ -10,9 +10,10 @@ import useWindowTitle from "@/utils/hooks/useWindowTitle";
 import getArrayFromNumber from "@/utils/functions/getArrayFromNumber";
 import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
 import useSearchParamId from "@/utils/hooks/useSearchParamId";
+import useCache from "@/utils/hooks/useCache";
 
-import { useEffect, useState } from "react";
 import { t } from "i18next";
+import { useEffect, useState } from "react";
 import { Button, Divider, Skeleton, Transition } from "@mantine/core";
 import { IconExternalLink } from "@tabler/icons-react";
 

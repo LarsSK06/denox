@@ -48,7 +48,7 @@ const DomainStatusChip = ({ status }: DomainStatusChipProps) => {
                         </th>
 
                         <td>
-                            <Text style={{ color: borderColor }} className="font-bold">
+                            <Text style={{ color: borderColor }}>
                                 {translateDomainStatus(status)}
                             </Text>
                         </td>

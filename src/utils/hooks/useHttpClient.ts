@@ -1,9 +1,9 @@
 import HTTPMethod from "@/types/http/HTTPMethod";
+import snakeToCamelCase from "../functions/snakeToCamelCase";
 
 import { fetch } from "@tauri-apps/plugin-http";
 import { useState } from "react";
 import { useProfileContext } from "../contexts/useProfileContext";
-import snakeToCamelCase from "../functions/snakeToCamelCase";
 
 type UseHttpClientOptions<ResponseBody, RequestBody> = {
     endpoint: any;
@@ -13,20 +13,25 @@ type UseHttpClientOptions<ResponseBody, RequestBody> = {
     process?: (body?: any) => ResponseBody;
 };
 
-const useHttpClient = <ResponseBody extends {}, RequestBody = undefined>({
-    endpoint,
-    method = "GET",
-    baseUrl = "https://api.domeneshop.no/v0",
-    body,
-    process
-}: UseHttpClientOptions<ResponseBody, RequestBody>) => {
+const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(options: UseHttpClientOptions<ResponseBody, RequestBody> | ((params?: any) => UseHttpClientOptions<ResponseBody, RequestBody>)) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<ResponseBody | null>(null);
 
     const { profile: { token, secret } } = useProfileContext();
 
-    const call = async () => new Promise<ResponseBody>((resolve, reject) => {
+    const call = async (params?: any) => new Promise<ResponseBody>((resolve, reject) => {
         setIsLoading(true);
+
+        const {
+            endpoint,
+            method = "GET",
+            baseUrl = "https://api.domeneshop.no/v0",
+            body,
+            process
+        } =
+            typeof options === "function"
+                ? options(params)
+                : options;
 
         const address = [
             baseUrl,
@@ -44,24 +49,27 @@ const useHttpClient = <ResponseBody extends {}, RequestBody = undefined>({
             },
             body: body && JSON.stringify(body)
         }).then(async response => {
-            if (!response.ok) return reject();
+            if (!response.ok) return reject(await response.json());
 
             response.json().then(json => {
-                const formattedJson =
+                const formattedJson = (
                     process?.(snakeToCamelCase<ResponseBody>(json)) ??
-                    snakeToCamelCase<ResponseBody>(json);
+                    snakeToCamelCase<ResponseBody>(json)
+                ) as ResponseBody;
 
                 resolve(formattedJson);
                 setData(formattedJson);
-            }).catch(_ => {
-                reject();
-            })
+            }).catch(error => {
+                console.log(`JSON parse error:\n${error}`);
+
+                resolve(null!);
+            });
         }).catch(_ => {
-            reject();
+            reject("Fetch error");
         }).finally(() => setIsLoading(false));
     });
 
-    return { isLoading, data, call };
+    return { isLoading, data, setData, call };
 };
 
 export default useHttpClient;

@@ -43,7 +43,14 @@
             "September": "September",
             "October": "October",
             "November": "November",
-            "December": "December"
+            "December": "December",
+            "Host": "Host",
+            "Ttl": "TTL",
+            "Type": "Type",
+            "Priority": "Priority",
+            "Weight": "Weight",
+            "Port": "Port",
+            "Data": "Data"
         },
         "domains": {
             "Domain": "Domain",
@@ -51,6 +58,14 @@
             "DomainName": "Domain name",
             "PurchaseDomains": "Purchase domains",
             "PercentageOfDomainPeriodElapsed": "{{percentage}}% of domain period elapsed"
+        },
+        "dnsRecords": {
+            "NewDnsRecord": "New DNS record",
+            "EditDnsRecord": "Edit DNS record",
+            "EditDnsRecords": "Edit DNS records",
+            "DeleteDnsRecords": "Delete {{count}} DNS records",
+            "DeleteDnsRecords_one": "Delete {{count}} DNS record",
+            "DeleteDnsRecordError": "Could not delete DNS record"
         },
         "profiles": {
             "Profile": "Profile",
