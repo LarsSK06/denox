@@ -1,8 +1,8 @@
-enum DomainActiveState {
+enum DomainStatus {
     Active = "active",
     Expired = "expired",
     Deactivated = "deactivated",
     PendingDeleteRestorable = "pendingDeleteRestorable"
 }
 
-export default DomainActiveState;
+export default DomainStatus;

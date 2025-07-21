@@ -14,6 +14,7 @@ import { IconAlertCircle, IconChevronRight, IconDots, IconPencil, IconPlus, Icon
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { notifications } from "@mantine/notifications";
 import { t } from "i18next";
+import Link from "next/link";
 
 const ProfileWall = ({ children }: ParentProps) => {
     const [showCreateProfileModal, setShowCreateProfileModal] = useState<boolean>(false);
@@ -167,6 +168,8 @@ const ProfileWall = ({ children }: ParentProps) => {
                     </Button>
 
                     <Button
+                        component={Link}
+                        href="/"
                         onClick={() => setCurrentProfile(profiles!.find(p => p.id === selectedProfileId)!)}
                         disabled={!selectedProfileId}
                         className="ml-auto transition-colors"

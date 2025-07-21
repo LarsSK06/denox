@@ -1,4 +1,4 @@
-import DomainActiveState from "./DomainActiveState";
+import DomainStatus from "./DomainStatus";
 import DomainWebHotelSize from "./DomainWebHotelSize";
 
 type DomainGetModel = {
@@ -8,7 +8,7 @@ type DomainGetModel = {
     registeredDate: Date;
     renew: boolean;
     registrant: string;
-    status: DomainActiveState;
+    status: DomainStatus;
     nameservers: [
         string,
         string,

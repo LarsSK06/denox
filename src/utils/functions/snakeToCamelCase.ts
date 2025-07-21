@@ -8,7 +8,7 @@ const singularSnakeToCamelCase = (str: string) =>
     });
 
 const snakeToCamelCase = <ReturnType extends ParsableObj | []>(obj: ParsableObj | []): ReturnType => {
-    if (obj instanceof Array) return obj.map(i => snakeToCamelCase(i)) as ReturnType;
+    if (obj instanceof Array) return obj.map(i => typeof i === "object" ? snakeToCamelCase(i) : i) as ReturnType;
 
     return Object.keys(obj).reduce<ParsableObj>((root, current) => {
         return {

@@ -5,19 +5,21 @@ import { useState } from "react";
 import { useProfileContext } from "../contexts/useProfileContext";
 import snakeToCamelCase from "../functions/snakeToCamelCase";
 
-type UseHttpClientOptions<RequestBody> = {
+type UseHttpClientOptions<ResponseBody, RequestBody> = {
     endpoint: any;
     method?: HTTPMethod;
     baseUrl?: string;
     body?: RequestBody;
+    process?: (body?: any) => ResponseBody;
 };
 
 const useHttpClient = <ResponseBody extends {}, RequestBody = undefined>({
     endpoint,
     method = "GET",
     baseUrl = "https://api.domeneshop.no/v0",
-    body
-}: UseHttpClientOptions<RequestBody>) => {
+    body,
+    process
+}: UseHttpClientOptions<ResponseBody, RequestBody>) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<ResponseBody | null>(null);
 
@@ -45,7 +47,9 @@ const useHttpClient = <ResponseBody extends {}, RequestBody = undefined>({
             if (!response.ok) return reject();
 
             response.json().then(json => {
-                const formattedJson = snakeToCamelCase<ResponseBody>(json);
+                const formattedJson =
+                    process?.(snakeToCamelCase<ResponseBody>(json)) ??
+                    snakeToCamelCase<ResponseBody>(json);
 
                 resolve(formattedJson);
                 setData(formattedJson);

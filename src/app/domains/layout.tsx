@@ -11,12 +11,13 @@ import getArrayFromNumber from "@/utils/functions/getArrayFromNumber";
 import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
 import useSearchParamId from "@/utils/hooks/useSearchParamId";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { t } from "i18next";
-import { Button, Divider, Skeleton } from "@mantine/core";
+import { Button, Divider, Skeleton, Transition } from "@mantine/core";
 import { IconExternalLink } from "@tabler/icons-react";
 
 const Layout = ({ children }: ParentProps) => {
+    const [isMounted, setIsMounted] = useState<boolean>(false);
 
     const {
         isLoading: isDomainsLoading,
@@ -30,6 +31,7 @@ const Layout = ({ children }: ParentProps) => {
 
     useEffect(() => {
         getDomains();
+        setIsMounted(true);
     }, []);
 
     useWindowTitle({ title: t("domains.Domains") });
@@ -45,17 +47,21 @@ const Layout = ({ children }: ParentProps) => {
                                     <Skeleton key={i} height={36} />
                                 ))
                             ) : (
-                                domains?.map(domain => (
-                                    <li key={domain.id}>
-                                        <Button
-                                            fullWidth
-                                            component={Link}
-                                            variant={`${domainId}` === `${domain.id}` ? "light" : "subtle"}
-                                            styles={{ inner: { justifyContent: "start" } }}
-                                            href={`/domains?domainId=${domain.id}`}>
-                                            {domain.domain}
-                                        </Button>
-                                    </li>
+                                domains?.map((domain, i) => (
+                                    <Transition mounted={isMounted} key={domain.id} enterDelay={i * 100}>
+                                        {style => (
+                                            <li key={domain.id} style={style}>
+                                                <Button
+                                                    fullWidth
+                                                    component={Link}
+                                                    variant={`${domainId}` === `${domain.id}` ? "light" : "subtle"}
+                                                    styles={{ inner: { justifyContent: "start" } }}
+                                                    href={`/domains?domainId=${domain.id}`}>
+                                                    {domain.domain}
+                                                </Button>
+                                            </li>
+                                        )}
+                                    </Transition>
                                 ))
                             )}
                         </ul>

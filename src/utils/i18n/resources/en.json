@@ -12,13 +12,25 @@
             "Secret": "Secret",
             "Cancel": "Cancel",
             "Continue": "Continue",
-            "GoBack": "Go back"
+            "GoBack": "Go back",
+            "QuickActions": "Quick actions",
+            "Registrant": "Registrant",
+            "Registrar": "Registrar",
+            "DNS": "DNS",
+            "Email": "Email",
+            "Webhotel": "Web hotel",
+            "Active": "Active",
+            "Expired": "Expired",
+            "Deactivated": "Deactivated",
+            "PendingDeleteRestorable": "Pending deletion",
+            "Nameservers": "Nameservers"
         },
         "domains": {
             "Domain": "Domain",
             "Domains": "Domains",
             "DomainName": "Domain name",
-            "PurchaseDomains": "Purchase domains"
+            "PurchaseDomains": "Purchase domains",
+            "PercentageOfDomainPeriodElapsed": "{{percentage}}% of domain period elapsed"
         },
         "profiles": {
             "Profile": "Profile",
