@@ -38,7 +38,7 @@ const Layout = ({ children }: ParentProps) => {
 
     return (
         <div className="h-full flex gap-2">
-            <Sidebar>
+            <Sidebar minWidth={200}>
                 <div className="w-full h-full overflow-auto relative flex flex-col gap-2">
                     <div className="w-full">
                         <ul aria-live="assertive" aria-busy={isDomainsLoading}>

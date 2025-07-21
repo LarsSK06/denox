@@ -1,6 +1,7 @@
 {
+    "productName": "Denox",
     "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-    "identifier": "no.kvihaugen.ds-client",
+    "identifier": "no.kvihaugen.denox",
     "build": {
         "frontendDist": "../out",
         "devUrl": "http://localhost:3000",
@@ -10,7 +11,7 @@
     "app": {
         "windows": [
             {
-                "title": "Domeneshop Client",
+                "title": "Denox",
                 "width": 900,
                 "height": 600,
                 "minWidth": 900,

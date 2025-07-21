@@ -10,7 +10,7 @@ const Footer = () => {
     return (
         <Paper
             withBorder
-            className="border-r-0 border-b-0 border-l-0">
+            className="border-r-0 border-b-0 border-l-0 rounded-none">
             <nav className="p-1 flex gap-2">
                 <Menu>
                     <Menu.Target>

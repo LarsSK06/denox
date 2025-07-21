@@ -9,6 +9,7 @@ import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
 import prettifyDate from "@/utils/functions/prettifyDate";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import useSearchParamId from "@/utils/hooks/useSearchParamId";
+import useWindowTitle from "@/utils/hooks/useWindowTitle";
 
 import { ActionIcon, Button, Paper, SemiCircleProgress, Skeleton, Text } from "@mantine/core";
 import { IconExternalLink, IconX } from "@tabler/icons-react";
@@ -40,6 +41,8 @@ const Page = () => {
 
         getDomain();
     }, [domainId]);
+
+    useWindowTitle({ title: !domain || isDomainLoading ? "..." : domain.domain });
 
     const domainPeriodElapsedPercentage = useMemo(() => {
         if (!domain) return 0;
