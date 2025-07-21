@@ -8,6 +8,8 @@ const Page = () => {
     const router = useRouter();
 
     useEffect(() => {
+        console.log("RENDERED");
+
         router.push("/domains");
     }, []);
 

@@ -6,6 +6,7 @@ import IllustrationIcons from "@/components/illustrations/IllustrationIcons";
 import DomainGetModel from "@/types/domains/DomainGetModel";
 import Endpoint from "@/types/http/Endpoint";
 import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
+import prettifyDate from "@/utils/functions/prettifyDate";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import useSearchParamId from "@/utils/hooks/useSearchParamId";
 
@@ -85,13 +86,13 @@ const Page = () => {
     
                                     <span>
                                         <time dateTime={domain.registeredDate.toDateString()}>
-                                            {domain.registeredDate.toDateString()}
+                                            {prettifyDate(domain.registeredDate)}
                                         </time>
                                         {' '}
                                         -
                                         {' '}
                                         <time dateTime={domain.expiryDate.toDateString()}>
-                                            {domain.expiryDate.toDateString()}
+                                            {prettifyDate(domain.expiryDate)}
                                         </time>
                                     </span>
                                 </>
