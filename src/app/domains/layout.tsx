@@ -48,21 +48,18 @@ const Layout = ({ children }: ParentProps) => {
                                     <Skeleton key={i} height={36} />
                                 ))
                             ) : (
-                                domains?.map((domain, i) => (
-                                    <Transition mounted={isMounted} key={domain.id} enterDelay={i * 100}>
-                                        {style => (
-                                            <li key={domain.id} style={style}>
-                                                <Button
-                                                    fullWidth
-                                                    component={Link}
-                                                    variant={`${domainId}` === `${domain.id}` ? "light" : "subtle"}
-                                                    styles={{ inner: { justifyContent: "start" } }}
-                                                    href={`/domains?domainId=${domain.id}`}>
-                                                    {domain.domain}
-                                                </Button>
-                                            </li>
-                                        )}
-                                    </Transition>
+                                domains?.map(domain => (
+                                    <li key={domain.id}>
+                                        <Button
+                                            fullWidth
+                                            component={Link}
+                                            variant={`${domainId}` === `${domain.id}` ? "light" : "subtle"}
+                                            styles={{ inner: { justifyContent: "start" } }}
+                                            href={`/domains?domainId=${domain.id}`}
+                                            className="rounded-none">
+                                            {domain.domain}
+                                        </Button>
+                                    </li>
                                 ))
                             )}
                         </ul>

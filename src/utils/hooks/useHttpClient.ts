@@ -11,15 +11,22 @@ type UseHttpClientOptions<ResponseBody, RequestBody> = {
     baseUrl?: string;
     body?: RequestBody;
     process?: (body?: any) => ResponseBody;
+    credentials?: {
+        token: string;
+        secret: string;
+    }
 };
 
-const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(options: UseHttpClientOptions<ResponseBody, RequestBody> | ((params?: any) => UseHttpClientOptions<ResponseBody, RequestBody>)) => {
+const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(options: UseHttpClientOptions<ResponseBody, RequestBody> | ((...params: any[]) => UseHttpClientOptions<ResponseBody, RequestBody>)) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<ResponseBody | null>(null);
 
-    const { profile: { token, secret } } = useProfileContext();
+    const { profile } = useProfileContext();
 
-    const call = async (params?: any) => new Promise<ResponseBody>((resolve, reject) => {
+    const token = profile?.token ?? null;
+    const secret = profile?.secret ?? null;
+
+    const call = async (...params: any[]) => new Promise<ResponseBody>((resolve, reject) => {
         setIsLoading(true);
 
         const {
@@ -27,7 +34,8 @@ const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(op
             method = "GET",
             baseUrl = "https://api.domeneshop.no/v0",
             body,
-            process
+            process,
+            credentials
         } =
             typeof options === "function"
                 ? options(params)
@@ -45,7 +53,7 @@ const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(op
         fetch(address, {
             method,
             headers: {
-                authorization: "Basic " + btoa(`${token}:${secret}`)
+                authorization: "Basic " + btoa(`${credentials?.token ?? token}:${credentials?.secret ?? secret}`)
             },
             body: body && JSON.stringify(body)
         }).then(async response => {

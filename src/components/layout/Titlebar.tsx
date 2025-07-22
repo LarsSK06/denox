@@ -54,6 +54,7 @@ const Titlebar = () => {
         <Paper
             withBorder
             data-tauri-drag-region
+            component="header"
             className="flex justify-between border-t-0 border-r-0 border-l-0 rounded-none">
             <div className="px-1 flex items-center gap-2">
                 <Logo width={28} height={28} aria-hidden />

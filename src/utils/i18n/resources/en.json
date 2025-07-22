@@ -77,7 +77,8 @@
             "EditProfileError": "Could not edit profile",
             "DeleteProfile": "Delete profile",
             "DeleteProfileError": "Could not delete profile",
-            "ManageProfiles": "Manage profiles"
+            "ManageProfiles": "Manage profiles",
+            "CredentialsTestStatus": "Credentials test status"
         },
         "other": {
             "DoNotSellMyData": "Do not sell my data",

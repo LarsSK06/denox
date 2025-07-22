@@ -20,6 +20,8 @@ import { useEffect, useMemo, useState } from "react";
 import { IconAlertCircle, IconExternalLink, IconTrash, IconX } from "@tabler/icons-react";
 import { t } from "i18next";
 import { notifications } from "@mantine/notifications";
+import DomainPeriodProgressCircle from "@/components/domains/DomainPeriodProgressCircle";
+import DomainBasicDataContainer from "@/components/domains/DomainBasicDataContainer";
 
 const Page = () => {
     const [selectedDnsRecordIds, setSelectedDnsRecordIds] = useState<number[]>([]);
@@ -126,37 +128,8 @@ const Page = () => {
             ) : null}
 
             {domainId ? (
-                <div className="p-4 flex flex-col gap-8">
-                    {!isDomainLoading && domain ? (
-                        <SemiCircleProgress
-                            className="mx-auto"
-                            size={512}
-                            value={domainPeriodElapsedPercentage}
-                            label={
-                                <>
-                                    <span>
-                                        {t("domains.PercentageOfDomainPeriodElapsed", { percentage: domainPeriodElapsedPercentage })}
-                                    </span>
-    
-                                    <br />
-    
-                                    <span>
-                                        <time dateTime={domain.registeredDate.toDateString()}>
-                                            {prettifyDate(domain.registeredDate)}
-                                        </time>
-                                        {' '}
-                                        -
-                                        {' '}
-                                        <time dateTime={domain.expiryDate.toDateString()}>
-                                            {prettifyDate(domain.expiryDate)}
-                                        </time>
-                                    </span>
-                                </>
-                            }
-                        />
-                    ) : (
-                        <Skeleton width={500} height={249} className="mx-auto mt-[7px] rounded-none rounded-t-full" />
-                    )}
+                <div className="p-4 flex flex-col gap-8 overflow-auto">
+                    <DomainPeriodProgressCircle isDomainLoading={isDomainLoading} domain={domain} />
 
                     <div className="mx-auto">
                         {!isDomainLoading && domain ? (
@@ -166,88 +139,9 @@ const Page = () => {
                         )}
                     </div>
 
-                    {!isDomainLoading && domain ? (
-                        <Paper withBorder shadow="sm" className="p-2">
-                            <table className="w-full">
-                                <tbody>
-                                    <tr>
-                                        <Text component="th" className="text-start">
-                                            {t("common.Registrant")}:
-                                        </Text>
+                    <DomainBasicDataContainer isDomainLoading={isDomainLoading} domain={domain} />
 
-                                        <Text fs="italic" component="td" className="text-end">
-                                            {domain.registrant}
-                                        </Text>
-                                    </tr>
-
-                                    <tr>
-                                        <Text component="th" className="text-start">
-                                            {t("common.Registrar")}:
-                                        </Text>
-
-                                        <td>
-                                            <Check mode={domain.services.registrar ? "true" : "false"} className="ml-auto" />
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <Text component="th" className="text-start">
-                                            {t("common.DNS")}:
-                                        </Text>
-
-                                        <td>
-                                            <Check mode={domain.services.dns ? "true" : "false"} className="ml-auto" />
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <Text component="th" className="text-start">
-                                            {t("common.Email")}:
-                                        </Text>
-
-                                        <td>
-                                            <Check mode={domain.services.email ? "true" : "false"} className="ml-auto" />
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <Text component="th" className="text-start">
-                                            {t("common.Webhotel")}:
-                                        </Text>
-
-                                        <td>
-                                            <Check mode={domain.services.webhotel ? "true" : "false"} className="ml-auto" />
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <Text component="th" className="text-start align-text-top">
-                                            {t("common.Nameservers")}
-
-                                            <Text component="span" c="gray">
-                                                {` ..${domain.nameservers.length}`}
-                                            </Text>
-                                            :
-                                        </Text>
-
-                                        <td>
-                                            <ol className="w-fit ml-auto">
-                                                {domain.nameservers.map(ns => (
-                                                    <Text fs="italic" component="li" key={ns}>
-                                                        {ns}
-                                                    </Text>
-                                                ))}
-                                            </ol>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </Paper>
-                    ) : (
-                        <Skeleton height={216.38} />
-                    )}
-
-                    <Paper withBorder shadow="sm" className="p-4 flex items-start flex-col gap-2">
+                    <Paper withBorder shadow="sm" className="p-4 flex items-start flex-col gap-2 overflow-auto" style={{ width: "100%" }}>
                         <Button
                             className="transition-colors"
                             color="red"
@@ -319,7 +213,7 @@ const Page = () => {
                                     dnsRecords
                                         ?.toSorted((a, b) => a.host > b.host ? 1 : -1)
                                         .map(dnsRecord => (
-                                        <Table.Tr>
+                                        <Table.Tr key={dnsRecord.id}>
                                             <Table.Td>
                                                 <Checkbox
                                                     checked={selectedDnsRecordIds.includes(dnsRecord.id)}

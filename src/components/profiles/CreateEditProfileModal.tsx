@@ -6,6 +6,7 @@ import { notifications } from "@mantine/notifications";
 import { IconAlertCircle, IconChevronLeft, IconDeviceFloppy } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { t } from "i18next";
+import CredentialsTester from "./CredentialsTester";
 
 type CreateEditProfileModalProps = {
     show?: boolean;
@@ -22,6 +23,9 @@ const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditP
     const [secret, setSecret] = useState<string>("");
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const [isFormDisabled, setIsFormDisabled] = useState<boolean>(false);
+    const [isCredentialsValid, setIsCredentialsValid] = useState<boolean>(false);
 
     const { database } = useDbContext();
 
@@ -91,18 +95,26 @@ const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditP
                     ? t("other.EditItem", { item: localProfile.name })
                     : t("profiles.CreateProfile")
             }>
-            <form className="flex flex-col gap-2">
-                <TextInput label={t("common.Name")} value={name} onChange={event => setName(event.currentTarget.value)} />
-                <TextInput label={t("common.Token")} value={token} onChange={event => setToken(event.currentTarget.value)} />
-                <TextInput label={t("common.Secret")} value={secret} onChange={event => setSecret(event.currentTarget.value)} />
+            <form className="flex flex-col items-start gap-2">
+                <TextInput className="w-full" label={t("common.Name")} value={name} onChange={event => setName(event.currentTarget.value)} />
+                <TextInput className="w-full" label={t("common.Token")} value={token} onChange={event => setToken(event.currentTarget.value)} disabled={isFormDisabled} />
+                <TextInput className="w-full" label={t("common.Secret")} value={secret} onChange={event => setSecret(event.currentTarget.value)} disabled={isFormDisabled} />
+
+                <CredentialsTester
+                    token={token}
+                    secret={secret}
+                    setIsDisabled={setIsFormDisabled}
+                    setIsCredentialsValid={setIsCredentialsValid}
+                />
             </form>
 
+
             <div className="mt-4 flex justify-end gap-2">
-                <Button leftSection={<IconChevronLeft />} onClick={() => handleClose()} loading={isLoading} variant="subtle">
+                <Button className="transition-colors" disabled={!isCredentialsValid} leftSection={<IconChevronLeft />} onClick={() => handleClose()} loading={isLoading} variant="subtle">
                     {t("common.Cancel")}
                 </Button>
 
-                <Button leftSection={<IconDeviceFloppy />} onClick={() => handleSave()} loading={isLoading}>
+                <Button className="transition-colors" disabled={!isCredentialsValid} leftSection={<IconDeviceFloppy />} onClick={() => handleSave()} loading={isLoading}>
                     {t("common.Save")}
                 </Button>
             </div>

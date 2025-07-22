@@ -5,6 +5,7 @@ import Providers from "@/components/common/Providers";
 import Titlebar from "@/components/layout/Titlebar";
 import Footer from "@/components/layout/Footer";
 import ProfileWall from "@/components/layout/ProfileWall";
+import LoaderWrapper from "@/components/layout/LoaderWrapper";
 
 import "@/css/globals.css";
 
@@ -17,10 +18,12 @@ const RootLayout = ({ children }: ParentProps) => (
             <Providers>
                 <div className="w-full h-full flex flex-col">
                     <Titlebar />
-                    <div className="flex-grow overflow-auto">
-                        <ProfileWall>
-                            {children}
-                        </ProfileWall>
+                    <div className="w-[100vw] flex-grow overflow-auto">
+                        <LoaderWrapper>
+                            <ProfileWall>
+                                {children}
+                            </ProfileWall>
+                        </LoaderWrapper>
                     </div>
                     <Footer />
                 </div>
