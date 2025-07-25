@@ -1,7 +1,9 @@
+"use client";
+
 import ParentProps from "@/types/common/ParentProps";
 import usePrimaryColorShade from "@/utils/hooks/usePrimaryColorShade";
-import { Paper, Skeleton } from "@mantine/core";
 
+import { Paper } from "@mantine/core";
 import { ComponentProps, useEffect, useRef, useState } from "react";
 
 type SidebarProps = {

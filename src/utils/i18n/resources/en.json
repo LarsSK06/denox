@@ -50,7 +50,8 @@
             "Priority": "Priority",
             "Weight": "Weight",
             "Port": "Port",
-            "Data": "Data"
+            "Data": "Data",
+            "All": "All"
         },
         "domains": {
             "Domain": "Domain",

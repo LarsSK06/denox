@@ -1,7 +1,10 @@
+"use client";
+
 import DomainGetModel from "@/types/domains/DomainGetModel";
 import prettifyDate from "@/utils/functions/prettifyDate";
+import useMount from "@/utils/hooks/useMount";
 
-import { SemiCircleProgress, Skeleton } from "@mantine/core";
+import { SemiCircleProgress, Skeleton, Transition } from "@mantine/core";
 import { t } from "i18next";
 import { useMemo } from "react";
 
@@ -11,6 +14,7 @@ type DomainPeriodProgressCircleProps = {
 };
 
 const DomainPeriodProgressCircle = ({ isDomainLoading, domain }: DomainPeriodProgressCircleProps) => {
+    const isMounted = useMount();
 
     const elapsedPercentage = useMemo(() => {
         if (!domain) return 0;
@@ -26,32 +30,37 @@ const DomainPeriodProgressCircle = ({ isDomainLoading, domain }: DomainPeriodPro
     }, [domain]);
 
     return !isDomainLoading && domain ? (
-        <SemiCircleProgress
-            className="mx-auto"
-            size={512}
-            value={elapsedPercentage}
-            label={
-                <>
-                    <span>
-                        {t("domains.PercentageOfDomainPeriodElapsed", { percentage: elapsedPercentage })}
-                    </span>
-
-                    <br />
-
-                    <span>
-                        <time dateTime={domain.registeredDate.toDateString()}>
-                            {prettifyDate(domain.registeredDate)}
-                        </time>
-                        {' '}
-                        -
-                        {' '}
-                        <time dateTime={domain.expiryDate.toDateString()}>
-                            {prettifyDate(domain.expiryDate)}
-                        </time>
-                    </span>
-                </>
-            }
-        />
+        <Transition mounted={isMounted} transition="fade-up">
+            {style => (
+                <SemiCircleProgress
+                    style={style}
+                    className="mx-auto"
+                    size={512}
+                    value={elapsedPercentage}
+                    label={
+                        <>
+                            <span>
+                                {t("domains.PercentageOfDomainPeriodElapsed", { percentage: elapsedPercentage })}
+                            </span>
+        
+                            <br />
+        
+                            <span>
+                                <time dateTime={domain.registeredDate.toDateString()}>
+                                    {prettifyDate(domain.registeredDate)}
+                                </time>
+                                {' '}
+                                -
+                                {' '}
+                                <time dateTime={domain.expiryDate.toDateString()}>
+                                    {prettifyDate(domain.expiryDate)}
+                                </time>
+                            </span>
+                        </>
+                    }
+                />
+            )}
+        </Transition>
     ) : (
         <Skeleton width={500} height={249} className="mx-auto mt-[7px] rounded-none rounded-t-full" />
     );

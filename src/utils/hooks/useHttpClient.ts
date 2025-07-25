@@ -1,3 +1,5 @@
+"use client";
+
 import HTTPMethod from "@/types/http/HTTPMethod";
 import snakeToCamelCase from "../functions/snakeToCamelCase";
 
@@ -50,6 +52,10 @@ const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(op
             )
         ].map(i => `${i}`).join("/");
 
+        console.log(
+            `Called: ${address}`
+        );
+
         fetch(address, {
             method,
             headers: {
@@ -77,7 +83,7 @@ const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(op
         }).finally(() => setIsLoading(false));
     });
 
-    return { isLoading, data, setData, call };
+    return { isLoading, data: isLoading ? null : data, setData, call };
 };
 
 export default useHttpClient;
