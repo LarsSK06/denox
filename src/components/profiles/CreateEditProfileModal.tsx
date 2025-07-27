@@ -58,17 +58,17 @@ const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditP
                 ? database.execute(
                     `
                     UPDATE profiles
-                    SET name = $1, token = $2, secret = $3
-                    WHERE id = $4
+                    SET name = $1, token = $2, secret = $3, editedAt = $4
+                    WHERE id = $5
                     `,
-                    [name, token, secret, localProfile.id]
+                    [name, token, secret, Date.now(), localProfile.id]
                 )
                 : database.execute(
                     `
-                    INSERT INTO profiles (name, token, secret)
-                    VALUES ($1, $2, $3)
+                    INSERT INTO profiles (name, token, secret, createdAt)
+                    VALUES ($1, $2, $3, $4)
                     `,
-                    [name, token, secret]
+                    [name, token, secret, Date.now()]
                 )
         ).then(() => {
             handleClose();
@@ -110,7 +110,7 @@ const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditP
 
 
             <div className="mt-4 flex justify-end gap-2">
-                <Button className="transition-colors" disabled={!isCredentialsValid} leftSection={<IconChevronLeft />} onClick={() => handleClose()} loading={isLoading} variant="subtle">
+                <Button leftSection={<IconChevronLeft />} onClick={() => handleClose()} loading={isLoading} variant="subtle">
                     {t("common.Cancel")}
                 </Button>
 

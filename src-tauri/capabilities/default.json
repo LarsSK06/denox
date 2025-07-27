@@ -24,6 +24,9 @@
     },
     "sql:default",
     "sql:allow-execute",
-    "opener:default"
+    "opener:default",
+    "fs:default",
+    "fs:allow-read-text-file",
+    "fs:scope-appconfig"
   ]
 }

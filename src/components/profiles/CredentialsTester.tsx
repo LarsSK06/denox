@@ -40,7 +40,7 @@ const CredentialsTester = ({ token, secret, setIsDisabled, setIsCredentialsValid
                 .then(() => setStatus("valid"))
                 .catch(() => setStatus("invalid"))
                 .finally(() => setIsDisabled(false));
-        }, 2000);
+        }, 3000);
     }, [token, secret]);
 
     useEffect(() => {
@@ -68,7 +68,7 @@ const CredentialsTester = ({ token, secret, setIsDisabled, setIsCredentialsValid
 
                         {status === "loading" ? (
                             <>
-                                <div className="w-fit h-fit animate-ping">
+                                <div className="w-fit h-fit animate-spin">
                                     <IconLoader color="gray" aria-hidden />
                                 </div>
                             

@@ -6,6 +6,8 @@ import useDbSelect from "@/utils/hooks/useDbSelect";
 import TableBodySkeleton from "../common/TableBodySkeleton";
 import CreateEditProfileModal from "../profiles/CreateEditProfileModal";
 import IllustrationChill from "../illustrations/IllustrationChill";
+import Link from "next/link";
+import prettifyDateTime from "@/utils/functions/prettifyDateTime";
 
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
 import { useEffect, useState } from "react";
@@ -14,7 +16,6 @@ import { IconAlertCircle, IconChevronRight, IconDots, IconPencil, IconPlus, Icon
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { notifications } from "@mantine/notifications";
 import { t } from "i18next";
-import Link from "next/link";
 
 const ProfileWall = ({ children }: ParentProps) => {
     const [showCreateProfileModal, setShowCreateProfileModal] = useState<boolean>(false);
@@ -77,7 +78,7 @@ const ProfileWall = ({ children }: ParentProps) => {
             />
 
             <div className="w-full h-full flex justify-center items-center">
-                <Paper withBorder shadow="xs" component="form" className="w-96 p-4 flex flex-col items-start gap-2">
+                <Paper withBorder shadow="xs" component="form" className="w-[40rem] p-4 flex flex-col items-start gap-2">
                     <Text size="xl">
                         {t("profiles.SelectProfile")}
                     </Text>
@@ -98,6 +99,14 @@ const ProfileWall = ({ children }: ParentProps) => {
 
                                     <Table.Td className="font-bold">
                                         {t("common.Name")}
+                                    </Table.Td>
+
+                                    <Table.Td className="font-bold">
+                                        {t("common.CreatedAt")}
+                                    </Table.Td>
+
+                                    <Table.Td className="font-bold">
+                                        {t("common.EditedAt")}
                                     </Table.Td>
 
                                     <Table.Td className="w-0">
@@ -126,6 +135,14 @@ const ProfileWall = ({ children }: ParentProps) => {
 
                                             <Table.Td>
                                                 {profile.name}
+                                            </Table.Td>
+
+                                            <Table.Td>
+                                                {prettifyDateTime(new Date(profile.createdAt))}
+                                            </Table.Td>
+
+                                            <Table.Td c={profile.editedAt ? undefined : "gray"}>
+                                                {profile.editedAt ? prettifyDateTime(new Date(profile.editedAt)) : t("common.Never")}
                                             </Table.Td>
 
                                             <Table.Td className="flex">

@@ -51,16 +51,24 @@
             "Weight": "Weight",
             "Port": "Port",
             "Data": "Data",
-            "All": "All"
+            "All": "All",
+            "CreatedAt": "Created at",
+            "EditedAt": "Edited at",
+            "Never": "Never",
+            "Overview": "Overview",
+            "Version": "Version",
+            "PageSize": "Page size"
         },
         "domains": {
             "Domain": "Domain",
             "Domains": "Domains",
             "DomainName": "Domain name",
             "PurchaseDomains": "Purchase domains",
-            "PercentageOfDomainPeriodElapsed": "{{percentage}}% of domain period elapsed"
+            "PercentageOfDomainPeriodElapsed": "{{percentage}}% of domain period elapsed",
+            "EditNameservers": "Edit nameservers"
         },
         "dnsRecords": {
+            "DnsRecords": "DNS records",
             "NewDnsRecord": "New DNS record",
             "EditDnsRecord": "Edit DNS record",
             "EditDnsRecords": "Edit DNS records",
@@ -83,7 +91,9 @@
         },
         "other": {
             "DoNotSellMyData": "Do not sell my data",
-            "EditItem": "Edit {{item}}"
+            "EditItem": "Edit {{item}}",
+            "EditContactInfo": "Edit contact info",
+            "OrderUpgrade": "Order upgrade"
         },
         "genericErrors": {
             "404NotFound": "This page could not be found"

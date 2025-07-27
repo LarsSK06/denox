@@ -2,19 +2,18 @@ import DomainGetModel from "@/types/domains/DomainGetModel";
 import Check from "../common/Check";
 import DomainWebHotelSize from "@/types/domains/DomainWebHotelSize";
 
-import { Paper, Skeleton, Text } from "@mantine/core";
+import { Paper, Text } from "@mantine/core";
 import { t } from "i18next";
 
 type DomainBasicDataContainerProps = {
-    isDomainLoading: boolean;
-    domain: DomainGetModel | null;
+    domain: DomainGetModel;
 };
 
-const DomainBasicDataContainer = ({ isDomainLoading, domain }: DomainBasicDataContainerProps) => {
+const DomainBasicDataContainer = ({ domain }: DomainBasicDataContainerProps) => {
 
-    return !isDomainLoading && domain ? (
+    return (
         <>
-            <div className="flex justify-between gap-2" aria-hidden>
+            <div className="flex gap-2" aria-hidden>
                 {([
                     [t("common.DNS"), domain.services.dns],
                     [t("common.Email"), domain.services.email],
@@ -107,8 +106,6 @@ const DomainBasicDataContainer = ({ isDomainLoading, domain }: DomainBasicDataCo
                 </table>
             </Paper>
         </>
-    ) : (
-        <Skeleton height={216.38} />
     );
 };
 

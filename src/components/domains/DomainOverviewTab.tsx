@@ -5,32 +5,31 @@ import DomainPeriodProgressCircle from "./DomainPeriodProgressCircle";
 import DomainBasicDataContainer from "./DomainBasicDataContainer";
 import DomainStatusChip from "./DomainStatusChip";
 
-import { Skeleton } from "@mantine/core";
+import { Transition } from "@mantine/core";
+import { dummyDomain } from "@/utils/globals";
 
 type DomainOverviewTabProps = {
     isDomainLoading: boolean;
     domain: DomainGetModel | null;
 };
 
-const DomainOverviewTab = ({ isDomainLoading, domain }: DomainOverviewTabProps) => {
-    return (
-        <div className="w-full flex flex-col gap-8">
-            <DomainPeriodProgressCircle isDomainLoading={isDomainLoading} domain={domain} />
+const DomainOverviewTab = ({ isDomainLoading, domain: _domain }: DomainOverviewTabProps) => {
+    const domain = _domain ?? dummyDomain;
 
-            {isDomainLoading ? (
-                <Skeleton width={80} height={34.8} className="rounded-full" />
-            ) : (
-                domain ? (
+    return (
+        <Transition mounted={!isDomainLoading} exitDuration={0} transition="fade-up">
+            {style => (
+                <div className="w-full flex flex-col gap-8" style={style}>
+                    <DomainPeriodProgressCircle domain={domain} />
+
                     <div className="w-fit mx-auto">
                         <DomainStatusChip status={domain.status} />
                     </div>
-                ) : (
-                    <></>
-                )
-            )}
 
-            <DomainBasicDataContainer isDomainLoading={isDomainLoading} domain={domain} />
-        </div>
+                    <DomainBasicDataContainer domain={domain} />
+                </div>
+            )}
+        </Transition>
     );
 };
 

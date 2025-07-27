@@ -4,20 +4,30 @@ import Database from "@tauri-apps/plugin-sql";
 import { createContext, createElement, useContext, useEffect, useMemo, useState } from "react";
 import { dbConnectionString, invalidContextUsageError } from "../globals";
 
-type DbContextState = {
+type DbContextValue = {
+    isReady: boolean;
+
     database: Database;
 };
 
-const DbContext = createContext<DbContextState | undefined>(undefined);
+const DbContext = createContext<DbContextValue | undefined>(undefined);
 
 export const DbContextProvider = ({ children }: ParentProps) => {
+    const [isReady, setIsReady] = useState<boolean>(false);
+
     const [database, setDatabase] = useState<Database>(null!);
 
     useEffect(() => {
-        Database.load(dbConnectionString).then(setDatabase);
+        Database.load(dbConnectionString)
+            .then(db => {
+                setDatabase(db);
+
+                setIsReady(true);
+            })
+            .catch(console.error);
     }, []);
 
-    const value = useMemo<DbContextState>(() => ({ database }), [database]);
+    const value = useMemo<DbContextValue>(() => ({ isReady, database }), [isReady, database]);
 
     return createElement(DbContext.Provider, { value }, database && children);
 };

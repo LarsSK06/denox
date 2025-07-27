@@ -2,14 +2,14 @@ import { t } from "i18next";
 
 const prettifyDate = (date: Date) => {
     const weekday = [
+        t("common.Sunday"),
         t("common.Monday"),
         t("common.Tuesday"),
         t("common.Wednesday"),
         t("common.Thursday"),
         t("common.Friday"),
-        t("common.Saturday"),
-        t("common.Sunday")
-    ][date.getDay() - 1];
+        t("common.Saturday")
+    ][date.getDay()];
 
     const month = [
         t("common.January"),

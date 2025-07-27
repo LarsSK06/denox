@@ -3,9 +3,10 @@
 import DomainGetModel from "@/types/domains/DomainGetModel";
 import useSearchParamId from "@/utils/hooks/useSearchParamId";
 import Link from "next/link";
+import useMount from "@/utils/hooks/useMount";
 
 import { Button, Transition } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 
 type DomainNavButtonProps = {
     domain: DomainGetModel;
@@ -13,13 +14,11 @@ type DomainNavButtonProps = {
 };
 
 const DomainNavButton = ({ domain, index = 0 }: DomainNavButtonProps) => {
-    const [isMounted, setIsMounted] = useState<boolean>(false);
-
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
+    const isMounted = useMount();
 
     const domainId = useSearchParamId({ key: "domainId", type: "number" });
+
+    const { capitalizeDomainNames } = useSettingsContext();
 
     return (
         <Transition mounted={isMounted} enterDelay={index * 100} transition="fade-right">
@@ -32,7 +31,7 @@ const DomainNavButton = ({ domain, index = 0 }: DomainNavButtonProps) => {
                         styles={{ inner: { justifyContent: "start" } }}
                         href={`/domains?domainId=${domain.id}`}
                         className="rounded-none">
-                        {domain.domain}
+                        {capitalizeDomainNames ? domain.domain.toUpperCase() : domain.domain.toLowerCase()}
                     </Button>
                 </li>
             )}

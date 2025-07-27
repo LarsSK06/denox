@@ -1,12 +1,22 @@
 "use client";
 
-import { ActionIcon, Menu, Paper } from "@mantine/core";
+import { ActionIcon, Menu, Paper, Skeleton, Text } from "@mantine/core";
 import { IconDots, IconShieldLock } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 import { t } from "i18next";
 
 import Link from "next/link";
 
+import * as app from "@tauri-apps/api/app";
+
 const Footer = () => {
+
+    const [version, setVersion] = useState<string | null>(null);
+
+    useEffect(() => {
+        app.getVersion().then(setVersion);
+    }, []);
+
     return (
         <Paper
             withBorder
@@ -26,6 +36,26 @@ const Footer = () => {
                         </Menu.Item>
                     </Menu.Dropdown>
                 </Menu>
+
+                <table>
+                    <tbody>
+                        <tr aria-busy={!version}>
+                            <th className="sr-only">
+                                {t("common.Version")}
+                            </th>
+
+                            <td>
+                                {version ? (
+                                    <Text c="gray">
+                                        {version}
+                                    </Text>
+                                ) : (
+                                    <Skeleton width={32.81} height={24.8} />
+                                )}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </nav>
         </Paper>
     );

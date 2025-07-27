@@ -6,10 +6,14 @@ import DomainGetModel from "@/types/domains/DomainGetModel";
 import Endpoint from "@/types/http/Endpoint";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import useSearchParamId from "@/utils/hooks/useSearchParamId";
+import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
 
-import { SegmentedControl } from "@mantine/core";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ActionIcon, SegmentedControl, Tooltip } from "@mantine/core";
+import { t } from "i18next";
+import { IconAddressBook, IconBolt, IconCloudComputing, IconExternalLink, IconRestore } from "@tabler/icons-react";
+import IllustrationIcons from "@/components/illustrations/IllustrationIcons";
 
 const Page = () => {
     const [tab, setTab] = useState<"overview" | "dns" | null>("overview");
@@ -32,23 +36,49 @@ const Page = () => {
     });
 
     useEffect(() => {
-        setTab(searchParams.get("tab") as typeof tab);
+        setTab((searchParams.get("tab") ?? "overview") as typeof tab);
     }, [searchParams]);
 
     useEffect(() => {
         if (domainId) getDomain();
     }, [domainId]);
 
-    return (
-        <div className="p-2">
-            <SegmentedControl
-                value={tab ?? undefined}
-                data={[
-                    { value: "overview", label: "overview" },
-                    { value: "dns", label: "dns" }
-                ]}
-                onChange={value => router.replace(`/domains?domainId=${domainId}&tab=${value}`)}
-            />
+    return domainId ? (
+        <div className="h-full p-2 overflow-auto">
+            <div className="flex gap-2 items-center">
+                <SegmentedControl
+                    value={tab ?? undefined}
+                    data={[
+                        { value: "overview", label: t("common.Overview") },
+                        { value: "dns", label: t("dnsRecords.DnsRecords") }
+                    ]}
+                    onChange={value => router.replace(`/domains?domainId=${domainId}&tab=${value}`)}
+                />
+
+                <Tooltip label={t("common.Renew")}>
+                    <ActionIcon component="a" href={`https://domene.shop/admin?id=${domainId}&command=renew`} onClick={openInBrowserOnClick()}>
+                        <IconRestore />
+                    </ActionIcon>
+                </Tooltip>
+
+                <Tooltip label={t("other.EditContactInfo")}>
+                    <ActionIcon component="a" href={`https://domene.shop/admin?id=${domainId}&edit=contacts`} onClick={openInBrowserOnClick()}>
+                        <IconAddressBook />
+                    </ActionIcon>
+                </Tooltip>
+
+                <Tooltip label={t("domains.EditNameservers")}>
+                    <ActionIcon component="a" href={`https://domene.shop/admin?id=${domainId}&edit=ns`} onClick={openInBrowserOnClick()}>
+                        <IconCloudComputing />
+                    </ActionIcon>
+                </Tooltip>
+
+                <Tooltip label={t("other.OrderUpgrade")}>
+                    <ActionIcon component="a" href={`https://domene.shop/admin?id=${domainId}&view=upgrade`} onClick={openInBrowserOnClick()}>
+                        <IconBolt />
+                    </ActionIcon>
+                </Tooltip>
+            </div>
 
             <div className="mt-2" aria-live="assertive">
                 {tab === "overview" || tab === null ? (
@@ -56,9 +86,13 @@ const Page = () => {
                 ) : null}
 
                 {tab === "dns" ? (
-                    <DomainDnsTab isDomainLoading={isDomainLoading} domain={domain} />
+                    <DomainDnsTab />
                 ) : null}
             </div>
+        </div>
+    ) : (
+        <div className="w-full h-full flex justify-center items-center">
+            <IllustrationIcons scale={.75} />
         </div>
     );
 };

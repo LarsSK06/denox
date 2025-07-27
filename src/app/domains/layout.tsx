@@ -26,7 +26,7 @@ const Layout = ({ children }: ParentProps) => {
     return (
         <div className="h-full flex">
             <Sidebar>
-                <ul>
+                <ul className="h-full overflow-auto">
                     {isDomainsLoading ? (
                         getArrayFromNumber(15).map(i => (
                             <Skeleton component="li" key={i} />
