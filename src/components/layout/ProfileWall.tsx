@@ -138,11 +138,17 @@ const ProfileWall = ({ children }: ParentProps) => {
                                             </Table.Td>
 
                                             <Table.Td>
-                                                {prettifyDateTime(new Date(profile.createdAt))}
+                                                <time dateTime={new Date(profile.createdAt).toDateString()}>
+                                                    {prettifyDateTime(new Date(profile.createdAt))}
+                                                </time>
                                             </Table.Td>
 
                                             <Table.Td c={profile.editedAt ? undefined : "gray"}>
-                                                {profile.editedAt ? prettifyDateTime(new Date(profile.editedAt)) : t("common.Never")}
+                                                {profile.editedAt ? (
+                                                    <time dateTime={new Date(profile.editedAt).toDateString()}>
+                                                        {prettifyDateTime(new Date(profile.editedAt))}
+                                                    </time>
+                                                ) : t("common.Never")}
                                             </Table.Td>
 
                                             <Table.Td className="flex">

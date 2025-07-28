@@ -1,15 +1,17 @@
 "use client";
 
-import { ActionIcon, Paper } from "@mantine/core";
-import { IconMaximize, IconMinus, IconX } from "@tabler/icons-react";
+import { ActionIcon, Button, Divider, Paper } from "@mantine/core";
+import { IconAntenna, IconFileDollar, IconMaximize, IconMinus, IconX } from "@tabler/icons-react";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
 import { useEffect, useState } from "react";
 import { getCurrentWindow, Window } from "@tauri-apps/api/window";
+import { t } from "i18next";
 
 import ProfileSelector from "../profiles/ProfileSelector";
 import Logo from "../common/Logo";
 import useDbSelect from "@/utils/hooks/useDbSelect";
 import ProfileGetModel from "@/types/profiles/ProfileGetModel";
+import Link from "next/link";
 
 const Titlebar = () => {
     const [currentWindow, setCurrentWindow] = useState<Window | null>(null);
@@ -62,6 +64,18 @@ const Titlebar = () => {
                 {currentProfile ? (
                     <ProfileSelector />
                 ) : null}
+
+                <Divider orientation="vertical" />
+
+                <nav className="h-full flex items-center gap-2">
+                    <Button variant="light" component={Link} href="/domains" leftSection={<IconAntenna />} size="compact-md">
+                        {t("domains.Domains")}
+                    </Button>
+
+                    <Button variant="light" component={Link} href="/invoices" leftSection={<IconFileDollar />} size="compact-md">
+                        {t("invoices.Invoices")}
+                    </Button>
+                </nav>
             </div>
 
             <div className="p-1 flex gap-1">

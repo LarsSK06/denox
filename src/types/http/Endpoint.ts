@@ -1,6 +1,7 @@
 enum Endpoint {
     Domains = "domains",
-    DNS = "dns"
+    DNS = "dns",
+    Invoices = "invoices"
 }
 
 export default Endpoint;

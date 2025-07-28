@@ -7,6 +7,7 @@ import DomainStatusChip from "./DomainStatusChip";
 
 import { Transition } from "@mantine/core";
 import { dummyDomain } from "@/utils/globals";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 
 type DomainOverviewTabProps = {
     isDomainLoading: boolean;
@@ -16,8 +17,10 @@ type DomainOverviewTabProps = {
 const DomainOverviewTab = ({ isDomainLoading, domain: _domain }: DomainOverviewTabProps) => {
     const domain = _domain ?? dummyDomain;
 
+    const { allowAnimations } = useSettingsContext();
+
     return (
-        <Transition mounted={!isDomainLoading} exitDuration={0} transition="fade-up">
+        <Transition mounted={!isDomainLoading} exitDuration={0} transition="fade-up" duration={allowAnimations ? undefined : 0}>
             {style => (
                 <div className="w-full flex flex-col gap-8" style={style}>
                     <DomainPeriodProgressCircle domain={domain} />

@@ -57,7 +57,20 @@
             "Never": "Never",
             "Overview": "Overview",
             "Version": "Version",
-            "PageSize": "Page size"
+            "PageSize": "Page size",
+            "Search": "Search",
+            "Amount": "Amount",
+            "DueDate": "Due date",
+            "IssuedDate": "Issued date",
+            "PaidDate": "Paid date",
+            "NotPaid": "Not paid",
+            "Paid": "Paid",
+            "Unpaid": "Unpaid",
+            "Settled": "Settled",
+            "Pay": "Pay",
+            "ViewInBrowser": "View in browser",
+            "DownloadAsPdf": "Download as PDF",
+            "OpenPdf": "Open PDF"
         },
         "domains": {
             "Domain": "Domain",
@@ -89,11 +102,19 @@
             "ManageProfiles": "Manage profiles",
             "CredentialsTestStatus": "Credentials test status"
         },
+        "invoices": {
+            "Invoices": "Invoices",
+            "Invoice": "Invoice",
+            "CreditNote": "Credit note"
+        },
         "other": {
             "DoNotSellMyData": "Do not sell my data",
             "EditItem": "Edit {{item}}",
             "EditContactInfo": "Edit contact info",
-            "OrderUpgrade": "Order upgrade"
+            "OrderUpgrade": "Order upgrade",
+            "SeemsEmptyOverHere": "Seems empty over here",
+            "CouldNotFindAnythingHere": "Could not find anything here",
+            "NothingButDustHere": "Nothing but dust here"
         },
         "genericErrors": {
             "404NotFound": "This page could not be found"

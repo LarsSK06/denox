@@ -1,5 +1,6 @@
 import DomainStatus from "@/types/domains/DomainStatus";
 import translateDomainStatus from "@/utils/functions/translateDomainStatus";
+import useColorScheme from "@/utils/hooks/useColorScheme";
 
 import { Paper, Text, useMantineTheme } from "@mantine/core";
 import { t } from "i18next";
@@ -11,6 +12,8 @@ type DomainStatusChipProps = {
 
 const DomainStatusChip = ({ status }: DomainStatusChipProps) => {
     const mantineTheme = useMantineTheme();
+
+    const { isDark: isColorSchemeDark } = useColorScheme();
 
     const [backgroundColor, borderColor] = useMemo(() => {
         let mantineColorTuple;
@@ -33,7 +36,7 @@ const DomainStatusChip = ({ status }: DomainStatusChipProps) => {
                 break;    
         }
 
-        return [mantineColorTuple[2], mantineColorTuple[9]] as [string, string];
+        return [mantineColorTuple[isColorSchemeDark ? 9 : 2], mantineColorTuple[isColorSchemeDark ? 2 : 9]] as [string, string];
     }, [status]);
 
     return (

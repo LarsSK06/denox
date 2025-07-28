@@ -6,13 +6,14 @@ import Endpoint from "@/types/http/Endpoint";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import useSearchParamId from "@/utils/hooks/useSearchParamId";
 
-import { ActionIcon, Pagination, Paper, Select, Table, Transition } from "@mantine/core";
+import { ActionIcon, Pagination, Paper, Select, Table, Text, TextInput, Transition } from "@mantine/core";
 import { IconPencil, IconRefresh, IconTrash } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 import { t } from "i18next";
 
 const DomainDnsTab = () => {
+    const [searchText, setSearchText] = useState<string>("");
     const [type, setType] = useState<DnsRecordType | null>(null);
     const [host, setHost] = useState<string | null>(null);
 
@@ -31,8 +32,13 @@ const DomainDnsTab = () => {
 
     const filteredDnsRecords =
         (dnsRecords ?? [])
+            .filter(r =>
+                searchText.trim() === "" ||
+                r.data.toLowerCase().includes(searchText.toLowerCase()) ||
+                r.host.toLowerCase().includes(searchText.toLowerCase())
+            )
             .filter(r => type === null || r.type === type)
-            .filter(r => host === null || r.host === host);
+            .filter(r => host === null || r.host === host)
 
     const paginatedDnsRecords =
         filteredDnsRecords
@@ -52,7 +58,7 @@ const DomainDnsTab = () => {
             ?.reduce((root, current) =>
                 !root.includes(current.type)
                     ? [...root, current.type]
-                    : root    
+                    : root
             , [] as DnsRecordType[])
             .toSorted((a, b) => a > b ? 1 : -1)
     , [dnsRecords]);
@@ -62,17 +68,27 @@ const DomainDnsTab = () => {
             ?.reduce((root, current) =>
                 !root.includes(current.host)
                     ? [...root, current.host]
-                    : root    
+                    : root
             , [] as string[])
             .toSorted((a, b) => a > b ? 1 : -1)
     , [dnsRecords]);
 
+    const { allowAnimations } = useSettingsContext();
+
     return (
-        <Transition mounted={!isDnsRecordsLoading} transition="fade-up" exitDuration={0}>
+        <Transition mounted={!isDnsRecordsLoading} transition="fade-up" exitDuration={0} duration={allowAnimations ? undefined : 0}>
             {style => (
                 <div className="w-full flex flex-col gap-2" style={style}>
                     <Paper withBorder shadow="sm" className="p-2 flex items-end gap-2">
+                        <TextInput
+                            label={t("common.Search")}
+                            placeholder={`${t("common.Search")}...`}
+                            value={searchText}
+                            onChange={event => setSearchText(event.currentTarget.value)}
+                        />
+
                         <Select
+                            searchable
                             value={type ?? ""}
                             label={t("common.Type")}
                             data={[
@@ -83,6 +99,7 @@ const DomainDnsTab = () => {
                         />
 
                         <Select
+                            searchable
                             value={host ?? ""}
                             label={t("common.Host")}
                             data={[

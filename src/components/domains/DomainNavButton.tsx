@@ -18,10 +18,10 @@ const DomainNavButton = ({ domain, index = 0 }: DomainNavButtonProps) => {
 
     const domainId = useSearchParamId({ key: "domainId", type: "number" });
 
-    const { capitalizeDomainNames } = useSettingsContext();
+    const { allowAnimations, capitalizeDomainNames } = useSettingsContext();
 
     return (
-        <Transition mounted={isMounted} enterDelay={index * 100} transition="fade-right">
+        <Transition mounted={isMounted} enterDelay={allowAnimations ? index * 100 : 0} transition="fade-right" duration={allowAnimations ? undefined : 0}>
             {style => (
                 <li style={style}>
                     <Button

@@ -1,4 +1,5 @@
 import ProfileGetModel from "@/types/profiles/ProfileGetModel";
+import CredentialsTester from "./CredentialsTester";
 
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { Button, Modal, TextInput } from "@mantine/core";
@@ -6,7 +7,6 @@ import { notifications } from "@mantine/notifications";
 import { IconAlertCircle, IconChevronLeft, IconDeviceFloppy } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { t } from "i18next";
-import CredentialsTester from "./CredentialsTester";
 
 type CreateEditProfileModalProps = {
     show?: boolean;
