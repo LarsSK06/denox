@@ -1,7 +1,7 @@
 "use client";
 
 import { ActionIcon, Menu, Paper, Skeleton, Text } from "@mantine/core";
-import { IconDots, IconShieldLock } from "@tabler/icons-react";
+import { IconDots, IconInfoCircle, IconShieldLock } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { t } from "i18next";
 
@@ -33,6 +33,10 @@ const Footer = () => {
                     <Menu.Dropdown>
                         <Menu.Item component={Link} href="/do-not-sell-my-data" leftSection={<IconShieldLock />}>
                             {t("other.DoNotSellMyData")}
+                        </Menu.Item>
+
+                        <Menu.Item component={Link} href="/technical-info" leftSection={<IconInfoCircle />}>
+                            {t("common.TechnicalInfo")}
                         </Menu.Item>
                     </Menu.Dropdown>
                 </Menu>

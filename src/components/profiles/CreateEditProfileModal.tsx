@@ -1,8 +1,7 @@
 import ProfileGetModel from "@/types/profiles/ProfileGetModel";
-import CredentialsTester from "./CredentialsTester";
 
 import { useDbContext } from "@/utils/contexts/useDbContext";
-import { Button, Modal, TextInput } from "@mantine/core";
+import { Button, Checkbox, Collapse, Modal, PasswordInput, TextInput } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconAlertCircle, IconChevronLeft, IconDeviceFloppy } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
@@ -21,11 +20,10 @@ const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditP
     const [name, setName] = useState<string>("");
     const [token, setToken] = useState<string>("");
     const [secret, setSecret] = useState<string>("");
+    const [isPasswordProtected, setIsPasswordProtected] = useState<boolean>(false);
+    const [password, setPassword] = useState<string>("");
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
-
-    const [isFormDisabled, setIsFormDisabled] = useState<boolean>(false);
-    const [isCredentialsValid, setIsCredentialsValid] = useState<boolean>(false);
 
     const { database } = useDbContext();
 
@@ -38,6 +36,8 @@ const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditP
         setName(localProfile?.name ?? "");
         setToken(localProfile?.token ?? "");
         setSecret(localProfile?.secret ?? "");
+        setIsPasswordProtected(localProfile?.isPasswordProtected ?? false);
+        setPassword("");
     }, [localProfile]);
 
     const handleClose = () => {
@@ -45,6 +45,8 @@ const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditP
             setName("");
             setToken("");
             setSecret("");
+            setIsPasswordProtected(false);
+            setPassword("");
         }, 300);
 
         onClose();
@@ -58,17 +60,17 @@ const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditP
                 ? database.execute(
                     `
                     UPDATE profiles
-                    SET name = $1, token = $2, secret = $3, editedAt = $4
-                    WHERE id = $5
+                    SET name = $1, isPasswordProtected = $2, token = $3, secret = $4, editedAt = $5
+                    WHERE id = $6
                     `,
-                    [name, token, secret, Date.now(), localProfile.id]
+                    [name, isPasswordProtected, token, secret, Date.now(), localProfile.id]
                 )
                 : database.execute(
                     `
-                    INSERT INTO profiles (name, token, secret, createdAt)
-                    VALUES ($1, $2, $3, $4)
+                    INSERT INTO profiles (name, isPasswordProtected, token, secret, createdAt)
+                    VALUES ($1, $2, $3, $4, $5)
                     `,
-                    [name, token, secret, Date.now()]
+                    [name, isPasswordProtected, token, secret, Date.now()]
                 )
         ).then(() => {
             handleClose();
@@ -95,26 +97,65 @@ const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditP
                     ? t("other.EditItem", { item: localProfile.name })
                     : t("profiles.CreateProfile")
             }>
-            <form className="flex flex-col items-start gap-2">
-                <TextInput className="w-full" label={t("common.Name")} value={name} onChange={event => setName(event.currentTarget.value)} />
-                <TextInput className="w-full" label={t("common.Token")} value={token} onChange={event => setToken(event.currentTarget.value)} disabled={isFormDisabled} />
-                <TextInput className="w-full" label={t("common.Secret")} value={secret} onChange={event => setSecret(event.currentTarget.value)} disabled={isFormDisabled} />
-
-                <CredentialsTester
-                    token={token}
-                    secret={secret}
-                    setIsDisabled={setIsFormDisabled}
-                    setIsCredentialsValid={setIsCredentialsValid}
+            <form className="flex flex-col items-start gap-4">
+                <TextInput
+                    required
+                    className="w-full"
+                    label={t("common.Name")}
+                    value={name}
+                    onChange={event => setName(event.currentTarget.value)}
                 />
-            </form>
 
+                <TextInput
+                    required
+                    className="w-full"
+                    label={t("common.Token")}
+                    value={token}
+                    onChange={event => setToken(event.currentTarget.value)}
+                />
+
+                <PasswordInput
+                    required
+                    className="w-full"
+                    label={t("common.Secret")}
+                    value={secret}
+                    onChange={event => setSecret(event.currentTarget.value)}
+                />
+
+                <Checkbox
+                    label={t("common.PasswordProtected")}
+                    checked={isPasswordProtected}
+                    onChange={event => setIsPasswordProtected(event.currentTarget.checked)}
+                    disabled={!!localProfile}
+                />
+
+                <Collapse className="w-full" in={isPasswordProtected && !localProfile}>
+                    <PasswordInput
+                        required
+                        className="w-full"
+                        label={t("common.Password")}
+                        value={password}
+                        onChange={event => setPassword(event.currentTarget.value)}
+                    />
+                </Collapse>
+            </form>
 
             <div className="mt-4 flex justify-end gap-2">
                 <Button leftSection={<IconChevronLeft />} onClick={() => handleClose()} loading={isLoading} variant="subtle">
                     {t("common.Cancel")}
                 </Button>
 
-                <Button className="transition-colors" disabled={!isCredentialsValid} leftSection={<IconDeviceFloppy />} onClick={() => handleSave()} loading={isLoading}>
+                <Button
+                    className="transition-colors"
+                    leftSection={<IconDeviceFloppy />}
+                    onClick={() => handleSave()}
+                    loading={isLoading}
+                    disabled={
+                        !name ||
+                        !token ||
+                        !secret ||
+                        (isPasswordProtected && !password)
+                    }>
                     {t("common.Save")}
                 </Button>
             </div>

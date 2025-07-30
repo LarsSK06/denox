@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionIcon, Button, Divider, Paper } from "@mantine/core";
+import { ActionIcon, Button, Divider, Paper, Tabs } from "@mantine/core";
 import { IconAntenna, IconFileDollar, IconMaximize, IconMinus, IconX } from "@tabler/icons-react";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
 import { useEffect, useState } from "react";
@@ -57,7 +57,8 @@ const Titlebar = () => {
             withBorder
             data-tauri-drag-region
             component="header"
-            className="flex justify-between border-t-0 border-r-0 border-l-0 rounded-none">
+            className="flex justify-between border-t-0 border-r-0 border-l-0 rounded-none"
+            aria-label={t("common.Titlebar")}>
             <div className="px-1 flex items-center gap-2">
                 <Logo width={28} height={28} aria-hidden />
 

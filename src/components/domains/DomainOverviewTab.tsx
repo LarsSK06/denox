@@ -2,8 +2,9 @@
 
 import DomainGetModel from "@/types/domains/DomainGetModel";
 import DomainPeriodProgressCircle from "./DomainPeriodProgressCircle";
-import DomainBasicDataContainer from "./DomainBasicDataContainer";
 import DomainStatusChip from "./DomainStatusChip";
+import DomainNameserversList from "./DomainNameserversList";
+import DomainServicesContainer from "./DomainServicesContainer";
 
 import { Transition } from "@mantine/core";
 import { dummyDomain } from "@/utils/globals";
@@ -22,14 +23,16 @@ const DomainOverviewTab = ({ isDomainLoading, domain: _domain }: DomainOverviewT
     return (
         <Transition mounted={!isDomainLoading} exitDuration={0} transition="fade-up" duration={allowAnimations ? undefined : 0}>
             {style => (
-                <div className="w-full flex flex-col gap-8" style={style}>
+                <div className="w-full p-2 flex flex-col gap-8" style={style}>
                     <DomainPeriodProgressCircle domain={domain} />
 
                     <div className="w-fit mx-auto">
                         <DomainStatusChip status={domain.status} />
                     </div>
 
-                    <DomainBasicDataContainer domain={domain} />
+                    <DomainServicesContainer domain={domain} />
+
+                    <DomainNameserversList domain={domain} />
                 </div>
             )}
         </Transition>

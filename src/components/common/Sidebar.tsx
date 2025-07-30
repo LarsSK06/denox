@@ -4,6 +4,7 @@ import ParentProps from "@/types/common/ParentProps";
 import usePrimaryColorShade from "@/utils/hooks/usePrimaryColorShade";
 
 import { Paper } from "@mantine/core";
+import { t } from "i18next";
 import { ComponentProps, useEffect, useRef, useState } from "react";
 
 type SidebarProps = {
@@ -64,7 +65,7 @@ const Sidebar = ({
 
     return (
         <Paper withBorder component="aside" ref={paperRef} style={{ width }} className="h-full border-t-0 border-b-0 border-l-0 rounded-none relative" {...restProps}>
-            <button onMouseDown={onMouseDown} onKeyDown={onKeyDown} className="w-[8px] h-full absolute top-0 right-[-4px] z-1 group outline-none" style={{ cursor: isGrabbing ? "grabbing" : "grab" }}>
+            <button onMouseDown={onMouseDown} onKeyDown={onKeyDown} className="w-[8px] h-full absolute top-0 right-[-4px] z-1 group outline-none" style={{ cursor: isGrabbing ? "grabbing" : "grab" }} aria-label={t("common.ResizeSidebar")}>
                 <div className="w-0 h-full mx-auto group-hover:w-full group-focus-visible:w-full transition-all" style={{ width: isGrabbing ? "100%" : undefined, backgroundColor: primaryColorShade }} />
             </button>
 

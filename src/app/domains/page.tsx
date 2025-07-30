@@ -6,19 +6,17 @@ import DomainGetModel from "@/types/domains/DomainGetModel";
 import Endpoint from "@/types/http/Endpoint";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import useSearchParamId from "@/utils/hooks/useSearchParamId";
-import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
 import IllustrationIcons from "@/components/illustrations/IllustrationIcons";
 import useMount from "@/utils/hooks/useMount";
 
-import { IconAddressBook, IconBolt, IconCloudComputing, IconRestore } from "@tabler/icons-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ActionIcon, SegmentedControl, Tooltip, Transition } from "@mantine/core";
+import { Tabs, Transition } from "@mantine/core";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 import { t } from "i18next";
 
 const Page = () => {
-    const [tab, setTab] = useState<"overview" | "dns" | null>("overview");
+    const [tab, setTab] = useState<"overview" | "dns">("overview");
 
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -49,59 +47,78 @@ const Page = () => {
     }, [domainId]);
 
     return domainId ? (
-        <div className="h-full p-2 overflow-auto">
+        <div className="h-full overflow-auto">
             <Transition mounted={isMounted} transition="fade-up" duration={allowAnimations ? undefined : 0}>
                 {style => (
                     <div className="flex gap-2 items-center" style={style}>
-                        <SegmentedControl
-                            value={tab ?? undefined}
-                            data={[
-                                { value: "overview", label: t("common.Overview") },
-                                { value: "dns", label: t("dnsRecords.DnsRecords") }
-                            ]}
-                            onChange={value => router.replace(`/domains?domainId=${domainId}&tab=${value}`)}
-                        />
+                        <Tabs className="w-full" value={tab} onChange={value => router.replace(`/domains?domainId=${domainId}&tab=${value}`)}>
+                            <Tabs.List className="mb-4">
+                                <Tabs.Tab value="overview">
+                                    {t("common.Overview")}
+                                </Tabs.Tab>
 
-                        <Tooltip label={t("common.Renew")}>
-                            <ActionIcon variant="subtle" component="a" href={`https://domene.shop/admin?id=${domainId}&command=renew`} onClick={openInBrowserOnClick()}>
-                                <IconRestore />
-                            </ActionIcon>
-                        </Tooltip>
+                                <Tabs.Tab value="dns">
+                                    {t("dnsRecords.DnsRecords")}
+                                </Tabs.Tab>
+                            </Tabs.List>
+                            
+                            <Tabs.Panel value="overview">
+                                <DomainOverviewTab isDomainLoading={isDomainLoading} domain={domain} />
+                            </Tabs.Panel>
 
-                        <Tooltip label={t("other.EditContactInfo")}>
-                            <ActionIcon variant="subtle" component="a" href={`https://domene.shop/admin?id=${domainId}&edit=contacts`} onClick={openInBrowserOnClick()}>
-                                <IconAddressBook />
-                            </ActionIcon>
-                        </Tooltip>
+                            <Tabs.Panel value="dns">
+                                <DomainDnsTab />
+                            </Tabs.Panel>
+                        </Tabs>
 
-                        <Tooltip label={t("domains.EditNameservers")}>
-                            <ActionIcon variant="subtle" component="a" href={`https://domene.shop/admin?id=${domainId}&edit=ns`} onClick={openInBrowserOnClick()}>
-                                <IconCloudComputing />
-                            </ActionIcon>
-                        </Tooltip>
+                        {/* <Menu position="bottom-start">
+                            <Menu.Target>
+                                <ActionIcon variant="subtle" aria-label={t("common.Actions")}>
+                                    <IconDots />
+                                </ActionIcon>
+                            </Menu.Target>
 
-                        <Tooltip label={t("other.OrderUpgrade")}>
-                            <ActionIcon variant="subtle" component="a" href={`https://domene.shop/admin?id=${domainId}&view=upgrade`} onClick={openInBrowserOnClick()}>
-                                <IconBolt />
-                            </ActionIcon>
-                        </Tooltip>
+                            <Menu.Dropdown>
+                                <Menu.Item
+                                    leftSection={<IconRestore />}
+                                    component="a"
+                                    href={`https://domene.shop/admin?id=${domainId}&command=renew`}
+                                    onClick={openInBrowserOnClick()}>
+                                    {t("common.Renew")}
+                                </Menu.Item>
+
+                                <Menu.Item
+                                    leftSection={<IconAddressBook />}
+                                    component="a"
+                                    href={`https://domene.shop/admin?id=${domainId}&edit=contacts`}
+                                    onClick={openInBrowserOnClick()}>
+                                    {t("other.EditContactInfo")}
+                                </Menu.Item>
+
+                                <Menu.Item
+                                    leftSection={<IconCloudComputing />}
+                                    component="a"
+                                    href={`https://domene.shop/admin?id=${domainId}&edit=ns`}
+                                    onClick={openInBrowserOnClick()}>
+                                    {t("domains.EditNameservers")}
+                                </Menu.Item>
+
+                                <Menu.Item
+                                    leftSection={<IconBolt />}
+                                    component="a"
+                                    href={`https://domene.shop/admin?id=${domainId}&view=upgrade`}
+                                    onClick={openInBrowserOnClick()}>
+                                    {t("other.OrderUpgrade")}
+                                </Menu.Item>
+                            </Menu.Dropdown>
+                        </Menu> */}
                     </div>
                 )}
             </Transition>
-
-            <div className="mt-2" aria-live="assertive">
-                {tab === "overview" || tab === null ? (
-                    <DomainOverviewTab isDomainLoading={isDomainLoading} domain={domain} />
-                ) : null}
-
-                {tab === "dns" ? (
-                    <DomainDnsTab />
-                ) : null}
-            </div>
         </div>
     ) : (
         <div className="w-full h-full flex justify-center items-center">
-            <IllustrationIcons scale={.75} />
+            <IllustrationIcons scale={.75} aria-hidden />
         </div>
     );
 };

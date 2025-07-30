@@ -1,7 +1,7 @@
 enum DomainWebHotelSize {
     None = "none",
-    Medium = "webmedium",
     Small = "websmall",
+    Medium = "webmedium",
     Large = "weblarge",
     XLarge = "webxlarge"
 }

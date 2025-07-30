@@ -1,9 +1,7 @@
 import DomainStatus from "@/types/domains/DomainStatus";
 import translateDomainStatus from "@/utils/functions/translateDomainStatus";
-import useColorScheme from "@/utils/hooks/useColorScheme";
+import ColoredPill from "../common/ColoredPill";
 
-import { Paper, Text, useMantineTheme } from "@mantine/core";
-import { t } from "i18next";
 import { useMemo } from "react";
 
 type DomainStatusChipProps = {
@@ -11,54 +9,19 @@ type DomainStatusChipProps = {
 };
 
 const DomainStatusChip = ({ status }: DomainStatusChipProps) => {
-    const mantineTheme = useMantineTheme();
-
-    const { isDark: isColorSchemeDark } = useColorScheme();
-
-    const [backgroundColor, borderColor] = useMemo(() => {
-        let mantineColorTuple;
-
+    const color = useMemo(() => {
         switch (status) {
-            case DomainStatus.Active:
-                mantineColorTuple = mantineTheme.colors.green;
-                break;
-
-            case DomainStatus.Expired:
-                mantineColorTuple = mantineTheme.colors.blue;
-                break;
-
-            case DomainStatus.Deactivated:
-                mantineColorTuple = mantineTheme.colors.red;
-                break;
-
-            case DomainStatus.PendingDeleteRestorable:
-                mantineColorTuple = mantineTheme.colors.yellow;
-                break;    
+            case DomainStatus.Active: return "green";
+            case DomainStatus.Expired: return "blue";
+            case DomainStatus.Deactivated: return "red";
+            case DomainStatus.PendingDeleteRestorable: return "yellow";
         }
-
-        return [mantineColorTuple[isColorSchemeDark ? 9 : 2], mantineColorTuple[isColorSchemeDark ? 2 : 9]] as [string, string];
     }, [status]);
 
     return (
-        <Paper withBorder styles={{ root: { borderColor, backgroundColor } }} className="w-fit px-4 py-1 rounded-full">
-            <table>
-                <tbody>
-                    <tr>
-                        <th>
-                            <span className="sr-only">
-                                {t("common.Status")}
-                            </span>
-                        </th>
-
-                        <td>
-                            <Text style={{ color: borderColor }}>
-                                {translateDomainStatus(status)}
-                            </Text>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </Paper>
+        <ColoredPill color={color} size="xl">
+            {translateDomainStatus(status)}
+        </ColoredPill>
     );
 };
 

@@ -18,7 +18,7 @@
             "Registrar": "Registrar",
             "DNS": "DNS",
             "Email": "Email",
-            "Webhotel": "Web hotel",
+            "WebHotel": "Web hotel",
             "Active": "Active",
             "Expired": "Expired",
             "Deactivated": "Deactivated",
@@ -70,7 +70,18 @@
             "Pay": "Pay",
             "ViewInBrowser": "View in browser",
             "DownloadAsPdf": "Download as PDF",
-            "OpenPdf": "Open PDF"
+            "OpenPdf": "Open PDF",
+            "TechnicalInfo": "Technical information",
+            "Titlebar": "Titlebar",
+            "ResizeSidebar": "Resize sidebar",
+            "PasswordProtected": "Password-protected",
+            "Password": "Password",
+            "None": "None",
+            "Small": "Small",
+            "Medium": "Medium",
+            "Large": "Large",
+            "ExtraLarge": "Extra large",
+            "Services": "Services"
         },
         "domains": {
             "Domain": "Domain",
@@ -83,6 +94,7 @@
         "dnsRecords": {
             "DnsRecords": "DNS records",
             "NewDnsRecord": "New DNS record",
+            "NewDnsRecordError": "Could not add new DNS record",
             "EditDnsRecord": "Edit DNS record",
             "EditDnsRecords": "Edit DNS records",
             "DeleteDnsRecords": "Delete {{count}} DNS records",

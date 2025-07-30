@@ -19,7 +19,7 @@ type UseHttpClientOptions<ResponseBody, RequestBody> = {
     }
 };
 
-const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(options: UseHttpClientOptions<ResponseBody, RequestBody> | ((...params: any[]) => UseHttpClientOptions<ResponseBody, RequestBody>)) => {
+const useHttpClient = <ResponseBody extends {} | [] | undefined, RequestBody = undefined>(options: UseHttpClientOptions<ResponseBody, RequestBody> | ((...params: any[]) => UseHttpClientOptions<ResponseBody, RequestBody>)) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<ResponseBody | null>(null);
 

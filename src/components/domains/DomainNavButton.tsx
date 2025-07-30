@@ -5,8 +5,9 @@ import useSearchParamId from "@/utils/hooks/useSearchParamId";
 import Link from "next/link";
 import useMount from "@/utils/hooks/useMount";
 
-import { Button, Transition } from "@mantine/core";
+import { NavLink, Transition } from "@mantine/core";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
+import { IconChevronRight } from "@tabler/icons-react";
 
 type DomainNavButtonProps = {
     domain: DomainGetModel;
@@ -17,23 +18,29 @@ const DomainNavButton = ({ domain, index = 0 }: DomainNavButtonProps) => {
     const isMounted = useMount();
 
     const domainId = useSearchParamId({ key: "domainId", type: "number" });
+    const isActive = `${domainId}` === `${domain.id}`;
 
     const { allowAnimations, capitalizeDomainNames } = useSettingsContext();
 
     return (
         <Transition mounted={isMounted} enterDelay={allowAnimations ? index * 100 : 0} transition="fade-right" duration={allowAnimations ? undefined : 0}>
             {style => (
-                <li style={style}>
-                    <Button
-                        fullWidth
-                        component={Link}
-                        variant={`${domainId}` === `${domain.id}` ? "light" : "subtle"}
-                        styles={{ inner: { justifyContent: "start" } }}
-                        href={`/domains?domainId=${domain.id}`}
-                        className="rounded-none">
-                        {capitalizeDomainNames ? domain.domain.toUpperCase() : domain.domain.toLowerCase()}
-                    </Button>
-                </li>
+                <NavLink
+                    key={domain.id}
+                    active={isActive}
+                    variant="filled"
+                    href={`/domains?domainId=${domain.id}`}
+                    label={capitalizeDomainNames ? domain.domain.toUpperCase() : domain.domain.toLowerCase()}
+                    component={Link}
+                    rightSection={
+                        <Transition mounted={isActive} transition="fade-right" duration={allowAnimations ? undefined : 0}>
+                            {iconStyle => (
+                                <IconChevronRight style={iconStyle} />
+                            )}
+                        </Transition>
+                    }
+                    style={style}
+                />
             )}
         </Transition>
     );

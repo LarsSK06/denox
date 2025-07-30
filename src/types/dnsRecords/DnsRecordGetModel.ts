@@ -6,8 +6,21 @@ type DnsRecordGetModel = {
     ttl?: number;
     type: DnsRecordType;
     data: string;
+    /**
+     * Exclusively for:
+     * - MX
+     * - SRV
+     */
     priority?: number;
+    /**
+     * Exclusively for:
+     * - SRV
+     */
     weight?: number;
+    /**
+     * Exclusively for:
+     * - SRV
+     */
     port?: number;
 };
 

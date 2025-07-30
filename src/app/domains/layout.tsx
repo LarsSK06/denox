@@ -9,6 +9,7 @@ import getArrayFromNumber from "@/utils/functions/getArrayFromNumber";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 
 import { Skeleton } from "@mantine/core";
+import { t } from "i18next";
 import { useEffect } from "react";
 
 const Layout = ({ children }: ParentProps) => {
@@ -26,7 +27,7 @@ const Layout = ({ children }: ParentProps) => {
     return (
         <div className="h-full flex">
             <Sidebar>
-                <ul className="h-full overflow-auto">
+                <nav className="h-full overflow-auto" aria-label={t("domains.Domains")}>
                     {isDomainsLoading ? (
                         getArrayFromNumber(15).map(i => (
                             <Skeleton component="li" key={i} />
@@ -36,7 +37,7 @@ const Layout = ({ children }: ParentProps) => {
                             <DomainNavButton domain={domain} index={i} key={domain.id} />
                         ))
                     )}
-                </ul>
+                </nav>
             </Sidebar>
 
             <main className="flex-grow">
