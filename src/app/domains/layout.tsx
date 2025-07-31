@@ -27,10 +27,10 @@ const Layout = ({ children }: ParentProps) => {
     return (
         <div className="h-full flex">
             <Sidebar>
-                <nav className="h-full overflow-auto" aria-label={t("domains.Domains")}>
+                <nav className="h-full overflow-auto" aria-label={t("domains.Domains")} aria-busy={isDomainsLoading} aria-live="assertive">
                     {isDomainsLoading ? (
-                        getArrayFromNumber(15).map(i => (
-                            <Skeleton component="li" key={i} />
+                        getArrayFromNumber(domains?.length ?? 15).map(i => (
+                            <Skeleton component="li" className="rounded-none" height={40.8} key={i} />
                         ))
                     ) : (
                         domains?.map((domain, i) => (
