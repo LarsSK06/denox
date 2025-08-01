@@ -4,6 +4,7 @@ import ParentProps from "@/types/common/ParentProps";
 
 import { createTheme, MantineProvider } from "@mantine/core";
 import { SettingsContextProvider } from "@/utils/contexts/useSettingsContext";
+import { PositionContextProvider } from "@/utils/contexts/usePositionContext";
 import { ProfileContextProvider } from "@/utils/contexts/useProfileContext";
 import { DbContextProvider } from "@/utils/contexts/useDbContext";
 import { Notifications } from "@mantine/notifications";
@@ -19,8 +20,10 @@ const Providers = ({ children }: ParentProps) => (
         <DbContextProvider>
             <SettingsContextProvider>
                 <ProfileContextProvider>
-                    <Notifications />
-                    {children}
+                    <PositionContextProvider>
+                        <Notifications />
+                        {children}
+                    </PositionContextProvider>
                 </ProfileContextProvider>
             </SettingsContextProvider>
         </DbContextProvider>

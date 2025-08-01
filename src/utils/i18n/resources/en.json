@@ -96,6 +96,7 @@
             "NewDnsRecord": "New DNS record",
             "NewDnsRecordError": "Could not add new DNS record",
             "EditDnsRecord": "Edit DNS record",
+            "EditDnsRecordError": "Could not edit DNS record",
             "EditDnsRecords": "Edit DNS records",
             "DeleteDnsRecords": "Delete {{count}} DNS records",
             "DeleteDnsRecords_one": "Delete {{count}} DNS record",

@@ -8,9 +8,9 @@ import Endpoint from "@/types/http/Endpoint";
 import getArrayFromNumber from "@/utils/functions/getArrayFromNumber";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 
+import { useEffect } from "react";
 import { Skeleton } from "@mantine/core";
 import { t } from "i18next";
-import { useEffect } from "react";
 
 const Layout = ({ children }: ParentProps) => {
 

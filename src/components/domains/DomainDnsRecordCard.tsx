@@ -1,6 +1,6 @@
 import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
 
-import { ActionIcon, Checkbox, Menu, Paper, Table } from "@mantine/core";
+import { ActionIcon, Menu, Paper, Table } from "@mantine/core";
 import { IconDots, IconPencil, IconTrash } from "@tabler/icons-react";
 import { Dispatch, SetStateAction } from "react";
 import { t } from "i18next";
@@ -8,31 +8,16 @@ import { t } from "i18next";
 type DomainDnsRecordCardProps = {
     dnsRecord: DnsRecordGetModel;
     isQuickEditMode: boolean;
-    selectedDnsRecordIds: number[];
-    setSelectedDnsRecordIds: Dispatch<SetStateAction<number[]>>;
     setDnsRecordToEdit: Dispatch<SetStateAction<DnsRecordGetModel | null>>;
 };
 
 const DomainDnsRecordCard = ({
     dnsRecord,
     isQuickEditMode,
-    selectedDnsRecordIds,
-    setSelectedDnsRecordIds,
     setDnsRecordToEdit
 }: DomainDnsRecordCardProps) => {
     return (
         <Paper withBorder shadow="sm" component="li" className="flex p-2 gap-4">
-            <div className="flex items-center">
-                <Checkbox
-                    checked={selectedDnsRecordIds.includes(dnsRecord.id)}
-                    onChange={event => {
-                        if (event.currentTarget.checked)
-                            setSelectedDnsRecordIds([...selectedDnsRecordIds, dnsRecord.id]);
-                        else setSelectedDnsRecordIds(selectedDnsRecordIds.filter(id => id !== dnsRecord.id));
-                    }}
-                />
-            </div>
-
             <Table>
                 <Table.Tbody>
                     <Table.Tr>

@@ -61,13 +61,40 @@ const CreateEditDnsRecordModal = ({ show, domainId, dnsRecord, refresh, onClose 
         }
     });
 
+    const {
+        isLoading: isEditDnsRecordLoading,
+        call: editDnsRecord
+    } = useHttpClient<{}, DnsRecordPostModel>({
+        endpoint: [Endpoint.Domains, domainId, Endpoint.DNS, dnsRecord?.id],
+        method: "PUT",
+        body: {
+            host,
+            ttl,
+            type,
+            data,
+            priority,
+            weight,
+            port
+        }
+    });
+
     const handleSave = () => {
-        createDnsRecord()
-            .then(() => {
-                handleClose();
-                refresh?.();
-            })
-            .catch(handleErrorMessage(t("dnsRecords.CreateDnsRecordError")))
+        if (dnsRecord) {
+            editDnsRecord()
+                .then(() => {
+                    handleClose();
+                    refresh?.();
+                })
+                .catch(handleErrorMessage(t("dnsRecords.EditDnsRecordError")));
+        }
+        else {
+            createDnsRecord()
+                .then(() => {
+                    handleClose();
+                    refresh?.();
+                })
+                .catch(handleErrorMessage(t("dnsRecords.NewDnsRecordError")));
+        }
     };
 
     const handleClose = () => {
@@ -88,12 +115,16 @@ const CreateEditDnsRecordModal = ({ show, domainId, dnsRecord, refresh, onClose 
     const isWeightRequired = useMemo(() => type === DnsRecordType.SRV, [type]);
     const isPortRequired = useMemo(() => type === DnsRecordType.SRV, [type]);
 
+    const isLoadingGenerally =
+        isCreateDnsRecordLoading ||
+        isEditDnsRecordLoading;
+
     return (
         <Modal
             centered
             opened={!!show}
             onClose={handleClose}
-            title={t("dnsRecords.NewDnsRecord")}>
+            title={dnsRecord ? t("dnsRecords.EditDnsRecord") : t("dnsRecords.NewDnsRecord")}>
             <form className="flex flex-col items-start gap-4">
                 <Select
                     required
@@ -159,7 +190,7 @@ const CreateEditDnsRecordModal = ({ show, domainId, dnsRecord, refresh, onClose 
                 ) : null}
 
                 <div className="w-full mt-4 flex justify-end gap-2">
-                    <Button leftSection={<IconChevronLeft />} onClick={() => handleClose()} loading={isCreateDnsRecordLoading} variant="subtle">
+                    <Button leftSection={<IconChevronLeft />} onClick={() => handleClose()} loading={isLoadingGenerally} variant="subtle">
                         {t("common.Cancel")}
                     </Button>
     
@@ -167,7 +198,7 @@ const CreateEditDnsRecordModal = ({ show, domainId, dnsRecord, refresh, onClose 
                         className="transition-colors"
                         leftSection={<IconDeviceFloppy />}
                         onClick={() => handleSave()}
-                        loading={isCreateDnsRecordLoading}
+                        loading={isLoadingGenerally}
                         disabled={
                             !host ||
                             !ttl ||

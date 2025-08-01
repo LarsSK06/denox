@@ -33,7 +33,9 @@
             "icons/logo.png",
             "icons/logo.ico"
         ],
-        "createUpdaterArtifacts": true
+        "createUpdaterArtifacts": true,
+        "copyright": "Lars Kvihaugen",
+        "publisher": "Lars Kvihaugen"
     },
     "plugins": {
         "updater": {

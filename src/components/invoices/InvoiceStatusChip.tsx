@@ -1,8 +1,7 @@
 import InvoiceStatus from "@/types/invoices/InvoiceStatus";
 import translateInvoiceStatus from "@/utils/functions/translateInvoiceStatus";
-import useColorScheme from "@/utils/hooks/useColorScheme";
+import ColoredPill from "../common/ColoredPill";
 
-import { Pill, useMantineTheme } from "@mantine/core";
 import { useMemo } from "react";
 
 type InvoiceStatusChipProps = {
@@ -10,35 +9,21 @@ type InvoiceStatusChipProps = {
 };
 
 const InvoiceStatusChip = ({ status }: InvoiceStatusChipProps) => {
-    const mantineTheme = useMantineTheme();
-    
-        const { isDark: isColorSchemeDark } = useColorScheme();
-    
-        const [backgroundColor, borderColor] = useMemo(() => {
-            let mantineColorTuple;
-    
-            switch (status) {
-                case InvoiceStatus.Unpaid:
-                    mantineColorTuple = mantineTheme.colors.red;
-                    break;
+    const color = useMemo(() => {
+        switch (status) {
+            case InvoiceStatus.Unpaid: return "red";
 
-                case InvoiceStatus.Paid:
-                    mantineColorTuple = mantineTheme.colors.green;
-                    break;
+            case InvoiceStatus.Paid: return "green";
 
-                case InvoiceStatus.Settled:
-                    mantineColorTuple = mantineTheme.colors.yellow;
-                    break;
-            }
-    
-            return [mantineColorTuple[isColorSchemeDark ? 9 : 2], mantineColorTuple[isColorSchemeDark ? 2 : 9]] as [string, string];
-        }, [status]);
-    
-        return (
-            <Pill styles={{ root: { backgroundColor, borderColor, borderWidth: "1px" } }} aria-hidden>
-                {translateInvoiceStatus(status)}
-            </Pill>
-        );
+            case InvoiceStatus.Settled: return "yellow";
+        }
+    }, [status]);
+
+    return (
+        <ColoredPill color={color}>
+            {translateInvoiceStatus(status)}
+        </ColoredPill>
+    );
 };
 
 export default InvoiceStatusChip;

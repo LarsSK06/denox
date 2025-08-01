@@ -63,7 +63,7 @@ const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(op
             },
             body: body && JSON.stringify(body)
         }).then(async response => {
-            if (!response.ok) return reject(await response.json());
+            if (!response.ok) return reject((await response.json()).code);
 
             response.json().then(json => {
                 const formattedJson = (

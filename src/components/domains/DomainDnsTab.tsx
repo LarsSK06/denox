@@ -4,7 +4,6 @@ import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
 import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
 import Endpoint from "@/types/http/Endpoint";
 import useHttpClient from "@/utils/hooks/useHttpClient";
-import useSearchParamId from "@/utils/hooks/useSearchParamId";
 import DomainDnsRecordCard from "./DomainDnsRecordCard";
 import CreateEditDnsRecordModal from "./CreateEditDnsRecordModal";
 
@@ -13,6 +12,7 @@ import { IconPlus, IconRefresh, IconTrash } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 import { t } from "i18next";
+import { usePositionContext } from "@/utils/contexts/usePositionContext";
 
 const DomainDnsTab = () => {
     const [searchText, setSearchText] = useState<string>("");
@@ -25,16 +25,15 @@ const DomainDnsTab = () => {
     const [pageNumber, setPageNumber] = useState<number>(0);
 
     const [isQuickEditMode, setIsQuickEditMode] = useState<boolean>(false);
-    const [selectedDnsRecordIds, setSelectedDnsRecordIds] = useState<number[]>([]);
 
     const [showCreateEditDnsRecordModal, setShowCreateEditDnsRecordModal] = useState<boolean>(false);
     const [dnsRecordToEdit, setDnsRecordToEdit] = useState<DnsRecordGetModel | null>(null);
 
-    const domainId = useSearchParamId({ key: "domainId", type: "number" });
+    const { domainId } = usePositionContext();
 
     const {
-        isLoading: isDnsRecordsLoading,
         data: dnsRecords,
+        setData: setDnsRecords,
         call: getDnsRecords
     } = useHttpClient<DnsRecordGetModel[]>({ endpoint: [Endpoint.Domains, domainId, Endpoint.DNS] });
 
@@ -56,9 +55,10 @@ const DomainDnsTab = () => {
             ));
 
     useEffect(() => {
-        if (!domainId) return;
+        if (!domainId) setDnsRecords(null);
+        else getDnsRecords();
 
-        getDnsRecords();
+        return () => setDnsRecords(null);
     }, [domainId]);
 
     useEffect(() => {
@@ -118,7 +118,7 @@ const DomainDnsTab = () => {
                 }}
             />
 
-            <Transition mounted={!isDnsRecordsLoading} transition="fade-up" exitDuration={0} duration={allowAnimations ? undefined : 0}>
+            <Transition mounted={!!dnsRecords} transition="fade-up" exitDuration={0} duration={allowAnimations ? undefined : 0}>
                 {style => (
                     <div className="w-full p-2 flex flex-col gap-2" style={style}>
                         <Paper withBorder shadow="sm" className="p-2 flex items-end gap-2">
@@ -159,10 +159,6 @@ const DomainDnsTab = () => {
                             <Button leftSection={<IconPlus />} onClick={() => setShowCreateEditDnsRecordModal(true)}>
                                 {t("dnsRecords.NewDnsRecord")}
                             </Button>
-
-                            <Button leftSection={<IconTrash />} color="red" disabled={selectedDnsRecordIds.length === 0} className="transition-colors">
-                                {t("dnsRecords.DeleteDnsRecords", { count: selectedDnsRecordIds.length })}
-                            </Button>
                         </div>
 
                         <ul className="flex flex-col gap-2">
@@ -171,8 +167,6 @@ const DomainDnsTab = () => {
                                     dnsRecord={dnsRecord}
                                     isQuickEditMode={isQuickEditMode}
                                     key={dnsRecord.id}
-                                    selectedDnsRecordIds={selectedDnsRecordIds}
-                                    setSelectedDnsRecordIds={setSelectedDnsRecordIds}
                                     setDnsRecordToEdit={setDnsRecordToEdit}
                                 />
                             ))}
