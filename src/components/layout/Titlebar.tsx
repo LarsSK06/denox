@@ -1,7 +1,7 @@
 "use client";
 
-import { ActionIcon, Button, Divider, Paper, Tabs } from "@mantine/core";
-import { IconAntenna, IconFileDollar, IconMaximize, IconMinus, IconX } from "@tabler/icons-react";
+import { ActionIcon, Button, Divider, Paper, Tabs, Tooltip } from "@mantine/core";
+import { IconAntenna, IconFileDollar, IconMaximize, IconMinus, IconUsers, IconX } from "@tabler/icons-react";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
 import { useEffect, useState } from "react";
 import { getCurrentWindow, Window } from "@tauri-apps/api/window";
@@ -16,31 +16,7 @@ import Link from "next/link";
 const Titlebar = () => {
     const [currentWindow, setCurrentWindow] = useState<Window | null>(null);
 
-    const { profile: currentProfile, setProfile: setCurrentProfile } = useProfileContext();
-
-    const { call: getProfiles } = useDbSelect<ProfileGetModel[]>({ query: "SELECT * FROM profiles" });
-
-    useEffect(() => {
-        setCurrentWindow(getCurrentWindow());
-
-        (() => {
-            const cachedProfileIdRaw = window.localStorage.getItem("lastProfileId");
-    
-            if (!cachedProfileIdRaw) return;
-    
-            const cachedProfileId = Number(cachedProfileIdRaw);
-    
-            if (Number.isNaN(cachedProfileId)) return;
-    
-            getProfiles().then(profiles => {
-                const targetProfile = profiles.find(p => p.id === cachedProfileId);
-    
-                if (!targetProfile) return;
-    
-                if (!currentProfile) setCurrentProfile(targetProfile);
-            }).catch(() => {});
-        })();
-    }, []);
+    const { profile, setProfile } = useProfileContext();
 
     const handleMinimize = () => currentWindow?.minimize();
 
@@ -62,8 +38,12 @@ const Titlebar = () => {
             <div className="px-1 flex items-center gap-2">
                 <Logo width={28} height={28} aria-hidden />
 
-                {currentProfile ? (
-                    <ProfileSelector />
+                {profile ? (
+                    <Tooltip label={t("profiles.Profiles")}>
+                        <ActionIcon onClick={() => setProfile(null!)}>
+                            <IconUsers />
+                        </ActionIcon>
+                    </Tooltip>
                 ) : null}
 
                 <Divider orientation="vertical" />

@@ -8,7 +8,7 @@ import DomainDnsRecordCard from "./DomainDnsRecordCard";
 import CreateEditDnsRecordModal from "./CreateEditDnsRecordModal";
 
 import { ActionIcon, Button, Pagination, Paper, Select, TextInput, Transition } from "@mantine/core";
-import { IconPlus, IconRefresh, IconTrash } from "@tabler/icons-react";
+import { IconPlus, IconRefresh } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 import { t } from "i18next";

@@ -1,9 +1,10 @@
 "use client";
 
-import DomainDnsTab from "@/components/domains/DomainDnsTab";
+import DomainDnsTab from "@/components/dnsRecords/DomainDnsTab";
 import DomainOverviewTab from "@/components/domains/DomainOverviewTab";
 import IllustrationIcons from "@/components/illustrations/IllustrationIcons";
 import useMount from "@/utils/hooks/useMount";
+import DomainForwardsTab from "@/components/forwards/DomainForwardsTab";
 
 import { Tabs, Transition } from "@mantine/core";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
@@ -30,6 +31,10 @@ const Page = () => {
                                 <Tabs.Tab value="dns">
                                     {t("dnsRecords.DnsRecords")}
                                 </Tabs.Tab>
+
+                                <Tabs.Tab value="forwards">
+                                    {t("forwards.Forwards")}
+                                </Tabs.Tab>
                             </Tabs.List>
                             
                             <Tabs.Panel value="overview">
@@ -38,6 +43,10 @@ const Page = () => {
 
                             <Tabs.Panel value="dns">
                                 <DomainDnsTab />
+                            </Tabs.Panel>
+
+                            <Tabs.Panel value="forwards">
+                                <DomainForwardsTab />
                             </Tabs.Panel>
                         </Tabs>
                     </div>

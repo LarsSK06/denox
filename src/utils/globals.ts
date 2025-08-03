@@ -9,6 +9,7 @@ export const invalidContextUsageError = "Context cannot be used outside its own 
 export const windowTitleRoot = "Denox";
 export const windowTitleTemplate = `%t% - ${windowTitleRoot}`;
 export const settingsFileName = "settings.json";
+export const lastProfileIdCacheKey = "last-profile-id";
 
 export const dummyDomain = {
     id: -1,

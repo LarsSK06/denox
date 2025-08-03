@@ -81,7 +81,9 @@
             "Medium": "Medium",
             "Large": "Large",
             "ExtraLarge": "Extra large",
-            "Services": "Services"
+            "Services": "Services",
+            "Frame": "Frame",
+            "Url": "URL"
         },
         "domains": {
             "Domain": "Domain",
@@ -120,6 +122,9 @@
             "Invoice": "Invoice",
             "CreditNote": "Credit note"
         },
+        "forwards": {
+            "Forwards": "Forwards"
+        },
         "other": {
             "DoNotSellMyData": "Do not sell my data",
             "EditItem": "Edit {{item}}",
@@ -127,7 +132,8 @@
             "OrderUpgrade": "Order upgrade",
             "SeemsEmptyOverHere": "Seems empty over here",
             "CouldNotFindAnythingHere": "Could not find anything here",
-            "NothingButDustHere": "Nothing but dust here"
+            "NothingButDustHere": "Nothing but dust here",
+            "UrlNotValid": "URL is not valid"
         },
         "genericErrors": {
             "404NotFound": "This page could not be found"

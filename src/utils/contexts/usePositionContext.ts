@@ -3,19 +3,24 @@ import ParentProps from "@/types/common/ParentProps";
 import { createContext, createElement, Dispatch, SetStateAction, useContext, useMemo, useState } from "react";
 import { invalidContextUsageError } from "../globals";
 
+type DomainTab =
+    "overview" |
+    "dns" |
+    "forwards";
+
 type PositionContextValue = {
     domainId: number | null;
     setDomainId: Dispatch<SetStateAction<number | null>>;
 
-    domainTab: "overview" | "dns";
-    setDomainTab: Dispatch<SetStateAction<"overview" | "dns">>;
+    domainTab: DomainTab;
+    setDomainTab: Dispatch<SetStateAction<DomainTab>>;
 };
 
 const PositionContext = createContext<PositionContextValue | undefined>(undefined);
 
 export const PositionContextProvider = ({ children }: ParentProps) => {
     const [domainId, setDomainId] = useState<number | null>(null);
-    const [domainTab, setDomainTab] = useState<"overview" | "dns">("overview");
+    const [domainTab, setDomainTab] = useState<DomainTab>("overview");
 
     const value = useMemo(() => ({
         domainId,

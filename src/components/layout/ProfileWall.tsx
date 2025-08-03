@@ -16,6 +16,7 @@ import { IconAlertCircle, IconChevronRight, IconDots, IconPencil, IconPlus, Icon
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { notifications } from "@mantine/notifications";
 import { t } from "i18next";
+import { lastProfileIdCacheKey } from "@/utils/globals";
 
 const ProfileWall = ({ children }: ParentProps) => {
     const [showCreateProfileModal, setShowCreateProfileModal] = useState<boolean>(false);
@@ -43,7 +44,7 @@ const ProfileWall = ({ children }: ParentProps) => {
     }, [profiles]);
 
     useEffect(() => {
-        window.localStorage.setItem("lastProfileId", `${currentProfile?.id}`);
+        window.localStorage.setItem(lastProfileIdCacheKey, `${currentProfile?.id}`);
     }, [currentProfile]);
 
     const isList =
