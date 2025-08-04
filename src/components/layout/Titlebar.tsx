@@ -1,16 +1,13 @@
 "use client";
 
-import { ActionIcon, Button, Divider, Paper, Tabs, Tooltip } from "@mantine/core";
+import { ActionIcon, Button, Divider, Paper, Tooltip } from "@mantine/core";
 import { IconAntenna, IconFileDollar, IconMaximize, IconMinus, IconUsers, IconX } from "@tabler/icons-react";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
 import { useEffect, useState } from "react";
 import { getCurrentWindow, Window } from "@tauri-apps/api/window";
 import { t } from "i18next";
 
-import ProfileSelector from "../profiles/ProfileSelector";
 import Logo from "../common/Logo";
-import useDbSelect from "@/utils/hooks/useDbSelect";
-import ProfileGetModel from "@/types/profiles/ProfileGetModel";
 import Link from "next/link";
 
 const Titlebar = () => {
@@ -27,6 +24,10 @@ const Titlebar = () => {
     };
 
     const handleClose = () => currentWindow?.close();
+
+    useEffect(() => {
+        setCurrentWindow(getCurrentWindow());
+    }, []);
 
     return (
         <Paper
