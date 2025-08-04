@@ -10,6 +10,7 @@ import { Tabs, Transition } from "@mantine/core";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 import { usePositionContext } from "@/utils/contexts/usePositionContext";
 import { t } from "i18next";
+import { DomainForwardsContextProvider } from "@/utils/contexts/useDomainForwardsContext";
 
 const Page = () => {
     const isMounted = useMount();
@@ -46,7 +47,9 @@ const Page = () => {
                             </Tabs.Panel>
 
                             <Tabs.Panel value="forwards">
-                                <DomainForwardsTab />
+                                <DomainForwardsContextProvider>
+                                    <DomainForwardsTab />
+                                </DomainForwardsContextProvider>
                             </Tabs.Panel>
                         </Tabs>
                     </div>

@@ -10,6 +10,7 @@ export const windowTitleRoot = "Denox";
 export const windowTitleTemplate = `%t% - ${windowTitleRoot}`;
 export const settingsFileName = "settings.json";
 export const lastProfileIdCacheKey = "last-profile-id";
+export const domainCharMatchRegex = /[a-zA-Z0-9.\-æøå]/;
 
 export const dummyDomain = {
     id: -1,

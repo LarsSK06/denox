@@ -83,7 +83,9 @@
             "ExtraLarge": "Extra large",
             "Services": "Services",
             "Frame": "Frame",
-            "Url": "URL"
+            "Url": "URL",
+            "NotRecommended": "Not recommended",
+            "Refresh": "Refresh"
         },
         "domains": {
             "Domain": "Domain",
@@ -123,7 +125,13 @@
             "CreditNote": "Credit note"
         },
         "forwards": {
-            "Forwards": "Forwards"
+            "Forwards": "Forwards",
+            "CreateForward": "Create forward",
+            "CreateForwardError": "Could not create forward",
+            "EditForward": "Edit forward",
+            "DeleteForward": "Delete forward",
+            "DeleteForwards": "Delete {{count}} forwards",
+            "DeleteForwards_one": "Delete {{count}} forward"
         },
         "other": {
             "DoNotSellMyData": "Do not sell my data",
@@ -133,7 +141,8 @@
             "SeemsEmptyOverHere": "Seems empty over here",
             "CouldNotFindAnythingHere": "Could not find anything here",
             "NothingButDustHere": "Nothing but dust here",
-            "UrlNotValid": "URL is not valid"
+            "UrlNotValid": "URL is not valid",
+            "HostForwardConflict": "Forward with this host already exists"
         },
         "genericErrors": {
             "404NotFound": "This page could not be found"
