@@ -9,6 +9,7 @@ import * as fs from "@tauri-apps/plugin-fs";
 
 type SettingsContextValue = {
     isReady: boolean;
+    isFirstTimeStart: boolean;
 
     allowAnimations: boolean;
     setAllowAnimations: Dispatch<SetStateAction<boolean>>;
@@ -26,6 +27,7 @@ const SettingsContext = createContext<SettingsContextValue | undefined>(undefine
 
 export const SettingsContextProvider = ({ children }: ParentProps) => {
     const [isReady, setIsReady] = useState<boolean>(false);
+    const [isFirstTimeStart, setIsFirstTimeStart] = useState<boolean>(false);
 
     const [allowAnimations, setAllowAnimations] = useState<boolean>(true);
     const [capitalizeDomainNames, setCapitalizeDomainNames] = useState<boolean>(false);
@@ -75,6 +77,7 @@ export const SettingsContextProvider = ({ children }: ParentProps) => {
 
     const value = useMemo<SettingsContextValue>(() => ({
         isReady,
+        isFirstTimeStart,
 
         allowAnimations,
         setAllowAnimations,
@@ -86,7 +89,7 @@ export const SettingsContextProvider = ({ children }: ParentProps) => {
         setPaginateDnsRecords,
 
         saveToFile
-    }), [isReady, allowAnimations, capitalizeDomainNames, paginateDnsRecords]);
+    }), [isReady, isFirstTimeStart, allowAnimations, capitalizeDomainNames, paginateDnsRecords]);
 
     return createElement(SettingsContext.Provider, { value }, children);
 };
