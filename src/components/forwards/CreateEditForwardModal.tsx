@@ -2,15 +2,15 @@ import ForwardGetModel from "@/types/forwards/ForwardGetModel";
 import ForwardPostModel from "@/types/forwards/ForwardPostModel";
 import ForwardPutModel from "@/types/forwards/ForwardPutModel";
 import Endpoint from "@/types/http/Endpoint";
-import { useDomainForwardsContext } from "@/utils/contexts/useDomainForwardsContext";
-import { usePositionContext } from "@/utils/contexts/usePositionContext";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 
 import { Button, Checkbox, Modal, TextInput } from "@mantine/core";
 import { IconChevronLeft, IconDeviceFloppy } from "@tabler/icons-react";
-import { t } from "i18next";
+import { useDomainForwardsContext } from "@/utils/contexts/useDomainForwardsContext";
 import { useEffect, useState } from "react";
+import { usePositionContext } from "@/utils/contexts/usePositionContext";
+import { t } from "i18next";
 
 type CreateEditForwardModalProps = {
     show?: boolean;
@@ -138,6 +138,7 @@ const CreateEditForwardModal = ({ show, onClose, forward }: CreateEditForwardMod
             <form className="flex flex-col gap-2" onSubmit={onFormSubmit}>
                 <TextInput
                     autoFocus
+                    required
                     disabled={!!forward}
                     label={t("common.Host")}
                     value={host}
@@ -152,6 +153,7 @@ const CreateEditForwardModal = ({ show, onClose, forward }: CreateEditForwardMod
                 />
 
                 <TextInput
+                    required
                     label={t("common.Url")}
                     value={url}
                     onChange={event => { setUrl(event.currentTarget.value); setUrlError(null); }}

@@ -11,6 +11,7 @@ import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 import { usePositionContext } from "@/utils/contexts/usePositionContext";
 import { t } from "i18next";
 import { DomainForwardsContextProvider } from "@/utils/contexts/useDomainForwardsContext";
+import { DomainDnsRecordsContextProvider } from "@/utils/contexts/useDomainDnsRecordsContext";
 
 const Page = () => {
     const isMounted = useMount();
@@ -43,7 +44,9 @@ const Page = () => {
                             </Tabs.Panel>
 
                             <Tabs.Panel value="dns">
-                                <DomainDnsTab />
+                                <DomainDnsRecordsContextProvider>
+                                    <DomainDnsTab />
+                                </DomainDnsRecordsContextProvider>
                             </Tabs.Panel>
 
                             <Tabs.Panel value="forwards">

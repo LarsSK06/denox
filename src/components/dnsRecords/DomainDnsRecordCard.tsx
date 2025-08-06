@@ -1,23 +1,30 @@
 import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
 
-import { ActionIcon, Menu, Paper, Table } from "@mantine/core";
-import { IconDots, IconPencil, IconTrash } from "@tabler/icons-react";
+import { ActionIcon, Checkbox, Menu, Paper, Table } from "@mantine/core";
+import { IconDots, IconTrash } from "@tabler/icons-react";
 import { Dispatch, SetStateAction } from "react";
 import { t } from "i18next";
 
 type DomainDnsRecordCardProps = {
     dnsRecord: DnsRecordGetModel;
-    isQuickEditMode: boolean;
     setDnsRecordToEdit: Dispatch<SetStateAction<DnsRecordGetModel | null>>;
+    isSelected: boolean;
+    toggleSelection: () => any;
 };
 
 const DomainDnsRecordCard = ({
     dnsRecord,
-    isQuickEditMode,
-    setDnsRecordToEdit
+    setDnsRecordToEdit,
+    isSelected,
+    toggleSelection
 }: DomainDnsRecordCardProps) => {
     return (
-        <Paper withBorder shadow="sm" component="li" className="flex p-2 gap-4">
+        <Paper withBorder shadow="sm" component="li" className="flex items-center p-2 gap-4">
+            <Checkbox
+                checked={isSelected}
+                onChange={() => toggleSelection()}
+            />
+
             <Table>
                 <Table.Tbody>
                     <Table.Tr>
@@ -98,27 +105,19 @@ const DomainDnsRecordCard = ({
                 </Table.Tbody>
             </Table>
 
-            <div className="flex items-center">
-                {isQuickEditMode ? (
-                    <div className="flex flex-col">
-                        <ActionIcon variant="subtle" onClick={() => setDnsRecordToEdit(dnsRecord)}>
-                            <IconPencil />
-                        </ActionIcon>
+            <Menu>
+                <Menu.Target>
+                    <ActionIcon variant="subtle" aria-label={t("common.Actions")}>
+                        <IconDots />
+                    </ActionIcon>
+                </Menu.Target>
 
-                        <ActionIcon variant="subtle" color="red">
-                            <IconTrash />
-                        </ActionIcon>
-                    </div>
-                ) : (
-                    <Menu>
-                        <Menu.Target>
-                            <ActionIcon variant="subtle" aria-label={t("common.Actions")}>
-                                <IconDots />
-                            </ActionIcon>
-                        </Menu.Target>
-                    </Menu>
-                )}
-            </div>
+                <Menu.Dropdown>
+                    <Menu.Item leftSection={<IconTrash />} color="red">
+                        {t("dnsRecords.DeleteDnsRecord")}
+                    </Menu.Item>
+                </Menu.Dropdown>
+            </Menu>
         </Paper>
     );
 };

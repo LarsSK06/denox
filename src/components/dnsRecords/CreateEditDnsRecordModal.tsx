@@ -1,53 +1,43 @@
-import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
-import DnsRecordPostModel from "@/types/dnsRecords/DnsRecordPostModel";
-import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
 import Endpoint from "@/types/http/Endpoint";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 import useHttpClient from "@/utils/hooks/useHttpClient";
+import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
+import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
+import DnsRecordPostModel from "@/types/dnsRecords/DnsRecordPostModel";
+import DnsRecordPutModel from "@/types/dnsRecords/DnsRecordPutModel";
 
-import { Button, Modal, NumberInput, Select, TextInput } from "@mantine/core";
+import { Button, Modal, NumberInput, Select, Textarea, TextInput } from "@mantine/core";
 import { IconChevronLeft, IconDeviceFloppy } from "@tabler/icons-react";
-import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
+import { usePositionContext } from "@/utils/contexts/usePositionContext";
+import { t } from "i18next";
+import { useDomainDnsRecordsContext } from "@/utils/contexts/useDomainDnsRecordsContext";
+import { ipv4Regex, ipv6Regex } from "@/utils/globals";
+
 
 type CreateEditDnsRecordModalProps = {
     show?: boolean;
-    domainId: number;
-    dnsRecord: DnsRecordGetModel | null;
-    refresh?: () => any;
     onClose: () => any;
+    dnsRecord: DnsRecordGetModel | null;
 };
 
-const CreateEditDnsRecordModal = ({ show, domainId, dnsRecord, refresh, onClose }: CreateEditDnsRecordModalProps) => {
-    const [localDnsRecord, setLocalDnsRecord] = useState<DnsRecordGetModel | null>(null);
+const CreateEditDnsRecordModal = ({ show, onClose, dnsRecord }: CreateEditDnsRecordModalProps) => {
+    const [host, setHost] = useState<string>(dnsRecord?.host ?? "");
+    const [ttl, setTtl] = useState<number>(dnsRecord?.ttl ?? 3600);
+    const [type, setType] = useState<DnsRecordType>(dnsRecord?.type ?? DnsRecordType.A);
+    const [data, setData] = useState<string>(dnsRecord?.data ?? "");
+    const [priority, setPriority] = useState<number>(dnsRecord?.priority ?? 10);
+    const [weight, setWeight] = useState<number>(dnsRecord?.priority ?? 0);
+    const [port, setPort] = useState<number>(dnsRecord?.port ?? 0);
 
-    const [host, setHost] = useState<string>("@");
-    const [ttl, setTtl] = useState<number>(3600);
-    const [type, setType] = useState<DnsRecordType>(DnsRecordType.A);
-    const [data, setData] = useState<string>("");
-    const [priority, setPriority] = useState<number>(10);
-    const [weight, setWeight] = useState<number>(0);
-    const [port, setPort] = useState<number>(0);
+    const [hostError, setHostError] = useState<string | null>(null);
+    const [ttlError, setTtlError] = useState<string | null>(null);
+    const [dataError, setDataError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (dnsRecord) setLocalDnsRecord(dnsRecord);
-        else setTimeout(() => setLocalDnsRecord(null), 300);
-    }, [dnsRecord]);
+    const { dnsRecords, setDnsRecords } = useDomainDnsRecordsContext();
+    const { domainId } = usePositionContext();
 
-    useEffect(() => {
-        setHost(localDnsRecord?.host ?? "@");
-        setTtl(localDnsRecord?.ttl ?? 3600);
-        setType(localDnsRecord?.type ?? DnsRecordType.A);
-        setData(localDnsRecord?.data ?? "");
-        setPriority(localDnsRecord?.priority ?? 10);
-        setWeight(localDnsRecord?.weight ?? 0);
-        setPort(localDnsRecord?.port ?? 0);
-    }, [localDnsRecord]);
-
-    const {
-        isLoading: isCreateDnsRecordLoading,
-        call: createDnsRecord
-    } = useHttpClient<{}, DnsRecordPostModel>({
+    const { call: createDnsRecord } = useHttpClient<{}, DnsRecordPostModel>({
         endpoint: [Endpoint.Domains, domainId, Endpoint.DNS],
         method: "POST",
         body: {
@@ -61,10 +51,7 @@ const CreateEditDnsRecordModal = ({ show, domainId, dnsRecord, refresh, onClose 
         }
     });
 
-    const {
-        isLoading: isEditDnsRecordLoading,
-        call: editDnsRecord
-    } = useHttpClient<{}, DnsRecordPostModel>({
+    const { call: editDnsRecord } = useHttpClient<{}, DnsRecordPutModel>({
         endpoint: [Endpoint.Domains, domainId, Endpoint.DNS, dnsRecord?.id],
         method: "PUT",
         body: {
@@ -78,135 +65,210 @@ const CreateEditDnsRecordModal = ({ show, domainId, dnsRecord, refresh, onClose 
         }
     });
 
-    const handleSave = () => {
-        if (dnsRecord) {
-            editDnsRecord()
-                .then(() => {
-                    handleClose();
-                    refresh?.();
-                })
-                .catch(handleErrorMessage(t("dnsRecords.EditDnsRecordError")));
-        }
-        else {
-            createDnsRecord()
-                .then(() => {
-                    handleClose();
-                    refresh?.();
-                })
-                .catch(handleErrorMessage(t("dnsRecords.NewDnsRecordError")));
-        }
-    };
+    useEffect(() => {
+        if (show) return;
 
-    const handleClose = () => {
         setTimeout(() => {
-            setHost("@");
+            setHost("")
             setTtl(3600);
             setType(DnsRecordType.A);
             setData("");
             setPriority(10);
             setWeight(0);
             setPort(0);
+
+            setHostError(null);
+            setTtlError(null);
+            setDataError(null);
         }, 300);
+    }, [show]);
+
+    useEffect(() => {
+        setHost(dnsRecord?.host ?? "")
+        setTtl(dnsRecord?.ttl ?? 3600);
+        setType(dnsRecord?.type ?? DnsRecordType.A);
+        setData(dnsRecord?.data ?? "");
+        setPriority(dnsRecord?.priority ?? 10);
+        setWeight(dnsRecord?.weight ?? 0);
+        setPort(dnsRecord?.port ?? 0);
+    }, [dnsRecord]);
+
+    const validateForm = () => {
+        if (ttl % 60 !== 0) {
+            setTtlError(t("other.ValueMustBeDivisibleBy", { count: 60 }));
+
+            return false;
+        }
+
+        switch (type) {
+            case DnsRecordType.A:
+                if (!ipv4Regex.test(data)) {
+                    setDataError(t("other.ValueMustBeAValidIpv4Address"));
+
+                    return false;
+                }
+                else break;
+
+            case DnsRecordType.AAAA:
+                if (!ipv6Regex.test(data)) {
+                    setDataError(t("other.ValueMustBeAValidIpv6Address"));
+
+                    return false;
+                }
+                else break;
+
+            case DnsRecordType.MX:
+            case DnsRecordType.SRV:
+            case DnsRecordType.TXT:
+            case DnsRecordType.CNAME:
+        }
+
+        return true;
+    };
+
+    const onFormSubmit = (event?: React.FormEvent) => {
+        event?.preventDefault();
+
+        if (!validateForm()) return;
+
+        if (dnsRecord) {
+            const dnsRecordSnapshot = structuredClone(dnsRecords!.find(f => f.id === dnsRecord.id))!;
+
+            setDnsRecords(prev => [
+                ...prev!.filter(f => f.id !== dnsRecord.id),
+                {
+                    id: dnsRecordSnapshot.id,
+                    host,
+                    ttl,
+                    type,
+                    data,
+                    priority,
+                    weight,
+                    port
+                }
+            ]);
+
+            editDnsRecord().catch(error => {
+                setDnsRecords(prev => [
+                    ...prev!.filter(f => f.id !== dnsRecord.id),
+                    dnsRecordSnapshot
+                ]);
+
+                handleErrorMessage(t("dnsRecords.EditDnsRecordError"))(error);
+            });
+        }
+        else {
+            const idSnapshot = Date.now();
+
+            setDnsRecords(prev => [
+                ...prev!,
+                {
+                    id: idSnapshot,
+                    host,
+                    ttl,
+                    type,
+                    data,
+                    priority,
+                    weight,
+                    port
+                }
+            ]);
+
+            createDnsRecord().catch(error => {
+                setDnsRecords(prev => prev!.filter(f => f.id !== idSnapshot));
+
+                handleErrorMessage(t("forwards.CreateDnsRecordsError"))(error);
+            });
+        }
 
         onClose();
     };
 
-    const isPriorityRequired = useMemo(() => [DnsRecordType.MX, DnsRecordType.SRV].includes(type), [type]);
-    const isWeightRequired = useMemo(() => type === DnsRecordType.SRV, [type]);
-    const isPortRequired = useMemo(() => type === DnsRecordType.SRV, [type]);
+    const dataPlaceholder = useMemo<string>(() => {
+        switch (type) {
+            case DnsRecordType.A: return t("common.Ipv4Address");
+            case DnsRecordType.AAAA: return t("common.Ipv6Address");
+            case DnsRecordType.MX:
+            case DnsRecordType.SRV:
+            case DnsRecordType.TXT:
+            case DnsRecordType.CNAME:
 
-    const isLoadingGenerally =
-        isCreateDnsRecordLoading ||
-        isEditDnsRecordLoading;
+            default: return "...";
+        }
+    }, [type]);
 
     return (
-        <Modal
-            centered
-            opened={!!show}
-            onClose={handleClose}
-            title={dnsRecord ? t("dnsRecords.EditDnsRecord") : t("dnsRecords.NewDnsRecord")}>
-            <form className="flex flex-col items-start gap-4">
-                <Select
-                    required
-                    className="w-full"
-                    label={t("common.Type")}
-                    value={type}
-                    onChange={value => setType(value as DnsRecordType)}
-                    data={Object.values(DnsRecordType).filter(i => typeof i === "string")}
-                />
-
+        <Modal opened={!!show} onClose={onClose} title={dnsRecord ? t("dnsRecords.EditDnsRecord") : t("dnsRecords.CreateDnsRecord")}>
+            <form className="flex flex-col gap-2" onSubmit={onFormSubmit}>
                 <TextInput
+                    autoFocus
                     required
-                    className="w-full"
                     label={t("common.Host")}
                     value={host}
-                    onChange={event => setHost(event.currentTarget.value)}
+                    onChange={event => { setHost(event.currentTarget.value); setHostError(null); }}
+                    onBlur={() => { if (host.trim() === "") setHost("@"); }}
+                    error={hostError}
                 />
 
                 <NumberInput
                     required
-                    className="w-full"
                     label={t("common.Ttl")}
                     value={ttl}
-                    onChange={value => setTtl(Number(value))}
+                    onChange={value => { setTtl(Number(value)); setTtlError(null); }}
+                    error={ttlError}
+                    min={0}
                 />
 
-                <TextInput
+                <Select
                     required
-                    className="w-full"
-                    label={t("common.Data")}
-                    value={data}
-                    onChange={event => setData(event.currentTarget.value)}
+                    label={t("common.Type")}
+                    value={type}
+                    onChange={value => setType(value as DnsRecordType)}
+                    data={Object.values(DnsRecordType).filter(t => typeof t === "string")}
                 />
 
-                {isPriorityRequired ? (
+                <Textarea
+                    required
+                    label={t("common.Data")}
+                    placeholder={dataPlaceholder}
+                    value={data}
+                    onChange={event => { setData(event.currentTarget.value); setDataError(null); }}
+                    error={dataError}
+                />
+
+                {type === DnsRecordType.MX || type === DnsRecordType.SRV ? (
                     <NumberInput
                         required
-                        className="w-full"
                         label={t("common.Priority")}
                         value={priority}
                         onChange={value => setPriority(Number(value))}
                     />
                 ) : null}
 
-                {isWeightRequired ? (
-                    <NumberInput
-                        required
-                        className="w-full"
-                        label={t("common.Weight")}
-                        value={weight}
-                        onChange={value => setWeight(Number(value))}
-                    />
+                {type === DnsRecordType.SRV ? (
+                    <>
+                        <NumberInput
+                            required
+                            label={t("common.Weight")}
+                            value={weight}
+                            onChange={value => setWeight(Number(value))}
+                        />
+
+                        <NumberInput
+                            required
+                            label={t("common.Port")}
+                            value={port}
+                            onChange={value => setPort(Number(value))}
+                        />
+                    </>
                 ) : null}
 
-                {isPortRequired ? (
-                    <NumberInput
-                        required
-                        className="w-full"
-                        label={t("common.Port")}
-                        value={port}
-                        onChange={value => setPort(Number(value))}
-                    />
-                ) : null}
-
-                <div className="w-full mt-4 flex justify-end gap-2">
-                    <Button leftSection={<IconChevronLeft />} onClick={() => handleClose()} loading={isLoadingGenerally} variant="subtle">
+                <div className="flex justify-end gap-2">
+                    <Button leftSection={<IconChevronLeft />} variant="light" onClick={() => onClose()}>
                         {t("common.Cancel")}
                     </Button>
-    
-                    <Button
-                        className="transition-colors"
-                        leftSection={<IconDeviceFloppy />}
-                        onClick={() => handleSave()}
-                        loading={isLoadingGenerally}
-                        disabled={
-                            !host ||
-                            !ttl ||
-                            !data ||
-                            (isPriorityRequired && !priority) ||
-                            (isWeightRequired && !weight) ||
-                            (isPortRequired && !port)
-                        }>
+                    
+                    <Button leftSection={<IconDeviceFloppy />} type="submit">
                         {t("common.Save")}
                     </Button>
                 </div>

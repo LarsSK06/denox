@@ -2,10 +2,9 @@
 
 import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
 import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
-import Endpoint from "@/types/http/Endpoint";
-import useHttpClient from "@/utils/hooks/useHttpClient";
 import DomainDnsRecordCard from "./DomainDnsRecordCard";
 import CreateEditDnsRecordModal from "./CreateEditDnsRecordModal";
+import useQuickEditKeybinds from "@/utils/hooks/useQuickEditKeybinds";
 
 import { ActionIcon, Button, Pagination, Paper, Select, TextInput, Transition } from "@mantine/core";
 import { IconPlus, IconRefresh } from "@tabler/icons-react";
@@ -13,6 +12,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 import { t } from "i18next";
 import { usePositionContext } from "@/utils/contexts/usePositionContext";
+import { useDomainDnsRecordsContext } from "@/utils/contexts/useDomainDnsRecordsContext";
+import useGroupSelection from "@/utils/hooks/useGroupSelection";
 
 const DomainDnsTab = () => {
     const [searchText, setSearchText] = useState<string>("");
@@ -24,18 +25,22 @@ const DomainDnsTab = () => {
     const [pageSize, setPageSize] = useState<number>(5);
     const [pageNumber, setPageNumber] = useState<number>(0);
 
-    const [isQuickEditMode, setIsQuickEditMode] = useState<boolean>(false);
-
     const [showCreateEditDnsRecordModal, setShowCreateEditDnsRecordModal] = useState<boolean>(false);
     const [dnsRecordToEdit, setDnsRecordToEdit] = useState<DnsRecordGetModel | null>(null);
 
-    const { domainId } = usePositionContext();
+    const {
+        dnsRecords,
+        getDnsRecords,
+        setDnsRecords
+    } = useDomainDnsRecordsContext();
 
     const {
-        data: dnsRecords,
-        setData: setDnsRecords,
-        call: getDnsRecords
-    } = useHttpClient<DnsRecordGetModel[]>({ endpoint: [Endpoint.Domains, domainId, Endpoint.DNS] });
+        selectedIds: selectedDnsRecordIds,
+        isSelected: isDnsRecordSelected,
+        toggle: toggleDnsRecordSelection
+    } = useGroupSelection(dnsRecords?.map(r => r.id) ?? []);
+
+    const { domainId } = usePositionContext();
 
     const filteredDnsRecords =
         (dnsRecords ?? [])
@@ -61,27 +66,10 @@ const DomainDnsTab = () => {
         return () => setDnsRecords(null);
     }, [domainId]);
 
-    useEffect(() => {
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key !== "Control") return;
-
-            setIsQuickEditMode(true);
-        };
-
-        const onKeyUp = (event: KeyboardEvent) => {
-            if (event.key !== "Control") return;
-
-            setIsQuickEditMode(false);
-        };
-
-        window.addEventListener("keydown", onKeyDown);
-        window.addEventListener("keyup", onKeyUp);
-
-        return () => {
-            window.removeEventListener("keydown", onKeyDown);
-            window.removeEventListener("keyup", onKeyUp);
-        };
-    }, []);
+    useQuickEditKeybinds({
+        markAll: () => null,
+        refresh: () => getDnsRecords()
+    });
 
     const availableDnsRecordTypes = useMemo(() =>
         dnsRecords
@@ -109,9 +97,7 @@ const DomainDnsTab = () => {
         <>
             <CreateEditDnsRecordModal
                 show={showCreateEditDnsRecordModal || !!dnsRecordToEdit}
-                domainId={domainId ?? 0}
                 dnsRecord={dnsRecordToEdit}
-                refresh={() => getDnsRecords()}
                 onClose={() => {
                     setShowCreateEditDnsRecordModal(false);
                     setDnsRecordToEdit(null);
@@ -157,17 +143,18 @@ const DomainDnsTab = () => {
 
                         <div className="flex gap-2">
                             <Button leftSection={<IconPlus />} onClick={() => setShowCreateEditDnsRecordModal(true)}>
-                                {t("dnsRecords.NewDnsRecord")}
+                                {t("dnsRecords.CreateDnsRecord")}
                             </Button>
                         </div>
 
                         <ul className="flex flex-col gap-2">
-                            {paginatedDnsRecords.map(dnsRecord => (
+                            {paginatedDnsRecords.toSorted((a, b) => a.id > b.id ? 1 : -1).map(dnsRecord => (
                                 <DomainDnsRecordCard
                                     dnsRecord={dnsRecord}
-                                    isQuickEditMode={isQuickEditMode}
                                     key={dnsRecord.id}
                                     setDnsRecordToEdit={setDnsRecordToEdit}
+                                    isSelected={isDnsRecordSelected(dnsRecord.id)}
+                                    toggleSelection={() => toggleDnsRecordSelection(dnsRecord.id)}
                                 />
                             ))}
                         </ul>
