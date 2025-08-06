@@ -5,15 +5,15 @@ import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
 import DomainDnsRecordCard from "./DomainDnsRecordCard";
 import CreateEditDnsRecordModal from "./CreateEditDnsRecordModal";
 import useQuickEditKeybinds from "@/utils/hooks/useQuickEditKeybinds";
+import useGroupSelection from "@/utils/hooks/useGroupSelection";
 
-import { ActionIcon, Button, Pagination, Paper, Select, TextInput, Transition } from "@mantine/core";
-import { IconPlus, IconRefresh } from "@tabler/icons-react";
+import { ActionIcon, Button, Checkbox, Pagination, Paper, Select, TextInput, Transition } from "@mantine/core";
+import { IconPlus, IconRefresh, IconTrash } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 import { t } from "i18next";
 import { usePositionContext } from "@/utils/contexts/usePositionContext";
 import { useDomainDnsRecordsContext } from "@/utils/contexts/useDomainDnsRecordsContext";
-import useGroupSelection from "@/utils/hooks/useGroupSelection";
 
 const DomainDnsTab = () => {
     const [searchText, setSearchText] = useState<string>("");
@@ -36,8 +36,12 @@ const DomainDnsTab = () => {
 
     const {
         selectedIds: selectedDnsRecordIds,
+        setSelectedIds: setSelectedDnsRecordIds,
         isSelected: isDnsRecordSelected,
-        toggle: toggleDnsRecordSelection
+        isHeadChecked,
+        isHeadIndeterminate,
+        toggle: toggleDnsRecordSelection,
+        toggleHead
     } = useGroupSelection(dnsRecords?.map(r => r.id) ?? []);
 
     const { domainId } = usePositionContext();
@@ -66,8 +70,8 @@ const DomainDnsTab = () => {
         return () => setDnsRecords(null);
     }, [domainId]);
 
-    useQuickEditKeybinds({
-        markAll: () => null,
+    const { ctrl: isCtrlHeld } = useQuickEditKeybinds({
+        markAll: () => setSelectedDnsRecordIds(prev => dnsRecords?.map(r => r.id) ?? prev),
         refresh: () => getDnsRecords()
     });
 
@@ -145,7 +149,23 @@ const DomainDnsTab = () => {
                             <Button leftSection={<IconPlus />} onClick={() => setShowCreateEditDnsRecordModal(true)}>
                                 {t("dnsRecords.CreateDnsRecord")}
                             </Button>
+
+                            <Button
+                                leftSection={<IconTrash />}
+                                onClick={() => setShowCreateEditDnsRecordModal(true)}
+                                color="red"
+                                disabled={selectedDnsRecordIds.length === 0}
+                                className="transition-colors">
+                                {t("dnsRecords.DeleteDnsRecords", { count: selectedDnsRecordIds.length })}
+                            </Button>
                         </div>
+
+                        <Checkbox
+                            style={{ marginLeft: ".5rem" }}
+                            indeterminate={isHeadIndeterminate}
+                            checked={isHeadChecked}
+                            onChange={() => toggleHead()}
+                        />
 
                         <ul className="flex flex-col gap-2">
                             {paginatedDnsRecords.toSorted((a, b) => a.id > b.id ? 1 : -1).map(dnsRecord => (

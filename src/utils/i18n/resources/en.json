@@ -87,7 +87,9 @@
             "NotRecommended": "Not recommended",
             "Refresh": "Refresh",
             "Ipv4Address": "IPv4 address",
-            "Ipv6Address": "IPv6 address"
+            "Ipv6Address": "IPv6 address",
+            "DuplicateTo": "Duplicate to",
+            "MoveTo": "Move to"
         },
         "domains": {
             "Domain": "Domain",
