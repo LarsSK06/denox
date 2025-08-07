@@ -1,13 +1,23 @@
-import { ComponentProps } from "react";
+import usePrimaryColorShade from "@/utils/hooks/usePrimaryColorShade";
 
-import Logo from "./Logo";
+import { Mirage } from "ldrs/react";
 
-type LoaderProps = {} & ComponentProps<typeof Logo>;
+import "ldrs/react/Mirage.css";
 
-const Loader = (props: LoaderProps) => (
-    <div className="w-fit h-fit animate-pulse">
-        <Logo {...props} />
-    </div>
-);
+type LoaderProps = {
+    size?: number;
+};
+
+const Loader = ({ size = 200 }: LoaderProps) => {
+
+    const primaryColorShade = usePrimaryColorShade();
+
+    return (
+        <Mirage
+            size={size}
+            color={primaryColorShade}
+        />
+    );
+};
 
 export default Loader;

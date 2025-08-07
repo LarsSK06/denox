@@ -1,7 +1,7 @@
 "use client";
 
 import { ActionIcon, Button, Divider, Paper, Tooltip } from "@mantine/core";
-import { IconAntenna, IconFileDollar, IconMaximize, IconMinus, IconUsers, IconX } from "@tabler/icons-react";
+import { IconAntenna, IconFileDollar, IconMaximize, IconMinus, IconUser, IconUsers, IconX } from "@tabler/icons-react";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
 import { useEffect, useState } from "react";
 import { getCurrentWindow, Window } from "@tauri-apps/api/window";
@@ -39,13 +39,9 @@ const Titlebar = () => {
             <div className="px-1 flex items-center gap-2">
                 <Logo width={28} height={28} aria-hidden />
 
-                {profile ? (
-                    <Tooltip label={t("profiles.Profiles")}>
-                        <ActionIcon onClick={() => setProfile(null!)}>
-                            <IconUsers />
-                        </ActionIcon>
-                    </Tooltip>
-                ) : null}
+                <Button leftSection={<IconUser />} color="gray" disabled={!profile} size="compact-md" onClick={() => setProfile(null!)}>
+                    {profile ? profile.name : t("profiles.Profiles")}
+                </Button>
 
                 <Divider orientation="vertical" />
 

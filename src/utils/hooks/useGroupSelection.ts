@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const useGroupSelection = <T>(allIds: T[], initialSelectedIds?: T[]) => {
     const [selectedIds, setSelectedIds] = useState<T[]>(initialSelectedIds ?? []);
@@ -21,6 +21,10 @@ const useGroupSelection = <T>(allIds: T[], initialSelectedIds?: T[]) => {
         if (selectedIds.length === 0) setSelectedIds(allIds);
         else setSelectedIds([]);
     };
+
+    useEffect(() => {
+        setSelectedIds(prev => prev.filter(id => allIds.includes(id)));
+    }, [selectedIds]);
 
     return {
         selectedIds,
