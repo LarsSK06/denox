@@ -1,8 +1,8 @@
 "use client";
 
-import { Paper, Table, Text, Transition } from "@mantine/core";
+import { ActionIcon, Button, Menu, Paper, Pill, Table, Text, Transition } from "@mantine/core";
 import { dummyDomain } from "@/utils/globals";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { t } from "i18next";
 
 import DomainPeriodProgressCircle from "./DomainPeriodProgressCircle";
@@ -14,6 +14,10 @@ import useHttpClient from "@/utils/hooks/useHttpClient";
 import Endpoint from "@/types/http/Endpoint";
 import DomainGetModel from "@/types/domains/DomainGetModel";
 import Loader from "../common/Loader";
+import useDbSelect from "@/utils/hooks/useDbSelect";
+import TagGetModel from "@/types/tags/TagGetModel";
+import ColoredPill from "../common/ColoredPill";
+import { IconPlus } from "@tabler/icons-react";
 
 const DomainOverviewTab = () => {
 
@@ -31,15 +35,42 @@ const DomainOverviewTab = () => {
         })
     });
 
+    const {
+        data: tags,
+        call: getTags
+    } = useDbSelect<(TagGetModel & { isOnDomain: boolean })[]>({
+        query: `
+            SELECT t.*, EXISTS (
+                SELECT 1
+                FROM domainTagRelations dtr
+                WHERE dtr.domain = $1 AND dtr.tagId = t.id
+            ) as isOnDomain FROM tags t
+        `,
+        bindValues: [domain?.domain]
+    });
+
     useEffect(() => {
         if (!domainId) return;
 
         getDomain();
     }, [domainId]);
 
+    useEffect(() => {
+        if (!domain) return;
+
+        getTags();
+    }, [domain]);
+
+    const isLoadingGenerally =
+        !domain ||
+        !tags;
+
+    const tagsOnDomain = useMemo(() => tags?.filter(t => t.isOnDomain) ?? [], [tags]);
+    const tagsNotOnDomain = useMemo(() => tags?.filter(t => !t.isOnDomain) ?? [], [tags]);
+
     return (
         <div className="w-full h-full relative">
-            <Transition mounted={!!domain} transition="fade-right">
+            <Transition mounted={!isLoadingGenerally} transition="fade-right">
                 {style => (
                     <div className="w-full h-full p-2 flex flex-col items-center gap-8 overflow-auto" style={style}>
                         <DomainPeriodProgressCircle domain={domain ?? dummyDomain} />
@@ -47,6 +78,36 @@ const DomainOverviewTab = () => {
                         <Text component="h2" size="xl" aria-hidden>
                             {domain?.domain ?? dummyDomain.domain}
                         </Text>
+
+                        {tagsOnDomain.length > 0 ? (
+                            <ul className="flex gap-2" aria-label={t("tags.Tags")}>
+                                {tagsOnDomain.map(tag => (
+                                    <ColoredPill component="li" color={tag.color} key={tag.id}>
+                                        {tag.name}
+                                    </ColoredPill>
+                                ))}
+
+                                {tagsNotOnDomain.length > 0 ? (
+                                    <li className="flex">
+                                        <Menu>
+                                            <Menu.Target>
+                                                <ActionIcon size="sm" variant="subtle">
+                                                    <IconPlus />
+                                                </ActionIcon>
+                                            </Menu.Target>
+
+                                            <Menu.Dropdown>
+                                                {tagsNotOnDomain.map(tag => (
+                                                    <Menu.Item key={tag.id}>
+                                                        {tag.name}
+                                                    </Menu.Item>
+                                                ))}
+                                            </Menu.Dropdown>
+                                        </Menu>
+                                    </li>
+                                ) : null}
+                            </ul>
+                        ) : null}
 
                         <Paper withBorder shadow="sm" className="w-full">
                             <Text className="p-2" component="h3" size="lg">
@@ -161,7 +222,7 @@ const DomainOverviewTab = () => {
                 )}
             </Transition>
 
-            <Transition mounted={!domain} transition="fade-right">
+            <Transition mounted={isLoadingGenerally} transition="fade-right">
                 {style => (
                     <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
                         <Loader />

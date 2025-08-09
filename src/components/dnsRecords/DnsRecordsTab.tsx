@@ -2,7 +2,7 @@
 
 import { ActionIcon, Checkbox, Menu, Paper, Select, Table, Transition } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
-import { IconDots } from "@tabler/icons-react";
+import { IconDots, IconRefresh } from "@tabler/icons-react";
 import { t } from "i18next";
 
 import useSearchParam from "@/utils/hooks/useSearchParam";
@@ -49,10 +49,10 @@ const DnsRecordsTab = () => {
 
     return (
         <div className="w-full h-full relative">
-            <Transition mounted={!!dnsRecords} transition="fade-right">
+            <Transition mounted={!!dnsRecords} exitDuration={0} transition="fade-right">
                 {style => (
                     <div className="w-full h-full p-2 flex items-start flex-col gap-2 overflow-auto" style={style}>
-                        <Paper withBorder shadow="sm" className="p-2 flex gap-2">
+                        <Paper withBorder shadow="sm" className="p-2 flex items-end gap-2">
                             <Select
                                 label={t("common.Host")}
                                 value={host ?? ""}
@@ -84,16 +84,20 @@ const DnsRecordsTab = () => {
                                         .toSorted((a, b) => a > b ? 1 : -1)
                                 ]}
                             />
+
+                            <ActionIcon size="input-sm" onClick={() => getDnsRecords()}>
+                                <IconRefresh />
+                            </ActionIcon>
                         </Paper>
 
-                        <Paper withBorder shadow="sm" className="w-full">
+                        <Paper withBorder shadow="sm" className="!min-w-full">
                             <Table>
                                 <Table.Thead>
                                     <Table.Tr>
                                         <Table.Td className="w-0">
                                             <Checkbox
                                                 indeterminate={
-                                                    selectedIds.length <= filteredDnsRecords.length &&
+                                                    selectedIds.length < filteredDnsRecords.length &&
                                                     selectedIds.length > 0
                                                 }
                                                 checked={selectedIds.length >= filteredDnsRecords.length}

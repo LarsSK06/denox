@@ -196,7 +196,7 @@ const ProfileWall = ({ children }: ParentProps) => {
                         href="/"
                         onClick={() => setCurrentProfile(profiles!.find(p => p.id === selectedProfileId)!)}
                         disabled={!selectedProfileId}
-                        className="ml-auto transition-colors"
+                        className="ml-auto"
                         rightSection={<IconChevronRight />}>
                         {t("common.Continue")}
                     </Button>

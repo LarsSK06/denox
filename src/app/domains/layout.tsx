@@ -8,14 +8,17 @@ import getArrayFromNumber from "@/utils/functions/getArrayFromNumber";
 import DomainGetModel from "@/types/domains/DomainGetModel";
 import useSearchParam from "@/utils/hooks/useSearchParam";
 import Link from "next/link";
+import useCache from "@/utils/hooks/useCache";
 
 import { useEffect } from "react";
 import { t } from "i18next";
 import { NavLink, Skeleton } from "@mantine/core";
+import { domainSidebarWidthCacheKey } from "@/utils/globals";
 
 const Layout = ({ children }: ParentProps) => {
 
     const domainId = useSearchParam({ key: "domainId", type: "number" });
+    const cachedSidebarWidth = useCache({ key: domainSidebarWidthCacheKey, type: "number" });
 
     const {
         isLoading: isDomainsLoading,
@@ -35,7 +38,10 @@ const Layout = ({ children }: ParentProps) => {
                 {t("domains.Domains")}
             </h1>
 
-            <Sidebar>
+            <Sidebar
+                initialWidth={cachedSidebarWidth ?? undefined}
+                key={cachedSidebarWidth}
+                setCache={value => window.localStorage.setItem(domainSidebarWidthCacheKey, `${value}`)}>
                 <nav className="w-full h-full flex flex-col gap-1 overflow-auto" aria-label={t("domains.Domains")}>
                     {isDomainsLoading ? (
                         getArrayFromNumber(domains?.length ?? 15).map(i => (

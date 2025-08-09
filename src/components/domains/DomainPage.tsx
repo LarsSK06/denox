@@ -6,6 +6,7 @@ import DnsRecordsTab from "../dnsRecords/DnsRecordsTab";
 import { Tabs } from "@mantine/core";
 import { t } from "i18next";
 import { useState } from "react";
+import ForwardsTab from "../forwards/ForwardsTab";
 
 type Tab =
     "overview" |
@@ -45,7 +46,7 @@ const DomainPage = () => {
                 </Tabs.Panel>
 
                 <Tabs.Panel value={"forwards" satisfies Tab} className="w-full h-0 flex-grow overflow-auto">
-                    <DomainOverviewTab />
+                    <ForwardsTab />
                 </Tabs.Panel>
             </Tabs>
         </main>

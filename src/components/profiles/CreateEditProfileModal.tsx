@@ -10,8 +10,8 @@ import { t } from "i18next";
 type CreateEditProfileModalProps = {
     show?: boolean;
     profile: ProfileGetModel | null;
-    refresh?: () => any;
-    onClose: () => any;
+    refresh?: () => unknown;
+    onClose: () => unknown;
 };
 
 const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditProfileModalProps) => {
@@ -36,7 +36,7 @@ const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditP
         setName(localProfile?.name ?? "");
         setToken(localProfile?.token ?? "");
         setSecret(localProfile?.secret ?? "");
-        setIsPasswordProtected(localProfile?.isPasswordProtected ?? false);
+        setIsPasswordProtected(false);
         setPassword("");
     }, [localProfile]);
 
@@ -60,17 +60,17 @@ const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditP
                 ? database.execute(
                     `
                     UPDATE profiles
-                    SET name = $1, isPasswordProtected = $2, token = $3, secret = $4, editedAt = $5
-                    WHERE id = $6
+                    SET name = $1, token = $2, secret = $3, editedAt = $4
+                    WHERE id = $5
                     `,
-                    [name, isPasswordProtected, token, secret, Date.now(), localProfile.id]
+                    [name, token, secret, Date.now(), localProfile.id]
                 )
                 : database.execute(
                     `
-                    INSERT INTO profiles (name, isPasswordProtected, token, secret, createdAt)
-                    VALUES ($1, $2, $3, $4, $5)
+                    INSERT INTO profiles (name, token, secret, createdAt)
+                    VALUES ($1, $2, $3, $4)
                     `,
-                    [name, isPasswordProtected, token, secret, Date.now()]
+                    [name, token, secret, Date.now()]
                 )
         ).then(() => {
             handleClose();
@@ -146,7 +146,6 @@ const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditP
                 </Button>
 
                 <Button
-                    className="transition-colors"
                     leftSection={<IconDeviceFloppy />}
                     onClick={() => handleSave()}
                     loading={isLoading}

@@ -1,19 +1,21 @@
 "use client";
 
-import { ActionIcon, Button, Divider, Paper, Tooltip } from "@mantine/core";
-import { IconAntenna, IconFileDollar, IconMaximize, IconMinus, IconUser, IconUsers, IconX } from "@tabler/icons-react";
+import { ActionIcon, Button, Divider, MantineColor, Paper } from "@mantine/core";
+import { IconAntenna, IconCurrencyDollar, IconMaximize, IconMinus, IconTag, IconUser, IconX } from "@tabler/icons-react";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getCurrentWindow, Window } from "@tauri-apps/api/window";
 import { t } from "i18next";
 
 import Logo from "../common/Logo";
 import Link from "next/link";
+import useColorScheme from "@/utils/hooks/useColorScheme";
 
 const Titlebar = () => {
     const [currentWindow, setCurrentWindow] = useState<Window | null>(null);
 
     const { profile, setProfile } = useProfileContext();
+    const { isDark: isColorSchemeDark } = useColorScheme();
 
     const handleMinimize = () => currentWindow?.minimize();
 
@@ -28,6 +30,12 @@ const Titlebar = () => {
     useEffect(() => {
         setCurrentWindow(getCurrentWindow());
     }, []);
+
+    const windowControlButtonColor = useMemo<MantineColor>(() =>
+        isColorSchemeDark
+            ? "white"
+            : "black"
+    , [isColorSchemeDark]);
 
     return (
         <Paper
@@ -50,22 +58,26 @@ const Titlebar = () => {
                         {t("domains.Domains")}
                     </Button>
 
-                    <Button variant="light" component={Link} href="/invoices" leftSection={<IconFileDollar />} size="compact-md">
+                    <Button variant="light" component={Link} href="/invoices" leftSection={<IconCurrencyDollar />} size="compact-md">
                         {t("invoices.Invoices")}
+                    </Button>
+
+                    <Button variant="light" component={Link} href="/tags" leftSection={<IconTag />} size="compact-md">
+                        {t("tags.Tags")}
                     </Button>
                 </nav>
             </div>
 
             <div className="p-1 flex gap-1">
-                <ActionIcon variant="subtle" color="black" onClick={() => handleMinimize()}>
+                <ActionIcon variant="subtle" color={windowControlButtonColor} onClick={() => handleMinimize()}>
                     <IconMinus />
                 </ActionIcon>
 
-                <ActionIcon variant="subtle" color="black" onClick={() => handleMaximize()}>
+                <ActionIcon variant="subtle" color={windowControlButtonColor} onClick={() => handleMaximize()}>
                     <IconMaximize />
                 </ActionIcon>
 
-                <ActionIcon variant="subtle" color="black" onClick={() => handleClose()}>
+                <ActionIcon variant="subtle" color={windowControlButtonColor} onClick={() => handleClose()}>
                     <IconX />
                 </ActionIcon>
             </div>

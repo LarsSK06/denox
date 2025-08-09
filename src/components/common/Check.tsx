@@ -1,5 +1,8 @@
 "use client";
 
+import useColorScheme from "@/utils/hooks/useColorScheme";
+
+import { Tooltip, useMantineTheme } from "@mantine/core";
 import { IconCheck, IconCircleCheck, IconCircleMinus, IconCircleX } from "@tabler/icons-react";
 import { t } from "i18next";
 import { ComponentProps } from "react";
@@ -18,10 +21,22 @@ const Check = ({
     indeterminateLabel = t("common.Indeterminate"),
     ...restProps
 }: CheckProps) => {
+
+    const { isDark: isColorSchemeDark } = useColorScheme();
+
+    const mantineTheme = useMantineTheme();
+    
+    const shadeIndexer =
+        typeof mantineTheme.primaryShade === "object"
+            ? mantineTheme.primaryShade[isColorSchemeDark ? "dark" : "light"]
+            : mantineTheme.primaryShade;
+
     switch (mode) {
         case "true": return (
             <>
-                <IconCircleCheck color="green" aria-hidden {...restProps} />
+                <Tooltip label={trueLabel}>
+                    <IconCircleCheck color={mantineTheme.colors.green[shadeIndexer]} aria-hidden {...restProps} />
+                </Tooltip>
 
                 <span className="sr-only">
                     {trueLabel}
@@ -30,7 +45,9 @@ const Check = ({
         );
         case "false": return (
             <>
-                <IconCircleX color="red" aria-hidden {...restProps} />
+                <Tooltip label={falseLabel}>
+                    <IconCircleX color={mantineTheme.colors.red[shadeIndexer]} aria-hidden {...restProps} />
+                </Tooltip>
 
                 <span className="sr-only">
                     {falseLabel}
@@ -39,7 +56,9 @@ const Check = ({
         );
         case "indeterminate": return (
             <>
-                <IconCircleMinus color="gray" aria-hidden {...restProps} />
+                <Tooltip label={indeterminateLabel}>
+                    <IconCircleMinus color={mantineTheme.colors.gray[shadeIndexer]} aria-hidden {...restProps} />
+                </Tooltip>
 
                 <span className="sr-only">
                     {indeterminateLabel}

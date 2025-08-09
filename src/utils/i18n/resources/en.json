@@ -89,7 +89,12 @@
             "Ipv4Address": "IPv4 address",
             "Ipv6Address": "IPv6 address",
             "DuplicateTo": "Duplicate to",
-            "MoveTo": "Move to"
+            "MoveTo": "Move to",
+            "True": "True",
+            "False": "False",
+            "Bad": "Bad",
+            "Good": "Good",
+            "VeryGood": "Very good"
         },
         "domains": {
             "Domain": "Domain",
@@ -134,6 +139,10 @@
             "DeleteForward": "Delete forward",
             "DeleteForwards": "Delete {{count}} forwards",
             "DeleteForwards_one": "Delete {{count}} forward"
+        },
+        "tags": {
+            "Tag": "Tag",
+            "Tags": "Tags"
         },
         "other": {
             "DoNotSellMyData": "Do not sell my data",
