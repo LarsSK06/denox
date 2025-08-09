@@ -13,6 +13,7 @@ import useSearchParam from "@/utils/hooks/useSearchParam";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import Endpoint from "@/types/http/Endpoint";
 import DomainGetModel from "@/types/domains/DomainGetModel";
+import Loader from "../common/Loader";
 
 const DomainOverviewTab = () => {
 
@@ -37,14 +38,10 @@ const DomainOverviewTab = () => {
     }, [domainId]);
 
     return (
-        <div className="w-full h-full overflow-hidden">
-            <Transition mounted={!!domain}>
+        <div className="w-full h-full relative">
+            <Transition mounted={!!domain} transition="fade-right">
                 {style => (
                     <div className="w-full h-full p-2 flex flex-col items-center gap-8 overflow-auto" style={style}>
-                        <h2 className="sr-only">
-                            {(domain ?? dummyDomain).domain}
-                        </h2>
-
                         <DomainPeriodProgressCircle domain={domain ?? dummyDomain} />
 
                         <Text component="h2" size="xl" aria-hidden>
@@ -160,6 +157,14 @@ const DomainOverviewTab = () => {
                                 ))}
                             </ol>
                         </Paper>
+                    </div>
+                )}
+            </Transition>
+
+            <Transition mounted={!domain} transition="fade-right">
+                {style => (
+                    <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
+                        <Loader />
                     </div>
                 )}
             </Transition>

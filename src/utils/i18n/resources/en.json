@@ -137,7 +137,7 @@
         },
         "other": {
             "DoNotSellMyData": "Do not sell my data",
-            "EditItem": "Edit {{item}}",
+            "EditItem": "Edit <i>{{item}}</i>",
             "EditContactInfo": "Edit contact info",
             "OrderUpgrade": "Order upgrade",
             "SeemsEmptyOverHere": "Seems empty over here",
