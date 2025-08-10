@@ -1,8 +1,10 @@
 "use client";
 
-import { ActionIcon, Button, Menu, Paper, Pill, Table, Text, Transition } from "@mantine/core";
+import { ActionIcon, Menu, Paper, Table, Text, Transition } from "@mantine/core";
+import { useDbContext } from "@/utils/contexts/useDbContext";
 import { dummyDomain } from "@/utils/globals";
 import { useEffect, useMemo } from "react";
+import { IconPlus } from "@tabler/icons-react";
 import { t } from "i18next";
 
 import DomainPeriodProgressCircle from "./DomainPeriodProgressCircle";
@@ -17,11 +19,13 @@ import Loader from "../common/Loader";
 import useDbSelect from "@/utils/hooks/useDbSelect";
 import TagGetModel from "@/types/tags/TagGetModel";
 import ColoredPill from "../common/ColoredPill";
-import { IconPlus } from "@tabler/icons-react";
+import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 
 const DomainOverviewTab = () => {
 
     const domainId = useSearchParam({ key: "domainId", type: "number" });
+
+    const { database: db } = useDbContext();
 
     const {
         data: domain,
@@ -37,14 +41,18 @@ const DomainOverviewTab = () => {
 
     const {
         data: tags,
+        setData: setTags,
         call: getTags
-    } = useDbSelect<(TagGetModel & { isOnDomain: boolean })[]>({
+    } = useDbSelect<(TagGetModel & { isOnDomain: boolean; })[]>({
         query: `
-            SELECT t.*, EXISTS (
-                SELECT 1
-                FROM domainTagRelations dtr
-                WHERE dtr.domain = $1 AND dtr.tagId = t.id
-            ) as isOnDomain FROM tags t
+            SELECT
+                t.*,
+                EXISTS (
+                    SELECT 1
+                    FROM domainTagRelations dtr
+                    WHERE dtr.domain = $1 AND dtr.tagId = t.id
+                ) as isOnDomain
+            FROM tags t
         `,
         bindValues: [domain?.domain]
     });
@@ -68,6 +76,56 @@ const DomainOverviewTab = () => {
     const tagsOnDomain = useMemo(() => tags?.filter(t => t.isOnDomain) ?? [], [tags]);
     const tagsNotOnDomain = useMemo(() => tags?.filter(t => !t.isOnDomain) ?? [], [tags]);
 
+    const removeTag = (tagId: number) => {
+        setTags(prev =>
+            prev!.map(t =>
+                t.id === tagId ? {
+                    ...t,
+                    isOnDomain: false
+                } : t
+            )
+        );
+
+        db.execute("DELETE FROM domainTagRelations WHERE domain = $1 AND tagId = $2", [domain?.domain, tagId])
+            .catch(error => {
+                setTags(prev =>
+                    prev!.map(t =>
+                        t.id === tagId ? {
+                            ...t,
+                            isOnDomain: true
+                        } : t
+                    )
+                );
+
+                handleErrorMessage(t("tags.RemoveTagError"))(error);
+            });
+    };
+
+    const addTag = (tagId: number) => {
+        setTags(prev =>
+            prev!.map(t =>
+                t.id === tagId ? {
+                    ...t,
+                    isOnDomain: true
+                } : t
+            )
+        );
+
+        db.execute("INSERT INTO domainTagRelations (domain, tagId) VALUES ($1, $2)", [domain?.domain, tagId])
+            .catch(error => {
+                setTags(prev =>
+                    prev!.map(t =>
+                        t.id === tagId ? {
+                            ...t,
+                            isOnDomain: false
+                        } : t
+                    )
+                );
+
+                handleErrorMessage(t("tags.AddTagError"))(error);
+            });
+    };
+
     return (
         <div className="w-full h-full relative">
             <Transition mounted={!isLoadingGenerally} transition="fade-right">
@@ -79,35 +137,40 @@ const DomainOverviewTab = () => {
                             {domain?.domain ?? dummyDomain.domain}
                         </Text>
 
-                        {tagsOnDomain.length > 0 ? (
-                            <ul className="flex gap-2" aria-label={t("tags.Tags")}>
-                                {tagsOnDomain.map(tag => (
-                                    <ColoredPill component="li" color={tag.color} key={tag.id}>
-                                        {tag.name}
-                                    </ColoredPill>
-                                ))}
+                        <ul className="flex gap-2" aria-label={t("tags.Tags")}>
+                            {tagsOnDomain.map(tag => (
+                                <ColoredPill
+                                    withRemoveButton
+                                    component="li"
+                                    color={tag.color}
+                                    key={tag.id}
+                                    onRemove={() => removeTag(tag.id)}>
+                                    {tag.name}
+                                </ColoredPill>
+                            ))}
 
-                                {tagsNotOnDomain.length > 0 ? (
-                                    <li className="flex">
-                                        <Menu>
-                                            <Menu.Target>
-                                                <ActionIcon size="sm" variant="subtle">
-                                                    <IconPlus />
-                                                </ActionIcon>
-                                            </Menu.Target>
+                            {tagsNotOnDomain.length > 0 ? (
+                                <li className="flex">
+                                    <Menu>
+                                        <Menu.Target>
+                                            <ActionIcon size="sm" variant="subtle">
+                                                <IconPlus />
+                                            </ActionIcon>
+                                        </Menu.Target>
 
-                                            <Menu.Dropdown>
-                                                {tagsNotOnDomain.map(tag => (
-                                                    <Menu.Item key={tag.id}>
-                                                        {tag.name}
-                                                    </Menu.Item>
-                                                ))}
-                                            </Menu.Dropdown>
-                                        </Menu>
-                                    </li>
-                                ) : null}
-                            </ul>
-                        ) : null}
+                                        <Menu.Dropdown>
+                                            {tagsNotOnDomain.map(tag => (
+                                                <Menu.Item
+                                                    key={tag.id}
+                                                    onClick={() => addTag(tag.id)}>
+                                                    {tag.name}
+                                                </Menu.Item>
+                                            ))}
+                                        </Menu.Dropdown>
+                                    </Menu>
+                                </li>
+                            ) : null}
+                        </ul>
 
                         <Paper withBorder shadow="sm" className="w-full">
                             <Text className="p-2" component="h3" size="lg">

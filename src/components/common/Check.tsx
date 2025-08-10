@@ -1,6 +1,7 @@
 "use client";
 
 import useColorScheme from "@/utils/hooks/useColorScheme";
+import usePrimaryShade from "@/utils/hooks/usePrimaryShade";
 
 import { Tooltip, useMantineTheme } from "@mantine/core";
 import { IconCheck, IconCircleCheck, IconCircleMinus, IconCircleX } from "@tabler/icons-react";
@@ -22,14 +23,8 @@ const Check = ({
     ...restProps
 }: CheckProps) => {
 
-    const { isDark: isColorSchemeDark } = useColorScheme();
-
     const mantineTheme = useMantineTheme();
-    
-    const shadeIndexer =
-        typeof mantineTheme.primaryShade === "object"
-            ? mantineTheme.primaryShade[isColorSchemeDark ? "dark" : "light"]
-            : mantineTheme.primaryShade;
+    const shadeIndexer = usePrimaryShade();
 
     switch (mode) {
         case "true": return (

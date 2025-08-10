@@ -1,17 +1,12 @@
 import { useMantineTheme } from "@mantine/core";
 
-import useColorScheme from "./useColorScheme";
+import usePrimaryShade from "./usePrimaryShade";
 
 const usePrimaryColorShade = () => {
-    const { primaryColor, primaryShade, colors } = useMantineTheme();
-    const { isDark: isColorSchemeDark } = useColorScheme();
+    const mantineTheme = useMantineTheme();
+    const shadeIndexer = usePrimaryShade();
 
-    const shadeIndexer =
-        typeof primaryShade === "object"
-            ? primaryShade[isColorSchemeDark ? "dark" : "light"]
-            : primaryShade;
-
-    return colors[primaryColor][shadeIndexer];
+    return mantineTheme.colors[mantineTheme.primaryColor][shadeIndexer];
 };
 
 export default usePrimaryColorShade;

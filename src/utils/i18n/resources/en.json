@@ -94,7 +94,8 @@
             "False": "False",
             "Bad": "Bad",
             "Good": "Good",
-            "VeryGood": "Very good"
+            "VeryGood": "Very good",
+            "Color": "Color"
         },
         "domains": {
             "Domain": "Domain",
@@ -142,7 +143,11 @@
         },
         "tags": {
             "Tag": "Tag",
-            "Tags": "Tags"
+            "Tags": "Tags",
+            "AddTag": "Add tag",
+            "AddTagError": "Could not add tag",
+            "RemoveTag": "Remove tag",
+            "RemoveTagError": "Could not remove tag"
         },
         "other": {
             "DoNotSellMyData": "Do not sell my data",
