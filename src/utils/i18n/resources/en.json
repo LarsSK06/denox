@@ -147,7 +147,13 @@
             "AddTag": "Add tag",
             "AddTagError": "Could not add tag",
             "RemoveTag": "Remove tag",
-            "RemoveTagError": "Could not remove tag"
+            "RemoveTagError": "Could not remove tag",
+            "CreateTag": "Create tag",
+            "CreateTagError": "Could not create tag",
+            "EditTag": "Edit tag",
+            "EditTagError": "Could not edit tag",
+            "DeleteTag": "Delete tag",
+            "DeleteTagError": "Could not delete tag"
         },
         "other": {
             "DoNotSellMyData": "Do not sell my data",

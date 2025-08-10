@@ -28,3 +28,11 @@ CREATE TABLE domainTagRelations (
 
     FOREIGN KEY (tagId) REFERENCES tags
 );
+
+CREATE TABLE invoiceTagRelations (
+    id                      INTEGER         PRIMARY KEY NOT NULL,
+    invoiceId               INTEGER         NOT NULL,
+    tagId                   INTEGER         NOT NULL,
+
+    FOREIGN KEY (tagId) REFERENCES tags
+);
