@@ -1,4 +1,4 @@
-import useColorScheme from "@/utils/hooks/useColorScheme";
+import useColorScheme from "@/utils/hooks/useConciseColorScheme";
 
 import { MantineColor, Pill, useMantineTheme } from "@mantine/core";
 import { ComponentProps, useMemo } from "react";
@@ -36,6 +36,9 @@ const ColoredPill = ({ color, ...restProps }: ColoredPillProps) => {
                     borderColor: foregroundColor,
                     borderWidth: "1px",
                     color: foregroundColor
+                },
+                label: {
+                    transform: "translateY(-1px)"
                 }
             }}
         />

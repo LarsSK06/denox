@@ -2,27 +2,45 @@
 
 import Loader from "@/components/common/Loader";
 import TagGetModel from "@/types/tags/TagGetModel";
-import usePrimaryShade from "@/utils/hooks/usePrimaryShade";
 import CreateEditTagModal from "@/components/tags/CreateEditTagModal";
+import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 
-import { ActionIcon, Button, Menu, Paper, Table, Transition, useMantineTheme } from "@mantine/core";
+import { ActionIcon, Button, getThemeColor, Menu, Paper, Table, Transition, useMantineTheme } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { t } from "i18next";
-import { IconDots, IconPencil, IconPlus } from "@tabler/icons-react";
+import { IconDots, IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useTagsContext } from "@/utils/contexts/useTagsContext";
+import { useDbContext } from "@/utils/contexts/useDbContext";
 
 const Page = () => {
     const [showCreateEditTagModal, setShowCreateEditModal] = useState<boolean>(false);
     const [tagToEdit, setTagToEdit] = useState<TagGetModel | null>(null);
 
-    const { tags, getTags } = useTagsContext();
+    const { tags, getTags, setTags } = useTagsContext();
 
     useEffect(() => {
         getTags();
     }, []);
 
     const mantineTheme = useMantineTheme();
-    const shadeIndexer = usePrimaryShade();
+
+    const { database: db } = useDbContext();
+
+    const deleteTag = (tagId: number) => {
+        const tagSnapshot = structuredClone(tags?.find(t => t.id === tagId)!);
+
+        setTags(prev => prev!.filter(t => t.id !== tagId));
+
+        db.execute("DELETE FROM tags WHERE id = $1", [tagId])
+            .catch(error => {
+                setTags(prev => [
+                    ...prev!,
+                    tagSnapshot
+                ]);
+
+                handleErrorMessage(t("tags.DeleteTagError"))(error);
+            });
+    };
 
     return (
         <>
@@ -65,6 +83,10 @@ const Page = () => {
                                                 {t("domains.Domains")}
                                             </Table.Td>
 
+                                            <Table.Td>
+                                                {t("invoices.Invoices")}
+                                            </Table.Td>
+
                                             <Table.Td className="w-0">
                                                 <span className="sr-only">
                                                     {t("common.Actions")}
@@ -86,13 +108,17 @@ const Page = () => {
                                                             cx={5}
                                                             cy={5}
                                                             r="5"
-                                                            fill={mantineTheme.colors[tag.color][shadeIndexer]}
+                                                            fill={getThemeColor(tag.color, mantineTheme)}
                                                         />
                                                     </svg>
                                                 </Table.Td>
 
                                                 <Table.Td>
                                                     {tag.domainsCount}
+                                                </Table.Td>
+
+                                                <Table.Td>
+                                                    {tag.invoicesCount}
                                                 </Table.Td>
 
                                                 <Table.Td>
@@ -108,7 +134,7 @@ const Page = () => {
                                                                 {t("tags.EditTag")}
                                                             </Menu.Item>
 
-                                                            <Menu.Item leftSection={<IconPencil />} onClick={() => setTagToEdit(tag)} color="red">
+                                                            <Menu.Item leftSection={<IconTrash />} onClick={() => deleteTag(tag.id)} color="red">
                                                                 {t("tags.DeleteTag")}
                                                             </Menu.Item>
                                                         </Menu.Dropdown>

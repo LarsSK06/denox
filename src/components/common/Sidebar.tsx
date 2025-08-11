@@ -1,11 +1,10 @@
 "use client";
 
 import ParentProps from "@/types/common/ParentProps";
-import usePrimaryColorShade from "@/utils/hooks/usePrimaryColorShade";
 
-import { Paper } from "@mantine/core";
-import { t } from "i18next";
 import { useEffect, useRef, useState } from "react";
+import { getThemeColor, Paper, useMantineTheme } from "@mantine/core";
+import { t } from "i18next";
 
 type SidebarProps = {
     initialWidth?: number;
@@ -25,7 +24,7 @@ const Sidebar = ({
     const [isGrabbing, setIsGrabbing] = useState<boolean>(false);
 
     const paperRef = useRef<HTMLElement | null>(null);
-    const primaryColorShade = usePrimaryColorShade();
+    const mantineTheme = useMantineTheme();
 
     const onMouseDown = () => setIsGrabbing(true);
 
@@ -77,7 +76,7 @@ const Sidebar = ({
     return (
         <Paper withBorder component="aside" ref={paperRef} style={{ width }} className="h-full border-t-0 border-b-0 border-l-0 rounded-none relative">
             <button onMouseDown={onMouseDown} onKeyDown={onKeyDown} className="w-[8px] h-full absolute top-0 right-[-4px] z-1 group outline-none" style={{ cursor: isGrabbing ? "grabbing" : "grab" }} aria-label={t("common.ResizeSidebar")}>
-                <div className="w-0 h-full mx-auto group-hover:w-full group-focus-visible:w-full transition-all" style={{ width: isGrabbing ? "100%" : undefined, backgroundColor: primaryColorShade }} />
+                <div className="w-0 h-full mx-auto group-hover:w-full group-focus-visible:w-full transition-all" style={{ width: isGrabbing ? "100%" : undefined, backgroundColor: getThemeColor(mantineTheme.primaryColor, mantineTheme) }} />
             </button>
 
             <div className="w-full h-full">

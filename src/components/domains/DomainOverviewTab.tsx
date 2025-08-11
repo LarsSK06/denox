@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionIcon, Menu, Paper, Table, Text, Transition } from "@mantine/core";
+import { ActionIcon, CloseButton, Menu, Paper, Table, Text, Transition } from "@mantine/core";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { dummyDomain } from "@/utils/globals";
 import { useEffect, useMemo } from "react";
@@ -20,6 +20,7 @@ import useDbSelect from "@/utils/hooks/useDbSelect";
 import TagGetModel from "@/types/tags/TagGetModel";
 import ColoredPill from "../common/ColoredPill";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
+import NoteGetModel from "@/types/notes/NoteGetModel";
 
 const DomainOverviewTab = () => {
 
@@ -57,6 +58,17 @@ const DomainOverviewTab = () => {
         bindValues: [domain?.domain]
     });
 
+    const {
+        data: notes,
+        setData: setNotes,
+        call: getNotes
+    } = useDbSelect<NoteGetModel[]>({
+        query: `
+            SELECT * FROM notes WHERE domain = $1
+        `,
+        bindValues: [domain?.domain]
+    });
+
     useEffect(() => {
         if (!domainId) return;
 
@@ -67,11 +79,13 @@ const DomainOverviewTab = () => {
         if (!domain) return;
 
         getTags();
+        getNotes();
     }, [domain]);
 
     const isLoadingGenerally =
         !domain ||
-        !tags;
+        !tags ||
+        !notes;
 
     const tagsOnDomain = useMemo(() => tags?.filter(t => t.isOnDomain) ?? [], [tags]);
     const tagsNotOnDomain = useMemo(() => tags?.filter(t => !t.isOnDomain) ?? [], [tags]);
@@ -170,6 +184,20 @@ const DomainOverviewTab = () => {
                                     </Menu>
                                 </li>
                             ) : null}
+                        </ul>
+                        
+                        <ul className="w-full flex justify-center items-stretch gap-2" style={{ flexWrap: "wrap" }}>
+                            {notes?.map(note => (
+                                <Paper withBorder shadow="sm" component="li" key={note.id}>
+                                    <div className="w-fit ml-auto block">
+                                        <CloseButton />
+                                    </div>
+
+                                    <pre className="w-full p-2">
+                                        {note.text}
+                                    </pre>
+                                </Paper>
+                            ))}
                         </ul>
 
                         <Paper withBorder shadow="sm" className="w-full">

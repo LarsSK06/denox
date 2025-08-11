@@ -1,10 +1,9 @@
 import TagGetModel from "@/types/tags/TagGetModel";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
-import usePrimaryShade from "@/utils/hooks/usePrimaryShade";
 
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { useTagsContext } from "@/utils/contexts/useTagsContext";
-import { Button, MantineColor, Modal, Radio, TextInput, useMantineTheme } from "@mantine/core";
+import { Button, getThemeColor, MantineColor, Modal, Radio, TextInput, useMantineTheme } from "@mantine/core";
 import { IconChevronLeft, IconDeviceFloppy } from "@tabler/icons-react";
 import { t } from "i18next";
 import { useEffect, useState } from "react";
@@ -12,7 +11,7 @@ import { useEffect, useState } from "react";
 type CreateEditTagModalProps = {
     show: boolean;
     onClose: () => unknown;
-    tag: TagGetModel | null;
+    tag: (TagGetModel & { domainsCount?: number; }) | null;
 };
 
 const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => {
@@ -35,7 +34,6 @@ const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => 
     }, [show]);
 
     const mantineTheme = useMantineTheme();
-    const shadeIndexer = usePrimaryShade();
 
     const { setTags } = useTagsContext();
     const { database: db } = useDbContext();
@@ -60,7 +58,7 @@ const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => 
                     setTags(prev =>
                         prev!.map(t =>
                             t.id === tag.id
-                                ? tag
+                                ? { ...tag, domainsCount: tag.domainsCount ?? 0 }
                                 : t
                         )
                     );
@@ -77,7 +75,8 @@ const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => 
                 {
                     id: syntheticId,
                     name,
-                    color
+                    color,
+                    domainsCount: 0
                 }
             ]);
 
@@ -119,7 +118,7 @@ const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => 
                                     cx={5}
                                     cy={5}
                                     r="5"
-                                    fill={mantineTheme.colors[c][shadeIndexer]}
+                                    fill={getThemeColor(c, mantineTheme)}
                                 />
                             </svg>
                         </Radio.Card>

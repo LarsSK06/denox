@@ -26,7 +26,7 @@ CREATE TABLE domainTagRelations (
     domain                  TEXT            NOT NULL,
     tagId                   INTEGER         NOT NULL,
 
-    FOREIGN KEY (tagId) REFERENCES tags
+    FOREIGN KEY (tagId) REFERENCES tags ON DELETE CASCADE
 );
 
 CREATE TABLE invoiceTagRelations (
@@ -34,5 +34,5 @@ CREATE TABLE invoiceTagRelations (
     invoiceId               INTEGER         NOT NULL,
     tagId                   INTEGER         NOT NULL,
 
-    FOREIGN KEY (tagId) REFERENCES tags
+    FOREIGN KEY (tagId) REFERENCES tags ON DELETE CASCADE
 );

@@ -1,5 +1,4 @@
-import usePrimaryColorShade from "@/utils/hooks/usePrimaryColorShade";
-
+import { getThemeColor, useMantineTheme } from "@mantine/core";
 import { Mirage } from "ldrs/react";
 
 import "ldrs/react/Mirage.css";
@@ -10,12 +9,12 @@ type LoaderProps = {
 
 const Loader = ({ size = 200 }: LoaderProps) => {
 
-    const primaryColorShade = usePrimaryColorShade();
+    const mantineTheme = useMantineTheme();
 
     return (
         <Mirage
             size={size}
-            color={primaryColorShade}
+            color={getThemeColor(mantineTheme.primaryColor, mantineTheme)}
         />
     );
 };

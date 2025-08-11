@@ -9,7 +9,7 @@ import { t } from "i18next";
 
 import Logo from "../common/Logo";
 import Link from "next/link";
-import useColorScheme from "@/utils/hooks/useColorScheme";
+import useColorScheme from "@/utils/hooks/useConciseColorScheme";
 
 const Titlebar = () => {
     const [currentWindow, setCurrentWindow] = useState<Window | null>(null);
