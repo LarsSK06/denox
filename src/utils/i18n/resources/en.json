@@ -95,7 +95,8 @@
             "Bad": "Bad",
             "Good": "Good",
             "VeryGood": "Very good",
-            "Color": "Color"
+            "Color": "Color",
+            "Text": "Text"
         },
         "domains": {
             "Domain": "Domain",
@@ -154,6 +155,13 @@
             "EditTagError": "Could not edit tag",
             "DeleteTag": "Delete tag",
             "DeleteTagError": "Could not delete tag"
+        },
+        "notes": {
+            "Note": "Note",
+            "Notes": "Notes",
+            "CreateNote": "Create note",
+            "CreateNoteError": "Could not create note",
+            "DeleteNoteError": "Could not delete note"
         },
         "other": {
             "DoNotSellMyData": "Do not sell my data",

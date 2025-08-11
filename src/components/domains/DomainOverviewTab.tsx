@@ -1,9 +1,9 @@
 "use client";
 
-import { ActionIcon, CloseButton, Menu, Paper, Table, Text, Transition } from "@mantine/core";
+import { ActionIcon, CloseButton, Menu, Paper, Table, Text, Transition, UnstyledButton } from "@mantine/core";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { dummyDomain } from "@/utils/globals";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IconPlus } from "@tabler/icons-react";
 import { t } from "i18next";
 
@@ -21,8 +21,10 @@ import TagGetModel from "@/types/tags/TagGetModel";
 import ColoredPill from "../common/ColoredPill";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 import NoteGetModel from "@/types/notes/NoteGetModel";
+import CreateNoteModal from "../notes/CreateNoteModal";
 
 const DomainOverviewTab = () => {
+    const [showCreateNoteModal, setShowCreateNoteModal] = useState<boolean>(false);
 
     const domainId = useSearchParam({ key: "domainId", type: "number" });
 
@@ -140,187 +142,219 @@ const DomainOverviewTab = () => {
             });
     };
 
+    const deleteNote = (noteId: number) => {
+        const noteSnapshot = structuredClone(notes?.find(n => n.id === noteId)!);
+
+        setNotes(prev => prev!.filter(n => n.id !== noteId));
+
+        db.execute("DELETE FROM notes WHERE id = $1", [noteId])
+            .catch(error => {
+                setNotes(prev => [...prev!, noteSnapshot]);
+
+                handleErrorMessage(t("notes.DeleteNoteError"))(error);
+            });
+    };
+
     return (
-        <div className="w-full h-full relative">
-            <Transition mounted={!isLoadingGenerally} transition="fade-right">
-                {style => (
-                    <div className="w-full h-full p-2 flex flex-col items-center gap-8 overflow-auto" style={style}>
-                        <DomainPeriodProgressCircle domain={domain ?? dummyDomain} />
+        <>
+            <CreateNoteModal
+                show={showCreateNoteModal}
+                onClose={() => setShowCreateNoteModal(false)}
 
-                        <Text component="h2" size="xl" aria-hidden>
-                            {domain?.domain ?? dummyDomain.domain}
-                        </Text>
+                domain={domain?.domain ?? ""}
 
-                        <ul className="flex gap-2" aria-label={t("tags.Tags")}>
-                            {tagsOnDomain.map(tag => (
-                                <ColoredPill
-                                    withRemoveButton
-                                    component="li"
-                                    color={tag.color}
-                                    key={tag.id}
-                                    onRemove={() => removeTag(tag.id)}>
-                                    {tag.name}
-                                </ColoredPill>
-                            ))}
+                setNotes={setNotes}
+            />
 
-                            {tagsNotOnDomain.length > 0 ? (
-                                <li className="flex">
-                                    <Menu>
-                                        <Menu.Target>
-                                            <ActionIcon size="sm" variant="subtle">
-                                                <IconPlus />
-                                            </ActionIcon>
-                                        </Menu.Target>
+            <div className="w-full h-full relative">
+                <Transition mounted={!isLoadingGenerally} transition="fade-right">
+                    {style => (
+                        <div className="w-full h-full p-2 flex flex-col items-center gap-8 overflow-auto" style={style}>
+                            <DomainPeriodProgressCircle domain={domain ?? dummyDomain} />
 
-                                        <Menu.Dropdown>
-                                            {tagsNotOnDomain.map(tag => (
-                                                <Menu.Item
-                                                    key={tag.id}
-                                                    onClick={() => addTag(tag.id)}>
-                                                    {tag.name}
-                                                </Menu.Item>
-                                            ))}
-                                        </Menu.Dropdown>
-                                    </Menu>
+                            <Text component="h2" size="xl" aria-hidden>
+                                {domain?.domain ?? dummyDomain.domain}
+                            </Text>
+
+                            <ul className="flex gap-2" aria-label={t("tags.Tags")}>
+                                {tagsOnDomain.map(tag => (
+                                    <ColoredPill
+                                        withRemoveButton
+                                        component="li"
+                                        color={tag.color}
+                                        key={tag.id}
+                                        onRemove={() => removeTag(tag.id)}>
+                                        {tag.name}
+                                    </ColoredPill>
+                                ))}
+
+                                {tagsNotOnDomain.length > 0 ? (
+                                    <li className="flex">
+                                        <Menu>
+                                            <Menu.Target>
+                                                <ActionIcon size="sm" variant="subtle">
+                                                    <IconPlus />
+                                                </ActionIcon>
+                                            </Menu.Target>
+
+                                            <Menu.Dropdown>
+                                                {tagsNotOnDomain.map(tag => (
+                                                    <Menu.Item
+                                                        key={tag.id}
+                                                        onClick={() => addTag(tag.id)}>
+                                                        {tag.name}
+                                                    </Menu.Item>
+                                                ))}
+                                            </Menu.Dropdown>
+                                        </Menu>
+                                    </li>
+                                ) : null}
+                            </ul>
+                            
+                            <ul className="w-full flex items-stretch gap-2" style={{ flexWrap: "wrap" }}>
+                                {notes
+                                    ?.toSorted((a, b) => a.id > b.id ? 1 : -1)
+                                    .map(note => (
+                                    <Paper withBorder shadow="sm" component="li" className="w-20" key={note.id}>
+                                        <div className="w-fit ml-auto block">
+                                            <CloseButton onClick={() => deleteNote(note.id)} />
+                                        </div>
+
+                                        <pre className="w-full p-2">
+                                            {note.text}
+                                        </pre>
+                                    </Paper>
+                                ))}
+
+                                <li className="h-auto">
+                                    <ActionIcon aria-haspopup="dialog" onClick={() => setShowCreateNoteModal(true)}>
+                                        <IconPlus />
+                                    </ActionIcon>
                                 </li>
-                            ) : null}
-                        </ul>
-                        
-                        <ul className="w-full flex justify-center items-stretch gap-2" style={{ flexWrap: "wrap" }}>
-                            {notes?.map(note => (
-                                <Paper withBorder shadow="sm" component="li" key={note.id}>
-                                    <div className="w-fit ml-auto block">
-                                        <CloseButton />
-                                    </div>
+                            </ul>
 
-                                    <pre className="w-full p-2">
-                                        {note.text}
-                                    </pre>
-                                </Paper>
-                            ))}
-                        </ul>
+                            <Paper withBorder shadow="sm" className="w-full">
+                                <Text className="p-2" component="h3" size="lg">
+                                    {t("common.Services")}
+                                </Text>
 
-                        <Paper withBorder shadow="sm" className="w-full">
-                            <Text className="p-2" component="h3" size="lg">
-                                {t("common.Services")}
-                            </Text>
-
-                            <Table>
-                                <Table.Tbody>
-                                    <Table.Tr>
-                                        <Table.Th>
-                                            {t("common.Registrant")}
-                                        </Table.Th>
-
-                                        <Table.Td align="right">
-                                            {domain?.registrant}
-                                        </Table.Td>
-                                    </Table.Tr>
-
-                                    <Table.Tr>
-                                        <Table.Th>
-                                            {t("common.Status")}
-                                        </Table.Th>
-
-                                        <Table.Td align="right">
-                                            <DomainStatusChip status={domain?.status ?? dummyDomain.status} />
-                                        </Table.Td>
-                                    </Table.Tr>
-
-                                    <Table.Tr>
-                                        <Table.Th>
-                                            {t("common.WebHotel")}
-                                        </Table.Th>
-
-                                        <Table.Td align="right">
-                                            <DomainWebHotelSizeChip size={domain?.services.webhotel ?? dummyDomain.services.webhotel} />
-                                        </Table.Td>
-                                    </Table.Tr>
-
-                                    <Table.Tr>
-                                        <Table.Th>
-                                            {t("common.Renew")}
-                                        </Table.Th>
-
-                                        <Table.Td align="right">
-                                            <Check mode={domain?.renew ? "true" : "false"} />
-                                        </Table.Td>
-                                    </Table.Tr>
-
-                                    <Table.Tr>
-                                        <Table.Th>
-                                            {t("common.Registrar")}
-                                        </Table.Th>
-
-                                        <Table.Td align="right">
-                                            <Check mode={domain?.services.registrar ? "true" : "false"} />
-                                        </Table.Td>
-                                    </Table.Tr>
-
-                                    <Table.Tr>
-                                        <Table.Th>
-                                            {t("common.DNS")}
-                                        </Table.Th>
-
-                                        <Table.Td align="right">
-                                            <Check mode={domain?.services.dns ? "true" : "false"} />
-                                        </Table.Td>
-                                    </Table.Tr>
-
-                                    <Table.Tr>
-                                        <Table.Th>
-                                            {t("common.Email")}
-                                        </Table.Th>
-
-                                        <Table.Td align="right">
-                                            <Check mode={domain?.services.email ? "true" : "false"} />
-                                        </Table.Td>
-                                    </Table.Tr>
-                                </Table.Tbody>
-                            </Table>
-                        </Paper>
-
-                        <Paper withBorder shadow="sm" className="w-full">
-                            <Text className="p-2" component="h3" size="lg">
-                                {t("common.Nameservers")}
-                            </Text>
-
-                            <Table aria-hidden>
-                                <Table.Tbody>
-                                    {(domain?.nameservers ?? dummyDomain.nameservers).map((ns, i) => (
-                                        <Table.Tr key={i}>
+                                <Table>
+                                    <Table.Tbody>
+                                        <Table.Tr>
                                             <Table.Th>
-                                                {i + 1}
+                                                {t("common.Registrant")}
                                             </Table.Th>
 
                                             <Table.Td align="right">
-                                                {ns}
+                                                {domain?.registrant}
                                             </Table.Td>
                                         </Table.Tr>
+
+                                        <Table.Tr>
+                                            <Table.Th>
+                                                {t("common.Status")}
+                                            </Table.Th>
+
+                                            <Table.Td align="right">
+                                                <DomainStatusChip status={domain?.status ?? dummyDomain.status} />
+                                            </Table.Td>
+                                        </Table.Tr>
+
+                                        <Table.Tr>
+                                            <Table.Th>
+                                                {t("common.WebHotel")}
+                                            </Table.Th>
+
+                                            <Table.Td align="right">
+                                                <DomainWebHotelSizeChip size={domain?.services.webhotel ?? dummyDomain.services.webhotel} />
+                                            </Table.Td>
+                                        </Table.Tr>
+
+                                        <Table.Tr>
+                                            <Table.Th>
+                                                {t("common.Renew")}
+                                            </Table.Th>
+
+                                            <Table.Td align="right">
+                                                <Check mode={domain?.renew ? "true" : "false"} />
+                                            </Table.Td>
+                                        </Table.Tr>
+
+                                        <Table.Tr>
+                                            <Table.Th>
+                                                {t("common.Registrar")}
+                                            </Table.Th>
+
+                                            <Table.Td align="right">
+                                                <Check mode={domain?.services.registrar ? "true" : "false"} />
+                                            </Table.Td>
+                                        </Table.Tr>
+
+                                        <Table.Tr>
+                                            <Table.Th>
+                                                {t("common.DNS")}
+                                            </Table.Th>
+
+                                            <Table.Td align="right">
+                                                <Check mode={domain?.services.dns ? "true" : "false"} />
+                                            </Table.Td>
+                                        </Table.Tr>
+
+                                        <Table.Tr>
+                                            <Table.Th>
+                                                {t("common.Email")}
+                                            </Table.Th>
+
+                                            <Table.Td align="right">
+                                                <Check mode={domain?.services.email ? "true" : "false"} />
+                                            </Table.Td>
+                                        </Table.Tr>
+                                    </Table.Tbody>
+                                </Table>
+                            </Paper>
+
+                            <Paper withBorder shadow="sm" className="w-full">
+                                <Text className="p-2" component="h3" size="lg">
+                                    {t("common.Nameservers")}
+                                </Text>
+
+                                <Table aria-hidden>
+                                    <Table.Tbody>
+                                        {(domain?.nameservers ?? dummyDomain.nameservers).map((ns, i) => (
+                                            <Table.Tr key={i}>
+                                                <Table.Th>
+                                                    {i + 1}
+                                                </Table.Th>
+
+                                                <Table.Td align="right">
+                                                    {ns}
+                                                </Table.Td>
+                                            </Table.Tr>
+                                        ))}
+                                    </Table.Tbody>
+                                </Table>
+
+                                <ol className="sr-only">
+                                    {(domain?.nameservers ?? dummyDomain.nameservers).map((ns, i) => (
+                                        <li key={i}>
+                                            {ns}
+                                        </li>
                                     ))}
-                                </Table.Tbody>
-                            </Table>
+                                </ol>
+                            </Paper>
+                        </div>
+                    )}
+                </Transition>
 
-                            <ol className="sr-only">
-                                {(domain?.nameservers ?? dummyDomain.nameservers).map((ns, i) => (
-                                    <li key={i}>
-                                        {ns}
-                                    </li>
-                                ))}
-                            </ol>
-                        </Paper>
-                    </div>
-                )}
-            </Transition>
-
-            <Transition mounted={isLoadingGenerally} transition="fade-right">
-                {style => (
-                    <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
-                        <Loader />
-                    </div>
-                )}
-            </Transition>
-        </div>
+                <Transition mounted={isLoadingGenerally} transition="fade-right">
+                    {style => (
+                        <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
+                            <Loader />
+                        </div>
+                    )}
+                </Transition>
+            </div>
+        </>
     );
 };
 

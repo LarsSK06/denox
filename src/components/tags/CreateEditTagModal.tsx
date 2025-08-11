@@ -11,14 +11,12 @@ import { useEffect, useState } from "react";
 type CreateEditTagModalProps = {
     show: boolean;
     onClose: () => unknown;
-    tag: (TagGetModel & { domainsCount?: number; }) | null;
+    tag: (TagGetModel & { domainsCount?: number; invoicesCount?: number; }) | null;
 };
 
 const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => {
     const [name, setName] = useState<string>(tag?.name ?? "");
     const [color, setColor] = useState<MantineColor>(tag?.color ?? "indigo");
-
-    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     useEffect(() => {
         if (show) {
@@ -53,19 +51,23 @@ const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => 
             );
 
             db.execute("UPDATE tags SET name = $1, color = $2 WHERE id = $3", [name, color, tag.id])
-                .then(() => onClose())
                 .catch(error => {
                     setTags(prev =>
                         prev!.map(t =>
                             t.id === tag.id
-                                ? { ...tag, domainsCount: tag.domainsCount ?? 0 }
+                                ? {
+                                    ...tag,
+                                    domainsCount: tag.domainsCount ?? 0,
+                                    invoicesCount: tag.invoicesCount ?? 0
+                                }
                                 : t
                         )
                     );
 
                     handleErrorMessage(error)(t("tags.EditTagError"));
-                })
-                .finally(() => setIsLoading(false));
+                });
+            
+            onClose();
         }
         else {
             const syntheticId = Date.now();
@@ -76,7 +78,8 @@ const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => 
                     id: syntheticId,
                     name,
                     color,
-                    domainsCount: 0
+                    domainsCount: 0,
+                    invoicesCount: 0
                 }
             ]);
 
@@ -86,8 +89,7 @@ const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => 
                     setTags(prev => prev!.filter(t => t.id !== syntheticId));
 
                     handleErrorMessage(error)(t("tags.CreateTagError"));
-                })
-                .finally(() => setIsLoading(false));
+                });
         }
     };
 
@@ -126,11 +128,11 @@ const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => 
                 </Radio.Group>
 
                 <div className="mt-4 flex justify-end gap-2">
-                    <Button leftSection={<IconChevronLeft />} variant="subtle" onClick={() => onClose()} loading={isLoading}>
+                    <Button leftSection={<IconChevronLeft />} variant="subtle" onClick={() => onClose()}>
                         {t("common.Cancel")}
                     </Button>
 
-                    <Button leftSection={<IconDeviceFloppy />} type="submit" loading={isLoading}>
+                    <Button leftSection={<IconDeviceFloppy />} type="submit">
                         {t("common.Save")}
                     </Button>
                 </div>
