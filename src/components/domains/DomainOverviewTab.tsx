@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionIcon, CloseButton, Menu, Paper, Table, Text, Transition, UnstyledButton } from "@mantine/core";
+import { ActionIcon, CloseButton, Menu, Paper, Table, Text, Transition } from "@mantine/core";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { dummyDomain } from "@/utils/globals";
 import { useEffect, useMemo, useState } from "react";
@@ -216,13 +216,13 @@ const DomainOverviewTab = () => {
                                     ?.toSorted((a, b) => a.id > b.id ? 1 : -1)
                                     .map(note => (
                                     <Paper withBorder shadow="sm" component="li" className="w-20" key={note.id}>
-                                        <div className="w-fit ml-auto block">
+                                        <div className="w-fit ml-auto">
                                             <CloseButton onClick={() => deleteNote(note.id)} />
                                         </div>
 
-                                        <pre className="w-full p-2">
+                                        <Text component="pre" className="w-full p-2">
                                             {note.text}
-                                        </pre>
+                                        </Text>
                                     </Paper>
                                 ))}
 

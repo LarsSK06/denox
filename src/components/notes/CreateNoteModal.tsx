@@ -50,8 +50,6 @@ const CreateNoteModal = ({ show, onClose, domain, setNotes }: CreateNoteModalPro
 
                 handleErrorMessage(t("notes.CreateNoteError"))(error);
             });
-
-        onClose();
     };
 
     return (
