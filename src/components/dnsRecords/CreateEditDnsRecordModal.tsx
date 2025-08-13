@@ -1,5 +1,10 @@
 import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
 import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
+import useHttpClient from "@/utils/hooks/useHttpClient";
+import DnsRecordPostModel from "@/types/dnsRecords/DnsRecordPostModel";
+import Endpoint from "@/types/http/Endpoint";
+import handleErrorMessage from "@/utils/functions/handleErrorMessage";
+import DnsRecordPutModel from "@/types/dnsRecords/DnsRecordPutModel";
 
 import { Button, Modal, NumberInput, Select, Textarea, TextInput } from "@mantine/core";
 import { IconChevronLeft, IconDeviceFloppy } from "@tabler/icons-react";
@@ -9,11 +14,12 @@ import { t } from "i18next";
 type CreateEditDnsRecordModalProps = {
     show: boolean;
     onClose: () => unknown;
+    domainId: number;
     dnsRecord: DnsRecordGetModel | null;
     setDnsRecords: Dispatch<SetStateAction<DnsRecordGetModel[] | null>>;
 };
 
-const CreateEditDnsRecordModal = ({ show, onClose, dnsRecord, setDnsRecords }: CreateEditDnsRecordModalProps) => {
+const CreateEditDnsRecordModal = ({ show, onClose, domainId, dnsRecord, setDnsRecords }: CreateEditDnsRecordModalProps) => {
     const [isEditMode, setIsEditMode] = useState<boolean>(!!dnsRecord);
 
     const [host, setHost] = useState<string>("@");
@@ -23,6 +29,8 @@ const CreateEditDnsRecordModal = ({ show, onClose, dnsRecord, setDnsRecords }: C
     const [priority, setPriority] = useState<number>(10);
     const [weight, setWeight] = useState<number>(0);
     const [port, setPort] = useState<number>(0);
+
+    const [ttlError, setTtlError] = useState<string | null>(null);
 
     const setValues = () => {
         setIsEditMode(!!dnsRecord);
@@ -37,9 +45,10 @@ const CreateEditDnsRecordModal = ({ show, onClose, dnsRecord, setDnsRecords }: C
     };
 
     useEffect(() => {
-        setValues();
+        if (dnsRecord) setValues();
+        else setTimeout(setValues, 300);
     }, [dnsRecord]);
-
+    
     useEffect(() => {
         if (show) setValues();
         else setTimeout(setValues, 300);
@@ -52,9 +61,100 @@ const CreateEditDnsRecordModal = ({ show, onClose, dnsRecord, setDnsRecords }: C
 
     const showWeightAndPort = useMemo<boolean>(() => type === DnsRecordType.SRV, [type]);
 
+    const { call: createDnsRecord } = useHttpClient<{}, DnsRecordPostModel>({
+        endpoint: [Endpoint.Domains, domainId, Endpoint.DNS],
+        method: "POST",
+        body: {
+            host,
+            ttl,
+            type,
+            data,
+            priority: showPriority ? priority : undefined,
+            weight: showWeightAndPort ? weight : undefined,
+            port: showWeightAndPort ? port : undefined
+        }
+    });
+
+    const { call: editDnsRecord } = useHttpClient<{}, DnsRecordPutModel>({
+        endpoint: [Endpoint.Domains, domainId, Endpoint.DNS, dnsRecord?.id],
+        method: "PUT",
+        body: {
+            host,
+            ttl,
+            type,
+            data,
+            priority: showPriority ? priority : undefined,
+            weight: showWeightAndPort ? weight : undefined,
+            port: showWeightAndPort ? port : undefined
+        }
+    });
+
+    const onFormSubmit = (event?: React.FormEvent) => {
+        event?.preventDefault();
+
+        if (ttl % 60 !== 0) {
+            setTtlError(t("other.ValueMustBeDivisibleBy", { count: 60 }));
+
+            return;
+        }
+
+        if (dnsRecord) {
+            setDnsRecords(prev => [
+                ...prev!.filter(r => r.id !== dnsRecord.id),
+                {
+                    id: dnsRecord.id,
+                    host,
+                    ttl,
+                    type,
+                    data,
+                    priority: showPriority ? priority : undefined,
+                    weight: showWeightAndPort ? weight : undefined,
+                    port: showWeightAndPort ? port : undefined
+                }
+            ]);
+
+            editDnsRecord()
+                .catch(error => {
+                    setDnsRecords(prev => [
+                        ...prev!.filter(r => r.id !== dnsRecord.id),
+                        dnsRecord
+                    ]);
+
+                    handleErrorMessage(t("dnsRecords.CreateDnsRecordError"))(error);
+                });
+        }
+        else {
+            const syntheticId = Date.now();
+    
+            setDnsRecords(prev => [
+                ...prev!,
+                {
+                    id: syntheticId,
+                    host,
+                    ttl,
+                    type,
+                    data,
+                    priority: showPriority ? priority : undefined,
+                    weight: showWeightAndPort ? weight : undefined,
+                    port: showWeightAndPort ? port : undefined
+                }
+            ]);
+
+            createDnsRecord()
+                .catch(error => {
+                    setDnsRecords(prev => prev!.filter(r => r.id !== syntheticId));
+
+                    handleErrorMessage(t("dnsRecords.CreateDnsRecordError"))(error);
+                });
+        }
+
+        onClose();
+    };
+
+
     return (
         <Modal opened={show} onClose={onClose} title={isEditMode ? t("dnsRecords.EditDnsRecord") : t("dnsRecords.CreateDnsRecord")}>
-            <form className="flex flex-col gap-2">
+            <form className="flex flex-col gap-2" onSubmit={onFormSubmit}>
                 <TextInput
                     required
                     label={t("common.Host")}
@@ -66,7 +166,8 @@ const CreateEditDnsRecordModal = ({ show, onClose, dnsRecord, setDnsRecords }: C
                     required
                     label={t("common.Ttl")}
                     value={ttl}
-                    onChange={value => setTtl(Number(value))}
+                    onChange={value => { setTtl(Number(value)); setTtlError(null); }}
+                    error={ttlError}
                 />
 
                 <Select

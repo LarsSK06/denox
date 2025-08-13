@@ -52,10 +52,6 @@ const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(op
             )
         ].map(i => `${i}`).join("/");
 
-        console.log(
-            `Called: ${address}`
-        );
-
         fetch(address, {
             method,
             headers: {
@@ -63,7 +59,22 @@ const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(op
             },
             body: body && JSON.stringify(body)
         }).then(async response => {
-            if (!response.ok) return reject((await response.json()).code);
+            if (!response.ok) {
+                const json = await response.json();
+
+                console.log(`
+                    URL:
+                    ${address}
+
+                    request body:
+                    ${JSON.stringify(body, null, 4)}
+
+                    response body:
+                    ${JSON.stringify(json, null, 4)}    
+                `);
+
+                return reject(json.code);
+            }
 
             response.json().then(json => {
                 const formattedJson = (

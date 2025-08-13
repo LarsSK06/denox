@@ -4,19 +4,39 @@ import Loader from "@/components/common/Loader";
 import TagGetModel from "@/types/tags/TagGetModel";
 import CreateEditTagModal from "@/components/tags/CreateEditTagModal";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
+import useDbSelect from "@/utils/hooks/useDbSelect";
 
 import { ActionIcon, Button, getThemeColor, Menu, Paper, Table, Transition, useMantineTheme } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { t } from "i18next";
 import { IconDots, IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
-import { useTagsContext } from "@/utils/contexts/useTagsContext";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 
 const Page = () => {
     const [showCreateEditTagModal, setShowCreateEditModal] = useState<boolean>(false);
     const [tagToEdit, setTagToEdit] = useState<TagGetModel | null>(null);
 
-    const { tags, getTags, setTags } = useTagsContext();
+    const {
+        data: tags,
+        call: getTags,
+        setData: setTags
+    } = useDbSelect<(TagGetModel & { domainsCount: number; invoicesCount: number; })[]>({
+        query: `
+            SELECT
+                *,
+                (
+                    SELECT COUNT(id)
+                    FROM domainTagRelations dtr
+                    WHERE dtr.tagId = t.id
+                ) as domainsCount,
+                (
+                    SELECT COUNT(id)
+                    FROM invoiceTagRelations itr
+                    WHERE itr.tagId = t.id
+                ) as invoicesCount
+            FROM tags t
+        `
+    });
 
     useEffect(() => {
         getTags();
@@ -51,6 +71,7 @@ const Page = () => {
                     setTagToEdit(null);
                 }}
                 tag={tagToEdit}
+                setTags={setTags}
             />
 
             <main className="w-full h-full relative overflow-hidden">

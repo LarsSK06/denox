@@ -1,18 +1,16 @@
 import NoteGetModel from "@/types/notes/NoteGetModel";
-import { useDbContext } from "@/utils/contexts/useDbContext";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 
+import { useDbContext } from "@/utils/contexts/useDbContext";
 import { Button, Modal, Textarea } from "@mantine/core";
 import { IconChevronLeft, IconDeviceFloppy } from "@tabler/icons-react";
-import { t } from "i18next";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { t } from "i18next";
 
 type CreateNoteModalProps = {
     show: boolean;
     onClose: () => unknown;
-
     domain: string;
-
     setNotes: Dispatch<SetStateAction<NoteGetModel[] | null>>;
 };
 
@@ -44,12 +42,13 @@ const CreateNoteModal = ({ show, onClose, domain, setNotes }: CreateNoteModalPro
         ]);
 
         db.execute("INSERT INTO notes (domain, text) VALUES ($1, $2)", [domain, text])
-            .then(() => onClose())
             .catch(error => {
                 setNotes(prev => prev!.filter(n => n.id !== syntheticId));
 
                 handleErrorMessage(t("notes.CreateNoteError"))(error);
             });
+
+        onClose();
     };
 
     return (

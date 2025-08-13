@@ -160,9 +160,7 @@ const DomainOverviewTab = () => {
             <CreateNoteModal
                 show={showCreateNoteModal}
                 onClose={() => setShowCreateNoteModal(false)}
-
                 domain={domain?.domain ?? ""}
-
                 setNotes={setNotes}
             />
 

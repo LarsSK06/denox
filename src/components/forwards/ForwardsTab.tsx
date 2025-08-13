@@ -1,8 +1,8 @@
 "use client";
 
-import { ActionIcon, Anchor, Checkbox, Menu, Paper, Select, Table, TextInput, Transition } from "@mantine/core";
+import { ActionIcon, Anchor, Button, Checkbox, Menu, Paper, Select, Table, TextInput, Transition } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
-import { IconDots, IconRefresh } from "@tabler/icons-react";
+import { IconDots, IconPencil, IconPlus, IconRefresh, IconTrash } from "@tabler/icons-react";
 import { t } from "i18next";
 
 import useSearchParam from "@/utils/hooks/useSearchParam";
@@ -12,6 +12,7 @@ import Loader from "../common/Loader";
 import ForwardGetModel from "@/types/forwards/ForwardGetModel";
 import Check from "../common/Check";
 import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
+import CreateEditForwardModal from "./CreateEditForwardModal";
 
 const ForwardsTab = () => {
     const [search, setSearch] = useState<string>("");
@@ -19,14 +20,23 @@ const ForwardsTab = () => {
 
     const [selectedHosts, setSelectedHosts] = useState<string[]>([]);
 
+    const [showCreateEditForwardModal, setShowCreateEditForwardModal] = useState<boolean>(false);
+    const [forwardToEdit, setForwardToEdit] = useState<ForwardGetModel | null>(null);
+
     const domainId = useSearchParam({ key: "domainId", type: "number" });
 
     const {
         data: forwards,
+        setData: setForwards,
         call: getForwards
     } = useHttpClient<ForwardGetModel[]>({
         endpoint: [Endpoint.Domains, domainId, Endpoint.Forwards]
     });
+
+    const { call: deleteForward } = useHttpClient(forwardHost => ({
+        endpoint: [Endpoint.Domains, domainId, Endpoint.Forwards, forwardHost],
+        method: "DELETE"
+    }));
     
     const filteredForwards = useMemo(() =>
         (forwards ?? [])
@@ -48,139 +58,176 @@ const ForwardsTab = () => {
         setSelectedHosts(prev => prev.filter(host => filteredForwards?.some(f => f.host === host)));
     }, [filteredForwards]);
 
+    const handleDeleteForward = (forwardHost: string) => {
+        const snapshot = structuredClone(forwards?.find(f => f.host === forwardHost)!);
+
+        setForwards(prev => prev!.filter(f => f.host !== forwardHost));
+
+        deleteForward(forwardHost)
+            .catch(() => {
+                setForwards(prev => [
+                    ...prev!,
+                    snapshot
+                ])
+            });
+    };
+
     return (
-        <div className="w-full h-full relative">
-            <Transition mounted={!!forwards} exitDuration={0} transition="fade-right">
-                {style => (
-                    <div className="w-full h-full p-2 flex items-start flex-col gap-2 overflow-auto" style={style}>
-                        <Paper withBorder shadow="sm" className="p-2 flex items-end gap-2">
-                            <TextInput
-                                label={t("common.Search")}
-                                value={search}
-                                onChange={event => setSearch(event.currentTarget.value)}
-                            />
+        <>
+            <CreateEditForwardModal
+                show={showCreateEditForwardModal || !!forwardToEdit}
+                onClose={() => {
+                    setShowCreateEditForwardModal(false);
+                    setForwardToEdit(null);
+                }}
+                domainId={domainId ?? -1}
+                forward={forwardToEdit}
+                setForwards={setForwards}
+            />
 
-                            <Select
-                                label={t("common.Frame")}
-                                value={frame ?? ""}
-                                onChange={value => setFrame(value ? (value as typeof frame) : null)}
-                                data={[
-                                    { value: "", label: t("common.All") },
-                                    { value: "true", label: t("common.Yes") },
-                                    { value: "false", label: t("common.No") }
-                                ]}
-                            />
+            <div className="w-full h-full relative">
+                <Transition mounted={!!forwards} exitDuration={0} transition="fade-right">
+                    {style => (
+                        <div className="w-full h-full p-2 flex items-start flex-col gap-2 overflow-auto" style={style}>
+                            <Paper withBorder shadow="sm" className="p-2 flex items-end gap-2" style={{ minWidth: "100%" }}>
+                                <TextInput
+                                    label={t("common.Search")}
+                                    value={search}
+                                    onChange={event => setSearch(event.currentTarget.value)}
+                                />
 
-                            <ActionIcon size="input-sm" onClick={() => getForwards()}>
-                                <IconRefresh />
-                            </ActionIcon>
-                        </Paper>
+                                <Select
+                                    label={t("common.Frame")}
+                                    value={frame ?? ""}
+                                    onChange={value => setFrame(value ? (value as typeof frame) : null)}
+                                    data={[
+                                        { value: "", label: t("common.All") },
+                                        { value: "true", label: t("common.Yes") },
+                                        { value: "false", label: t("common.No") }
+                                    ]}
+                                />
 
-                        <Paper withBorder shadow="sm" className="!min-w-full">
-                            <Table>
-                                <Table.Thead>
-                                    <Table.Tr>
-                                        <Table.Td className="w-0">
-                                            <Checkbox
-                                                indeterminate={
-                                                    selectedHosts.length < filteredForwards.length &&
-                                                    selectedHosts.length > 0
-                                                }
-                                                checked={selectedHosts.length >= filteredForwards.length}
-                                                onChange={() =>
-                                                    setSelectedHosts(
-                                                        selectedHosts.length === 0
-                                                            ? filteredForwards.map(f => f.host)
-                                                            : []
-                                                    )
-                                                }
-                                            />
-                                        </Table.Td>
+                                <ActionIcon size="input-sm" onClick={() => getForwards()}>
+                                    <IconRefresh />
+                                </ActionIcon>
+                            </Paper>
 
-                                        <Table.Td className="w-0">
-                                            {t("common.Host")}
-                                        </Table.Td>
+                            <div className="flex gap-2">
+                                <Button leftSection={<IconPlus />} onClick={() => setShowCreateEditForwardModal(true)}>
+                                    {t("forwards.CreateForward")}
+                                </Button>
+                            </div>
 
-                                        <Table.Td className="w-0">
-                                            {t("common.Frame")}
-                                        </Table.Td>
-
-                                        <Table.Td className="w-0">
-                                            {t("common.Url")}
-                                        </Table.Td>
-
-                                        <Table.Td className="w-0">
-                                            <span className="sr-only">
-                                                {t("common.Actions")}
-                                            </span>
-                                        </Table.Td>
-                                    </Table.Tr>
-                                </Table.Thead>
-
-                                <Table.Tbody>
-                                    {filteredForwards
-                                        .toSorted((a, b) => a.host > b.host ? 1 : -1)
-                                        .map(forward => (
-                                        <Table.Tr key={forward.host}>
-                                            <Table.Td>
+                            <Paper withBorder shadow="sm" style={{ minWidth: "100%" }}>
+                                <Table>
+                                    <Table.Thead>
+                                        <Table.Tr>
+                                            <Table.Td className="w-0">
                                                 <Checkbox
-                                                    checked={selectedHosts.includes(forward.host)}
+                                                    indeterminate={
+                                                        selectedHosts.length < filteredForwards.length &&
+                                                        selectedHosts.length > 0
+                                                    }
+                                                    checked={selectedHosts.length >= filteredForwards.length}
                                                     onChange={() =>
-                                                        setSelectedHosts(prev =>
-                                                            prev.includes(forward.host)
-                                                                ? prev.filter(host => host !== forward.host)
-                                                                : [...prev, forward.host]
+                                                        setSelectedHosts(
+                                                            selectedHosts.length === 0
+                                                                ? filteredForwards.map(f => f.host)
+                                                                : []
                                                         )
                                                     }
                                                 />
                                             </Table.Td>
 
-                                            <Table.Td>
-                                                {forward.host}
+                                            <Table.Td className="w-0">
+                                                {t("common.Host")}
+                                            </Table.Td>
+
+                                            <Table.Td className="w-0">
+                                                {t("common.Frame")}
                                             </Table.Td>
 
                                             <Table.Td>
-                                                <Check mode={forward.frame ? "true" : "false"} />
+                                                {t("common.Url")}
                                             </Table.Td>
 
-                                            <Table.Td>
-                                                <Anchor component="a" href={forward.url} onClick={openInBrowserOnClick()}>
-                                                    {forward.url}
-                                                </Anchor>
-                                            </Table.Td>
-
-                                            <Table.Td>
-                                                <Menu>
-                                                    <Menu.Target>
-                                                        <ActionIcon variant="subtle">
-                                                            <IconDots />
-                                                        </ActionIcon>
-                                                    </Menu.Target>
-
-                                                    <Menu.Dropdown>
-                                                        <Menu.Item>
-
-                                                        </Menu.Item>
-                                                    </Menu.Dropdown>
-                                                </Menu>
+                                            <Table.Td className="w-0">
+                                                <span className="sr-only">
+                                                    {t("common.Actions")}
+                                                </span>
                                             </Table.Td>
                                         </Table.Tr>
-                                    ))}
-                                </Table.Tbody>
-                            </Table>
-                        </Paper>
-                    </div>
-                )}
-            </Transition>
+                                    </Table.Thead>
 
-            <Transition mounted={!forwards} transition="fade-right">
-                {style => (
-                    <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
-                        <Loader />
-                    </div>
-                )}
-            </Transition>
-        </div>
+                                    <Table.Tbody>
+                                        {filteredForwards
+                                            .toSorted((a, b) => a.host > b.host ? 1 : -1)
+                                            .map(forward => (
+                                            <Table.Tr key={forward.host}>
+                                                <Table.Td>
+                                                    <Checkbox
+                                                        checked={selectedHosts.includes(forward.host)}
+                                                        onChange={() =>
+                                                            setSelectedHosts(prev =>
+                                                                prev.includes(forward.host)
+                                                                    ? prev.filter(host => host !== forward.host)
+                                                                    : [...prev, forward.host]
+                                                            )
+                                                        }
+                                                    />
+                                                </Table.Td>
+
+                                                <Table.Td>
+                                                    {forward.host}
+                                                </Table.Td>
+
+                                                <Table.Td>
+                                                    <Check mode={forward.frame ? "true" : "false"} />
+                                                </Table.Td>
+
+                                                <Table.Td>
+                                                    <Anchor component="a" href={forward.url} onClick={openInBrowserOnClick()}>
+                                                        {forward.url}
+                                                    </Anchor>
+                                                </Table.Td>
+
+                                                <Table.Td>
+                                                    <Menu>
+                                                        <Menu.Target>
+                                                            <ActionIcon variant="subtle">
+                                                                <IconDots />
+                                                            </ActionIcon>
+                                                        </Menu.Target>
+
+                                                        <Menu.Dropdown>
+                                                            <Menu.Item leftSection={<IconPencil />} onClick={() => setForwardToEdit(forward)}>
+                                                                {t("forwards.EditForward")}
+                                                            </Menu.Item>
+
+                                                            <Menu.Item leftSection={<IconTrash />} color="red" onClick={() => handleDeleteForward(forward.host)}>
+                                                                {t("forwards.DeleteForward")}
+                                                            </Menu.Item>
+                                                        </Menu.Dropdown>
+                                                    </Menu>
+                                                </Table.Td>
+                                            </Table.Tr>
+                                        ))}
+                                    </Table.Tbody>
+                                </Table>
+                            </Paper>
+                        </div>
+                    )}
+                </Transition>
+
+                <Transition mounted={!forwards} transition="fade-right">
+                    {style => (
+                        <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
+                            <Loader />
+                        </div>
+                    )}
+                </Transition>
+            </div>
+        </>
     );
 };
 

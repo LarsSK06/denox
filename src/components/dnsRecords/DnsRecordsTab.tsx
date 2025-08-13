@@ -20,7 +20,7 @@ const DnsRecordsTab = () => {
 
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-    const [showCreateEditDnsRecordModal, setShowCreateEditDnsRecordModal] = useState<boolean>(true);
+    const [showCreateEditDnsRecordModal, setShowCreateEditDnsRecordModal] = useState<boolean>(false);
     const [dnsRecordToEdit, setDnsRecordToEdit] = useState<DnsRecordGetModel | null>(null);
 
     const domainId = useSearchParam({ key: "domainId", type: "number" });
@@ -79,6 +79,7 @@ const DnsRecordsTab = () => {
                     setShowCreateEditDnsRecordModal(false);
                     setDnsRecordToEdit(null);
                 }}
+                domainId={domainId ?? -1}
                 dnsRecord={dnsRecordToEdit}
                 setDnsRecords={setDnsRecords}
             />
@@ -87,7 +88,7 @@ const DnsRecordsTab = () => {
                 <Transition mounted={!!dnsRecords} exitDuration={0} transition="fade-right">
                     {style => (
                         <div className="w-full h-full p-2 flex items-start flex-col gap-2 overflow-auto" style={style}>
-                            <Paper withBorder shadow="sm" className="p-2 flex items-end gap-2">
+                            <Paper withBorder shadow="sm" className="p-2 flex items-end gap-2" style={{ minWidth: "100%" }}>
                                 <Select
                                     label={t("common.Host")}
                                     value={host ?? ""}
@@ -131,7 +132,7 @@ const DnsRecordsTab = () => {
                                 </Button>
                             </div>
 
-                            <Paper withBorder shadow="sm" className="!min-w-full">
+                            <Paper withBorder shadow="sm" style={{ minWidth: "100%" }}>
                                 <Table>
                                     <Table.Thead>
                                         <Table.Tr>
@@ -256,11 +257,11 @@ const DnsRecordsTab = () => {
 
                                                         <Menu.Dropdown>
                                                             <Menu.Item leftSection={<IconPencil />} onClick={() => setDnsRecordToEdit(dnsRecord)}>
-                                                                {t("dnsRecords.EditDnsRecords")}
+                                                                {t("dnsRecords.EditDnsRecord")}
                                                             </Menu.Item>
 
                                                             <Menu.Item leftSection={<IconTrash />} onClick={() => handleDeleteDnsRecord(dnsRecord.id)} color="red">
-                                                                {t("dnsRecords.EditDnsRecords")}
+                                                                {t("dnsRecords.DeleteDnsRecord")}
                                                             </Menu.Item>
                                                         </Menu.Dropdown>
                                                     </Menu>

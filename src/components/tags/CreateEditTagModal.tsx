@@ -2,38 +2,43 @@ import TagGetModel from "@/types/tags/TagGetModel";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 
 import { useDbContext } from "@/utils/contexts/useDbContext";
-import { useTagsContext } from "@/utils/contexts/useTagsContext";
 import { Button, getThemeColor, MantineColor, Modal, Radio, TextInput, useMantineTheme } from "@mantine/core";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { IconChevronLeft, IconDeviceFloppy } from "@tabler/icons-react";
 import { t } from "i18next";
-import { useEffect, useState } from "react";
 
 type CreateEditTagModalProps = {
     show: boolean;
     onClose: () => unknown;
     tag: (TagGetModel & { domainsCount?: number; invoicesCount?: number; }) | null;
+    setTags: Dispatch<SetStateAction<(TagGetModel & { domainsCount: number; invoicesCount: number; })[] | null>>
 };
 
-const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => {
+const CreateEditTagModal = ({ show, onClose, tag, setTags }: CreateEditTagModalProps) => {
+    const [isEditMode, setIsEditMode] = useState<boolean>(false);
+
     const [name, setName] = useState<string>(tag?.name ?? "");
     const [color, setColor] = useState<MantineColor>(tag?.color ?? "indigo");
 
+    const setValues = () => {
+        setIsEditMode(!!tag);
+
+        setName(tag?.name ?? "");
+        setColor(tag?.color ?? "indigo");
+    };
+
     useEffect(() => {
-        if (show) {
-            setName(tag?.name ?? "");
-            setColor(tag?.color ?? "indigo");
-        }
-        else {
-            setTimeout(() => {
-                setName("");
-                setColor("indigo");
-            }, 300);
-        }
+        if (show) setValues();
+        else setTimeout(setValues, 300);
     }, [show]);
+
+    useEffect(() => {
+        if (tag) setValues();
+        else setTimeout(setValues, 300);
+    }, [tag]);
 
     const mantineTheme = useMantineTheme();
 
-    const { setTags } = useTagsContext();
     const { database: db } = useDbContext();
 
     const onFormSubmit = (event?: React.FormEvent) => {
@@ -66,8 +71,6 @@ const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => 
 
                     handleErrorMessage(error)(t("tags.EditTagError"));
                 });
-            
-            onClose();
         }
         else {
             const syntheticId = Date.now();
@@ -84,17 +87,18 @@ const CreateEditTagModal = ({ show, onClose, tag }: CreateEditTagModalProps) => 
             ]);
 
             db.execute("INSERT INTO tags (name, color) VALUES ($1, $2)", [name, color])
-                .then(() => onClose())
                 .catch(error => {
                     setTags(prev => prev!.filter(t => t.id !== syntheticId));
 
                     handleErrorMessage(error)(t("tags.CreateTagError"));
                 });
         }
+
+        onClose();
     };
 
     return (
-        <Modal opened={show} onClose={onClose} title={tag ? t("tags.EditTag") : t("tags.CreateTag")}>
+        <Modal opened={show} onClose={onClose} title={isEditMode ? t("tags.EditTag") : t("tags.CreateTag")}>
             <form className="flex flex-col gap-2" onSubmit={onFormSubmit}>
                 <TextInput
                     required

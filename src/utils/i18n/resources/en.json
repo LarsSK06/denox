@@ -111,7 +111,9 @@
             "CreateDnsRecord": "Create DNS record",
             "CreateDnsRecordError": "Could not create DNS record",
             "EditDnsRecord": "Edit DNS record",
+            "EditDnsRecordError": "Could not edit DNS record",
             "DeleteDnsRecord": "Delete DNS record",
+            "DeleteDnsRecordError": "Could not delete DNS record",
             "DeleteDnsRecords": "Delete {{count}} DNS records",
             "DeleteDnsRecords_one": "Delete {{count}} DNS record"
         },
@@ -138,6 +140,7 @@
             "CreateForward": "Create forward",
             "CreateForwardError": "Could not create forward",
             "EditForward": "Edit forward",
+            "EditForwardError": "Could not edit forward",
             "DeleteForward": "Delete forward",
             "DeleteForwards": "Delete {{count}} forwards",
             "DeleteForwards_one": "Delete {{count}} forward"
