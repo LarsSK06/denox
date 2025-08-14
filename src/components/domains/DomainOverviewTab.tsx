@@ -213,12 +213,12 @@ const DomainOverviewTab = () => {
                                 {notes
                                     ?.toSorted((a, b) => a.id > b.id ? 1 : -1)
                                     .map(note => (
-                                    <Paper withBorder shadow="sm" component="li" className="w-20" key={note.id}>
+                                    <Paper withBorder shadow="sm" component="li" key={note.id}>
                                         <div className="w-fit ml-auto">
-                                            <CloseButton onClick={() => deleteNote(note.id)} />
+                                            <CloseButton onClick={() => deleteNote(note.id)} disabled={`${note.id}`.includes(".")} />
                                         </div>
 
-                                        <Text component="pre" className="w-full p-2">
+                                        <Text component="pre" className="max-w-full p-2">
                                             {note.text}
                                         </Text>
                                     </Paper>

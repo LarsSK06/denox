@@ -21,7 +21,7 @@ import { ActionIcon, Menu, Paper, Select, Table, Transition } from "@mantine/cor
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { IconPlus } from "@tabler/icons-react";
 import { t } from "i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const Page = () => {
     const [type, setType] = useState<InvoiceType | null>(null);
@@ -96,6 +96,8 @@ const Page = () => {
             });
     };
 
+    const showTagsColumn = useMemo<boolean>(() => !!tags && tags.length > 0, [tags])
+
     return (
         <main className="w-full h-full relative overflow-hidden">
             <h1 className="sr-only">
@@ -159,9 +161,11 @@ const Page = () => {
                                             {t("common.Status")}
                                         </Table.Td>
 
-                                        <Table.Td>
-                                            {t("tags.Tags")}
-                                        </Table.Td>
+                                        {showTagsColumn ? (
+                                            <Table.Td>
+                                                {t("tags.Tags")}
+                                            </Table.Td>
+                                        ) : null}
                                     </Table.Tr>
                                 </Table.Thead>
 
@@ -223,42 +227,44 @@ const Page = () => {
                                                     <InvoiceStatusChip status={invoice.status} />
                                                 </Table.Td>
 
-                                                <Table.Td>
-                                                    <ul className="flex gap-2" aria-label={t("tags.Tags")}>
-                                                        {tagsOnInvoice?.map(tag => (
-                                                            <ColoredPill
-                                                                withRemoveButton
-                                                                component="li"
-                                                                color={tag.color}
-                                                                key={tag.id}
-                                                                onRemove={() => removeTag(invoice.id, tag.id)}>
-                                                                {tag.name}
-                                                            </ColoredPill>
-                                                        ))}
+                                                {showTagsColumn ? (
+                                                    <Table.Td>
+                                                        <ul className="flex gap-2" aria-label={t("tags.Tags")}>
+                                                            {tagsOnInvoice?.map(tag => (
+                                                                <ColoredPill
+                                                                    withRemoveButton
+                                                                    component="li"
+                                                                    color={tag.color}
+                                                                    key={tag.id}
+                                                                    onRemove={() => removeTag(invoice.id, tag.id)}>
+                                                                    {tag.name}
+                                                                </ColoredPill>
+                                                            ))}
 
-                                                        {tagsNotOnInvoice && tagsNotOnInvoice.length > 0 ? (
-                                                            <li className="flex">
-                                                                <Menu>
-                                                                    <Menu.Target>
-                                                                        <ActionIcon size="sm" variant="subtle">
-                                                                            <IconPlus />
-                                                                        </ActionIcon>
-                                                                    </Menu.Target>
+                                                            {tagsNotOnInvoice && tagsNotOnInvoice.length > 0 ? (
+                                                                <li className="flex">
+                                                                    <Menu>
+                                                                        <Menu.Target>
+                                                                            <ActionIcon size="sm" variant="subtle">
+                                                                                <IconPlus />
+                                                                            </ActionIcon>
+                                                                        </Menu.Target>
 
-                                                                    <Menu.Dropdown>
-                                                                        {tagsNotOnInvoice?.map(tag => (
-                                                                            <Menu.Item
-                                                                                key={tag.id}
-                                                                                onClick={() => addTag(invoice.id, tag.id)}>
-                                                                                {tag.name}
-                                                                            </Menu.Item>
-                                                                        ))}
-                                                                    </Menu.Dropdown>
-                                                                </Menu>
-                                                            </li>
-                                                        ) : null}
-                                                    </ul>
-                                                </Table.Td>
+                                                                        <Menu.Dropdown>
+                                                                            {tagsNotOnInvoice?.map(tag => (
+                                                                                <Menu.Item
+                                                                                    key={tag.id}
+                                                                                    onClick={() => addTag(invoice.id, tag.id)}>
+                                                                                    {tag.name}
+                                                                                </Menu.Item>
+                                                                            ))}
+                                                                        </Menu.Dropdown>
+                                                                    </Menu>
+                                                                </li>
+                                                            ) : null}
+                                                        </ul>
+                                                    </Table.Td>
+                                                ) : null}
                                             </Table.Tr>
                                         );
                                     })}

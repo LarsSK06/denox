@@ -10,6 +10,7 @@ import { Button, Modal, NumberInput, Select, Textarea, TextInput } from "@mantin
 import { IconChevronLeft, IconDeviceFloppy } from "@tabler/icons-react";
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import { t } from "i18next";
+import getHighestId from "@/utils/functions/getHighestId";
 
 type CreateEditDnsRecordModalProps = {
     show: boolean;
@@ -61,7 +62,7 @@ const CreateEditDnsRecordModal = ({ show, onClose, domainId, dnsRecord, setDnsRe
 
     const showWeightAndPort = useMemo<boolean>(() => type === DnsRecordType.SRV, [type]);
 
-    const { call: createDnsRecord } = useHttpClient<{}, DnsRecordPostModel>({
+    const { call: createDnsRecord } = useHttpClient<{ id: number }, DnsRecordPostModel>({
         endpoint: [Endpoint.Domains, domainId, Endpoint.DNS],
         method: "POST",
         body: {
@@ -124,7 +125,7 @@ const CreateEditDnsRecordModal = ({ show, onClose, domainId, dnsRecord, setDnsRe
                 });
         }
         else {
-            const syntheticId = Date.now();
+            const syntheticId = Date.now() + .1;
     
             setDnsRecords(prev => [
                 ...prev!,
@@ -141,6 +142,16 @@ const CreateEditDnsRecordModal = ({ show, onClose, domainId, dnsRecord, setDnsRe
             ]);
 
             createDnsRecord()
+                .then(({ id: createdDnsRecordId }) => {
+                    console.log(createdDnsRecordId);
+
+                    setDnsRecords(prev => prev!.map(r =>
+                        r.id === syntheticId ? {
+                            ...r,
+                            id: createdDnsRecordId
+                        } : r
+                    ));
+                })
                 .catch(error => {
                     setDnsRecords(prev => prev!.filter(r => r.id !== syntheticId));
 

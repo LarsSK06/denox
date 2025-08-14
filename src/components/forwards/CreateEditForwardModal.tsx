@@ -16,9 +16,10 @@ type CreateEditForwardModalProps = {
     domainId: number;
     forward: ForwardGetModel | null;
     setForwards: Dispatch<SetStateAction<ForwardGetModel[] | null>>;
+    setDisabledHosts: Dispatch<SetStateAction<string[]>>;
 };
 
-const CreateEditForwardModal = ({ show, onClose, domainId, forward, setForwards }: CreateEditForwardModalProps) => {
+const CreateEditForwardModal = ({ show, onClose, domainId, forward, setForwards, setDisabledHosts }: CreateEditForwardModalProps) => {
     const [isEditMode, setIsEditMode] = useState<boolean>(!!forward);
 
     const [host, setHost] = useState<string>(forward?.host ?? "");
@@ -105,7 +106,10 @@ const CreateEditForwardModal = ({ show, onClose, domainId, forward, setForwards 
                 }
             ]);
 
+            setDisabledHosts(prev => [...prev, host]);
+
             createForward()
+                .then(() => setDisabledHosts(prev => prev.filter(h => h !== host)))
                 .catch(error => {
                     setForwards(prev => prev!.filter(f => f.host !== host));
 

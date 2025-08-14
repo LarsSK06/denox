@@ -19,7 +19,7 @@ type UseHttpClientOptions<ResponseBody, RequestBody> = {
     }
 };
 
-const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(options: UseHttpClientOptions<ResponseBody, RequestBody> | ((...params: any[]) => UseHttpClientOptions<ResponseBody, RequestBody>)) => {
+const useHttpClient = <ResponseBody, RequestBody = undefined>(options: UseHttpClientOptions<ResponseBody, RequestBody> | ((...params: any[]) => UseHttpClientOptions<ResponseBody, RequestBody>)) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<ResponseBody | null>(null);
 
@@ -73,22 +73,39 @@ const useHttpClient = <ResponseBody extends {} | [], RequestBody = undefined>(op
                     ${JSON.stringify(json, null, 4)}    
                 `);
 
-                return reject(json.code);
+                reject(json.code);
             }
+            else {
+                response.text().then(text => {
+                    try {
+                        const json = JSON.parse(text);
 
-            response.json().then(json => {
-                const formattedJson = (
-                    process?.(snakeToCamelCase<ResponseBody>(json)) ??
-                    snakeToCamelCase<ResponseBody>(json)
-                ) as ResponseBody;
+                        const formattedJson = (
+                            process?.(snakeToCamelCase(json)) ??
+                            snakeToCamelCase(json)
+                        ) as ResponseBody;
 
-                resolve(formattedJson);
-                setData(formattedJson);
-            }).catch(error => {
-                console.log(`JSON parse error:\n${error}`);
+                        resolve(formattedJson);
+                        setData(formattedJson);
+                    }
+                    catch {
+                        const processedText = (
+                            process?.(text) ??
+                            text
+                        ) as ResponseBody;
 
-                resolve(null!);
-            });
+                        resolve(processedText);
+                        setData(processedText);
+                    }
+                }).catch(async error => {
+                    console.log(`Response text error:\n${error}`);
+    
+                    const text = await response.text();
+                    
+                    resolve(text as ResponseBody);
+                    setData(text as ResponseBody);
+                });
+            }
         }).catch(_ => {
             reject("Fetch error");
         }).finally(() => setIsLoading(false));

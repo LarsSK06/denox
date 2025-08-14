@@ -73,7 +73,7 @@ const CreateEditTagModal = ({ show, onClose, tag, setTags }: CreateEditTagModalP
                 });
         }
         else {
-            const syntheticId = Date.now();
+            const syntheticId = Date.now() + .1;
 
             setTags(prev => [
                 ...prev!,
@@ -87,6 +87,14 @@ const CreateEditTagModal = ({ show, onClose, tag, setTags }: CreateEditTagModalP
             ]);
 
             db.execute("INSERT INTO tags (name, color) VALUES ($1, $2)", [name, color])
+                .then(({ lastInsertId: createdTagId }) => {
+                    setTags(prev => prev!.map(t =>
+                        t.id === syntheticId ? {
+                            ...t,
+                            id: createdTagId!
+                        } : t
+                    ));
+                })
                 .catch(error => {
                     setTags(prev => prev!.filter(t => t.id !== syntheticId));
 

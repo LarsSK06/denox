@@ -250,7 +250,7 @@ const DnsRecordsTab = () => {
                                                 <Table.Td>
                                                     <Menu>
                                                         <Menu.Target>
-                                                            <ActionIcon variant="subtle">
+                                                            <ActionIcon variant="subtle" disabled={`${dnsRecord.id}`.includes(".")}>
                                                                 <IconDots />
                                                             </ActionIcon>
                                                         </Menu.Target>

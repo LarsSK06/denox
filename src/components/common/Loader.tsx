@@ -1,6 +1,8 @@
 import { getThemeColor, useMantineTheme } from "@mantine/core";
 import { Mirage } from "ldrs/react";
 
+import "ldrs/react/Mirage.css";
+
 type LoaderProps = {
     size?: number;
 };

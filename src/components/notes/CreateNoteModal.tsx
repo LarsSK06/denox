@@ -30,7 +30,7 @@ const CreateNoteModal = ({ show, onClose, domain, setNotes }: CreateNoteModalPro
     const onFormSubmit = (event?: React.FormEvent) => {
         event?.preventDefault();
 
-        const syntheticId = Date.now();
+        const syntheticId = Date.now() + .1;
 
         setNotes(prev => [
             ...prev!,
@@ -42,6 +42,14 @@ const CreateNoteModal = ({ show, onClose, domain, setNotes }: CreateNoteModalPro
         ]);
 
         db.execute("INSERT INTO notes (domain, text) VALUES ($1, $2)", [domain, text])
+            .then(({ lastInsertId: createdNoteId }) => {
+                setNotes(prev => prev!.map(n =>
+                    n.id === syntheticId ? {
+                        ...n,
+                        id: createdNoteId!
+                    } : n
+                ));
+            })
             .catch(error => {
                 setNotes(prev => prev!.filter(n => n.id !== syntheticId));
 

@@ -1,6 +1,5 @@
-@layer theme, base, components, utilities, mantine;
+@layer theme, base, components, mantine, utilities;
 
 @import "tailwindcss";
 @import "@mantine/core/styles.layer.css";
 @import "@mantine/notifications/styles.layer.css";
-@import "ldrs/react/Mirage.css";

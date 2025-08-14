@@ -23,6 +23,8 @@ const ForwardsTab = () => {
     const [showCreateEditForwardModal, setShowCreateEditForwardModal] = useState<boolean>(false);
     const [forwardToEdit, setForwardToEdit] = useState<ForwardGetModel | null>(null);
 
+    const [disabledHosts, setDisabledHosts] = useState<string[]>([]);
+
     const domainId = useSearchParam({ key: "domainId", type: "number" });
 
     const {
@@ -58,6 +60,11 @@ const ForwardsTab = () => {
         setSelectedHosts(prev => prev.filter(host => filteredForwards?.some(f => f.host === host)));
     }, [filteredForwards]);
 
+    useEffect(() => {
+        if (!forwards) setDisabledHosts([]);
+        else setDisabledHosts(prev => prev.filter(h => forwards.some(f => f.host === h)));
+    }, [forwards]);
+
     const handleDeleteForward = (forwardHost: string) => {
         const snapshot = structuredClone(forwards?.find(f => f.host === forwardHost)!);
 
@@ -68,7 +75,7 @@ const ForwardsTab = () => {
                 setForwards(prev => [
                     ...prev!,
                     snapshot
-                ])
+                ]);
             });
     };
 
@@ -83,6 +90,7 @@ const ForwardsTab = () => {
                 domainId={domainId ?? -1}
                 forward={forwardToEdit}
                 setForwards={setForwards}
+                setDisabledHosts={setDisabledHosts}
             />
 
             <div className="w-full h-full relative">
@@ -194,7 +202,7 @@ const ForwardsTab = () => {
                                                 <Table.Td>
                                                     <Menu>
                                                         <Menu.Target>
-                                                            <ActionIcon variant="subtle">
+                                                            <ActionIcon variant="subtle" disabled={disabledHosts.includes(forward.host)}>
                                                                 <IconDots />
                                                             </ActionIcon>
                                                         </Menu.Target>
