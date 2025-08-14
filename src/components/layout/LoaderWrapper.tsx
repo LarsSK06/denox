@@ -1,21 +1,51 @@
 "use client";
 
 import ParentProps from "@/types/common/ParentProps";
+import useSyntheticLoading from "@/utils/hooks/useSyntheticLoading";
+import Logo from "../common/Logo";
 
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
+import { Text } from "@mantine/core";
+import { t } from "i18next";
+import { IconHeart } from "@tabler/icons-react";
+import { Trans } from "react-i18next";
 
 const LoaderWrapper = ({ children }: ParentProps) => {
     const { isReady: isDatabaseReady } = useDbContext();
     const { isReady: isSettingsReady } = useSettingsContext();
     const { isReady: isProfilesReady } = useProfileContext();
 
-    if (!isDatabaseReady) return <>Connecting to database...</>;
-    if (!isSettingsReady) return <>Fetching settings...</>;
-    if (!isProfilesReady) return <>Prepping profiles...</>;
+    const { isDone: isSyntheticLoadingDone } = useSyntheticLoading({ delay: 3000, startOnMount: true });
 
-    return children;
+    // const isReady =
+    //     isDatabaseReady &&
+    //     isSettingsReady &&
+    //     isProfilesReady &&
+    //     isSyntheticLoadingDone;
+
+    const isReady = false;
+
+    return isReady ? children : (
+        <div className="w-full h-full flex justify-center items-center">
+            <div className="w-fit flex items-center flex-col">
+                <div className="w-fit h-fit animate-ping">
+                    <Logo height="20rem" />
+                </div>
+
+                <Text size="xl">
+                    <span aria-hidden>
+                        {t("other.MadeWith")} <IconHeart style={{ display: "inline", height: "1em" }} /> {t("other.inNorway")}
+                    </span>
+
+                    <span className="sr-only">
+                        {t("other.MadeWithLoveInNorway")}
+                    </span>
+                </Text>
+            </div>
+        </div>
+    );
 };
 
 export default LoaderWrapper;
