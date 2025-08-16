@@ -1,13 +1,22 @@
-import { ComponentProps } from "react";
+import { getThemeColor, useMantineTheme } from "@mantine/core";
+import { Mirage } from "ldrs/react";
 
-import Logo from "./Logo";
+import "ldrs/react/Mirage.css";
 
-type LoaderProps = {} & ComponentProps<typeof Logo>;
+type LoaderProps = {
+    size?: number;
+};
 
-const Loader = (props: LoaderProps) => (
-    <div className="w-fit h-fit animate-pulse">
-        <Logo {...props} />
-    </div>
-);
+const Loader = ({ size = 200 }: LoaderProps) => {
+
+    const mantineTheme = useMantineTheme();
+
+    return (
+        <Mirage
+            size={size}
+            color={getThemeColor(mantineTheme.primaryColor, mantineTheme)}
+        />
+    );
+};
 
 export default Loader;

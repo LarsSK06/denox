@@ -3,9 +3,10 @@ import { useDbContext } from "../contexts/useDbContext";
 
 type UseDbSelectOptions = {
     query: string;
+    bindValues?: any[];
 };
 
-const useDbSelect = <T>({ query }: UseDbSelectOptions) => {
+const useDbSelect = <T>({ query, bindValues }: UseDbSelectOptions) => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<T | null>(null);
 
@@ -14,7 +15,7 @@ const useDbSelect = <T>({ query }: UseDbSelectOptions) => {
     const call = () => new Promise<T>((resolve, reject) => {
         setIsLoading(true);
 
-        database.select<T>(query)
+        database.select<T>(query, bindValues)
             .then(response => {
                 resolve(response);
                 setData(response);

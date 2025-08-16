@@ -1,3 +1,4 @@
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type TypeMap = {
@@ -5,16 +6,18 @@ type TypeMap = {
     number: number;
 };
 
-type UseCacheOptions<T extends keyof TypeMap> = {
+type UseSearchParamOptions<T extends keyof TypeMap> = {
     key: string;
     type: T;
 };
 
-const useCache = <T extends keyof TypeMap>({ key, type }: UseCacheOptions<T>) => {
+const useSearchParam = <T extends keyof TypeMap>({ key, type }: UseSearchParamOptions<T>) => {
     const [value, setValue] = useState<TypeMap[T] | null>(null);
 
+    const searchParams = useSearchParams();
+
     useEffect(() => {
-        const raw = window.localStorage.getItem(key);
+        const raw = searchParams.get(key);
 
         if (!raw) return setValue(null);
 
@@ -28,9 +31,9 @@ const useCache = <T extends keyof TypeMap>({ key, type }: UseCacheOptions<T>) =>
 
                 return setValue(parsed as TypeMap[T]);
         }
-    }, []);
+    }, [searchParams]);
 
     return value;
 };
 
-export default useCache;
+export default useSearchParam;

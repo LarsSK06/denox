@@ -1,5 +1,6 @@
 "use client";
 
+import { getThemeColor, Tooltip, useMantineTheme } from "@mantine/core";
 import { IconCheck, IconCircleCheck, IconCircleMinus, IconCircleX } from "@tabler/icons-react";
 import { t } from "i18next";
 import { ComponentProps } from "react";
@@ -18,10 +19,15 @@ const Check = ({
     indeterminateLabel = t("common.Indeterminate"),
     ...restProps
 }: CheckProps) => {
+
+    const mantineTheme = useMantineTheme();
+
     switch (mode) {
         case "true": return (
             <>
-                <IconCircleCheck color="green" aria-hidden {...restProps} />
+                <Tooltip label={trueLabel}>
+                    <IconCircleCheck color={getThemeColor("green", mantineTheme)} aria-hidden {...restProps} />
+                </Tooltip>
 
                 <span className="sr-only">
                     {trueLabel}
@@ -30,7 +36,9 @@ const Check = ({
         );
         case "false": return (
             <>
-                <IconCircleX color="red" aria-hidden {...restProps} />
+                <Tooltip label={falseLabel}>
+                    <IconCircleX color={getThemeColor("red", mantineTheme)} aria-hidden {...restProps} />
+                </Tooltip>
 
                 <span className="sr-only">
                     {falseLabel}
@@ -39,7 +47,9 @@ const Check = ({
         );
         case "indeterminate": return (
             <>
-                <IconCircleMinus color="gray" aria-hidden {...restProps} />
+                <Tooltip label={indeterminateLabel}>
+                    <IconCircleMinus color={getThemeColor("gray", mantineTheme)} aria-hidden {...restProps} />
+                </Tooltip>
 
                 <span className="sr-only">
                     {indeterminateLabel}

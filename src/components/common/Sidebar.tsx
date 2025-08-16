@@ -1,42 +1,42 @@
 "use client";
 
 import ParentProps from "@/types/common/ParentProps";
-import usePrimaryColorShade from "@/utils/hooks/usePrimaryColorShade";
 
-import { Paper } from "@mantine/core";
+import { useEffect, useRef, useState } from "react";
+import { getThemeColor, Paper, useMantineTheme } from "@mantine/core";
 import { t } from "i18next";
-import { ComponentProps, useEffect, useRef, useState } from "react";
 
 type SidebarProps = {
     initialWidth?: number;
     minWidth?: number;
     maxWidth?: number;
-} & ComponentProps<"aside"> & ParentProps;
+    setCache?: (value: number) => unknown;
+} & ParentProps;
 
 const Sidebar = ({
     initialWidth = 250,
     minWidth = 150,
     maxWidth = 500,
-    children,
-    ...restProps
+    setCache,
+    children
 }: SidebarProps) => {
     const [width, setWidth] = useState<number>(initialWidth);
     const [isGrabbing, setIsGrabbing] = useState<boolean>(false);
 
     const paperRef = useRef<HTMLElement | null>(null);
-    const primaryColorShade = usePrimaryColorShade();
+    const mantineTheme = useMantineTheme();
 
     const onMouseDown = () => setIsGrabbing(true);
 
     const onKeyDown = (event: React.KeyboardEvent) => {
             switch (event.key) {
                 case "ArrowLeft":
-                    setWidth(prev => prev - 5);
+                    setWidth(prev => Math.max(Math.min(prev - 5, maxWidth), minWidth));
 
                     break;
 
                 case "ArrowRight":
-                    setWidth(prev => prev + 5);
+                    setWidth(prev => Math.max(Math.min(prev + 5, maxWidth), minWidth));
 
                     break;
             }
@@ -49,10 +49,20 @@ const Sidebar = ({
 
             const asideBoundingClientRect = paperRef.current?.getBoundingClientRect();
 
-            setWidth(Math.max(Math.min(event.clientX - asideBoundingClientRect?.left, maxWidth), minWidth));
+            let targetWidth = event.clientX - asideBoundingClientRect.left;
+
+            targetWidth = Math.min(targetWidth, maxWidth);
+            targetWidth = Math.max(targetWidth, minWidth);
+
+            setWidth(targetWidth);
+            setCache?.(targetWidth);
         };
 
-        const onMouseUp = () => setIsGrabbing(false);
+        const onMouseUp = () => {
+            setIsGrabbing(false);
+
+            setCache?.(width);
+        }
 
         window.addEventListener("mousemove", onMouseMove);
         window.addEventListener("mouseup", onMouseUp);
@@ -61,12 +71,12 @@ const Sidebar = ({
             window.removeEventListener("mousemove", onMouseMove);
             window.removeEventListener("mouseup", onMouseUp);
         };
-    }, [paperRef, isGrabbing]);
+    }, [paperRef, isGrabbing, setCache]);
 
     return (
-        <Paper withBorder component="aside" ref={paperRef} style={{ width }} className="h-full border-t-0 border-b-0 border-l-0 rounded-none relative" {...restProps}>
+        <Paper withBorder component="aside" ref={paperRef} style={{ width }} className="h-full border-t-0 border-b-0 border-l-0 rounded-none relative">
             <button onMouseDown={onMouseDown} onKeyDown={onKeyDown} className="w-[8px] h-full absolute top-0 right-[-4px] z-1 group outline-none" style={{ cursor: isGrabbing ? "grabbing" : "grab" }} aria-label={t("common.ResizeSidebar")}>
-                <div className="w-0 h-full mx-auto group-hover:w-full group-focus-visible:w-full transition-all" style={{ width: isGrabbing ? "100%" : undefined, backgroundColor: primaryColorShade }} />
+                <div className="w-0 h-full mx-auto group-hover:w-full group-focus-visible:w-full transition-all" style={{ width: isGrabbing ? "100%" : undefined, backgroundColor: getThemeColor(mantineTheme.primaryColor, mantineTheme) }} />
             </button>
 
             <div className="w-full h-full">

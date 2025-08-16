@@ -16,6 +16,7 @@ import { IconAlertCircle, IconChevronRight, IconDots, IconPencil, IconPlus, Icon
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { notifications } from "@mantine/notifications";
 import { t } from "i18next";
+import { lastProfileIdCacheKey } from "@/utils/globals";
 
 const ProfileWall = ({ children }: ParentProps) => {
     const [showCreateProfileModal, setShowCreateProfileModal] = useState<boolean>(false);
@@ -43,7 +44,7 @@ const ProfileWall = ({ children }: ParentProps) => {
     }, [profiles]);
 
     useEffect(() => {
-        window.localStorage.setItem("lastProfileId", `${currentProfile?.id}`);
+        window.localStorage.setItem(lastProfileIdCacheKey, `${currentProfile?.id}`);
     }, [currentProfile]);
 
     const isList =
@@ -195,7 +196,7 @@ const ProfileWall = ({ children }: ParentProps) => {
                         href="/"
                         onClick={() => setCurrentProfile(profiles!.find(p => p.id === selectedProfileId)!)}
                         disabled={!selectedProfileId}
-                        className="ml-auto transition-colors"
+                        className="ml-auto"
                         rightSection={<IconChevronRight />}>
                         {t("common.Continue")}
                     </Button>

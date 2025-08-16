@@ -1,7 +1,7 @@
 import { useMantineColorScheme } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 
-const useColorScheme = () => {
+const useConciseColorScheme = () => {
     const [isBrowserColorSchemeDark, setIsBrowserColorSchemeDark] = useState<boolean>(false);
 
     const { colorScheme } = useMantineColorScheme();
@@ -27,4 +27,4 @@ const useColorScheme = () => {
     };
 };
 
-export default useColorScheme;
+export default useConciseColorScheme;

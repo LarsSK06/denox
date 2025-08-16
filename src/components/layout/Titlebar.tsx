@@ -1,46 +1,21 @@
 "use client";
 
-import { ActionIcon, Button, Divider, Paper, Tabs } from "@mantine/core";
-import { IconAntenna, IconFileDollar, IconMaximize, IconMinus, IconX } from "@tabler/icons-react";
+import { ActionIcon, Button, Divider, MantineColor, Paper } from "@mantine/core";
+import { IconAntenna, IconCurrencyDollar, IconMaximize, IconMinus, IconTag, IconUser, IconX } from "@tabler/icons-react";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getCurrentWindow, Window } from "@tauri-apps/api/window";
 import { t } from "i18next";
 
-import ProfileSelector from "../profiles/ProfileSelector";
 import Logo from "../common/Logo";
-import useDbSelect from "@/utils/hooks/useDbSelect";
-import ProfileGetModel from "@/types/profiles/ProfileGetModel";
 import Link from "next/link";
+import useColorScheme from "@/utils/hooks/useConciseColorScheme";
 
 const Titlebar = () => {
     const [currentWindow, setCurrentWindow] = useState<Window | null>(null);
 
-    const { profile: currentProfile, setProfile: setCurrentProfile } = useProfileContext();
-
-    const { call: getProfiles } = useDbSelect<ProfileGetModel[]>({ query: "SELECT * FROM profiles" });
-
-    useEffect(() => {
-        setCurrentWindow(getCurrentWindow());
-
-        (() => {
-            const cachedProfileIdRaw = window.localStorage.getItem("lastProfileId");
-    
-            if (!cachedProfileIdRaw) return;
-    
-            const cachedProfileId = Number(cachedProfileIdRaw);
-    
-            if (Number.isNaN(cachedProfileId)) return;
-    
-            getProfiles().then(profiles => {
-                const targetProfile = profiles.find(p => p.id === cachedProfileId);
-    
-                if (!targetProfile) return;
-    
-                if (!currentProfile) setCurrentProfile(targetProfile);
-            }).catch(() => {});
-        })();
-    }, []);
+    const { profile, setProfile } = useProfileContext();
+    const { isDark: isColorSchemeDark } = useColorScheme();
 
     const handleMinimize = () => currentWindow?.minimize();
 
@@ -52,6 +27,16 @@ const Titlebar = () => {
 
     const handleClose = () => currentWindow?.close();
 
+    useEffect(() => {
+        setCurrentWindow(getCurrentWindow());
+    }, []);
+
+    const windowControlButtonColor = useMemo<MantineColor>(() =>
+        isColorSchemeDark
+            ? "white"
+            : "black"
+    , [isColorSchemeDark]);
+
     return (
         <Paper
             withBorder
@@ -62,9 +47,9 @@ const Titlebar = () => {
             <div className="px-1 flex items-center gap-2">
                 <Logo width={28} height={28} aria-hidden />
 
-                {currentProfile ? (
-                    <ProfileSelector />
-                ) : null}
+                <Button leftSection={<IconUser />} color="gray" disabled={!profile} size="compact-md" onClick={() => setProfile(null!)}>
+                    {profile ? profile.name : t("profiles.Profiles")}
+                </Button>
 
                 <Divider orientation="vertical" />
 
@@ -73,22 +58,26 @@ const Titlebar = () => {
                         {t("domains.Domains")}
                     </Button>
 
-                    <Button variant="light" component={Link} href="/invoices" leftSection={<IconFileDollar />} size="compact-md">
+                    <Button variant="light" component={Link} href="/invoices" leftSection={<IconCurrencyDollar />} size="compact-md">
                         {t("invoices.Invoices")}
+                    </Button>
+
+                    <Button variant="light" component={Link} href="/tags" leftSection={<IconTag />} size="compact-md">
+                        {t("tags.Tags")}
                     </Button>
                 </nav>
             </div>
 
             <div className="p-1 flex gap-1">
-                <ActionIcon variant="subtle" color="black" onClick={() => handleMinimize()}>
+                <ActionIcon variant="subtle" color={windowControlButtonColor} onClick={() => handleMinimize()}>
                     <IconMinus />
                 </ActionIcon>
 
-                <ActionIcon variant="subtle" color="black" onClick={() => handleMaximize()}>
+                <ActionIcon variant="subtle" color={windowControlButtonColor} onClick={() => handleMaximize()}>
                     <IconMaximize />
                 </ActionIcon>
 
-                <ActionIcon variant="subtle" color="black" onClick={() => handleClose()}>
+                <ActionIcon variant="subtle" color={windowControlButtonColor} onClick={() => handleClose()}>
                     <IconX />
                 </ActionIcon>
             </div>

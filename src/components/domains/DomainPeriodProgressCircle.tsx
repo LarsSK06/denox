@@ -20,7 +20,7 @@ const DomainPeriodProgressCircle = ({ domain }: DomainPeriodProgressCircleProps)
         const rdmsToEdms = expiryDateMs - registeredDateMs;
         const rdmsToNms = nowMs - registeredDateMs;
 
-        return Math.round((rdmsToNms / rdmsToEdms) * 100);
+        return (rdmsToNms / rdmsToEdms) * 100;
     }, [domain]);
 
     return (
@@ -31,7 +31,7 @@ const DomainPeriodProgressCircle = ({ domain }: DomainPeriodProgressCircleProps)
             label={
                 <>
                     <span>
-                        {t("domains.PercentageOfDomainPeriodElapsed", { percentage: elapsedPercentage })}
+                        {t("domains.PercentageOfDomainPeriodElapsed", { percentage: Math.round(elapsedPercentage * 10) / 10 })}
                     </span>
 
                     <br />

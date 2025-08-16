@@ -1,33 +1,33 @@
 "use client";
 
+import ColoredPill from "@/components/common/ColoredPill";
+import Loader from "@/components/common/Loader";
+import InvoiceStatusChip from "@/components/invoices/InvoiceStatusChip";
 import Endpoint from "@/types/http/Endpoint";
-import useHttpClient from "@/utils/hooks/useHttpClient";
 import InvoiceGetModel from "@/types/invoices/InvoiceGetModel";
-import translateInvoiceType from "@/utils/functions/translateInvoiceType";
-import prettifyMoneyAmount from "@/utils/functions/prettifyMoneyAmount";
-import prettifyDate from "@/utils/functions/prettifyDate";
 import InvoiceStatus from "@/types/invoices/InvoiceStatus";
 import InvoiceType from "@/types/invoices/InvoiceType";
+import InvoiceTagRelationGetModel from "@/types/tags/InvoiceTagRelationGetModel";
+import TagGetModel from "@/types/tags/TagGetModel";
+import handleErrorMessage from "@/utils/functions/handleErrorMessage";
+import prettifyDate from "@/utils/functions/prettifyDate";
+import prettifyMoneyAmount from "@/utils/functions/prettifyMoneyAmount";
 import translateInvoiceStatus from "@/utils/functions/translateInvoiceStatus";
-import InvoiceStatusChip from "@/components/invoices/InvoiceStatusChip";
-import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
+import translateInvoiceType from "@/utils/functions/translateInvoiceType";
+import useDbSelect from "@/utils/hooks/useDbSelect";
+import useHttpClient from "@/utils/hooks/useHttpClient";
 
-import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
-import { ActionIcon, Menu, Modal, Paper, RangeSlider, Select, Table, Transition } from "@mantine/core";
-import { ComponentProps, useEffect, useMemo, useState } from "react";
-import { IconCoins, IconDots, IconExternalLink, IconPdf, IconWorldWww } from "@tabler/icons-react";
+import { ActionIcon, Menu, Paper, Select, Table, Transition } from "@mantine/core";
+import { useDbContext } from "@/utils/contexts/useDbContext";
+import { IconPlus } from "@tabler/icons-react";
 import { t } from "i18next";
+import { useEffect, useMemo, useState } from "react";
 
 const Page = () => {
     const [type, setType] = useState<InvoiceType | null>(null);
     const [status, setStatus] = useState<InvoiceStatus | null>(null);
-    const [minAmount, setMinAmount] = useState<number>(-9999);
-    const [maxAmount, setMaxAmount] = useState<number>(9999);
 
-    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-    
     const {
-        isLoading: isInvoicesLoading,
         data: invoices,
         call: getInvoices
     } = useHttpClient<InvoiceGetModel[]>({
@@ -37,103 +37,103 @@ const Page = () => {
             dueDate: i.dueDate && new Date(i.dueDate),
             issuedDate: new Date(i.issuedDate),
             paidDate: i.paidDate && new Date(i.paidDate)
-        } as InvoiceGetModel))
+        }))
     });
 
-    const availableInvoiceTypes = useMemo<NonNullable<ComponentProps<typeof Select>["data"]>>(() =>
-        (invoices ?? [])
-            .reduce((root, current) =>
-                !root.includes(current.type)
-                    ? [...root, current.type]
-                    : root
-            , [] as InvoiceType[])
-            .map(it => ({ value: it, label: translateInvoiceType(it) }))
-    , [invoices]);
+    const {
+        data: tags,
+        call: getTags
+    } = useDbSelect<TagGetModel[]>({ query: "SELECT * FROM tags" });
 
-    const availableInvoiceStatuses = useMemo<NonNullable<ComponentProps<typeof Select>["data"]>>(() =>
-        (invoices ?? [])
-            .reduce((root, current) =>
-                !root.includes(current.status)
-                    ? [...root, current.status]
-                    : root
-            , [] as InvoiceStatus[])
-            .map(s => ({ value: s, label: translateInvoiceStatus(s) }))
-    , [invoices]);
-
-    const lowestInvoiceAmount = useMemo(() =>
-        (invoices ?? []).reduce((root, current) =>
-            current.amount < root
-                ? current.amount
-                : root
-            , 0)
-    , [invoices]);
-
-    const highestInvoiceAmount = useMemo(() =>
-        (invoices ?? []).reduce((root, current) =>
-            current.amount > root
-                ? current.amount
-                : root
-            , 0)
-    , [invoices]);
+    const {
+        data: invoiceTagRelations,
+        setData: setInvoiceTagRelations,
+        call: getInvoiceTagRelations
+    } = useDbSelect<InvoiceTagRelationGetModel[]>({ query: "SELECT * FROM invoiceTagRelations" });
 
     useEffect(() => {
         getInvoices();
+        getTags();
+        getInvoiceTagRelations();
     }, []);
 
-    const { allowAnimations } = useSettingsContext();
+    const { database: db } = useDbContext();
+
+    const removeTag = (invoiceId: number, tagId: number) => {
+        const invoiceTagRelationSnapshot =
+            structuredClone(invoiceTagRelations?.find(itr =>
+                itr.invoiceId === invoiceId &&
+                itr.tagId === tagId
+            )!);
+
+        setInvoiceTagRelations(prev => prev!.filter(itr => itr.id !== invoiceTagRelationSnapshot?.id));
+
+        db.execute("DELETE FROM invoiceTagRelations WHERE invoiceId = $1 AND tagId = $2", [invoiceId, tagId])
+            .catch(error => {
+                setInvoiceTagRelations(prev => [...prev!, invoiceTagRelationSnapshot]);
+
+                handleErrorMessage(t("tags.RemoveTagError"))(error);
+            });
+    };
     
+    const addTag = (invoiceId: number, tagId: number) => {
+        const syntheticId = Date.now();
+
+        setInvoiceTagRelations(prev => [
+            ...prev!,
+            {
+                id: syntheticId,
+                invoiceId,
+                tagId
+            }
+        ]);
+
+        db.execute("INSERT INTO invoiceTagRelations (invoiceId, tagId) VALUES ($1, $2)", [invoiceId, tagId])
+            .catch(error => {
+                setInvoiceTagRelations(prev => prev!.filter(itr => itr.id !== syntheticId));
+
+                handleErrorMessage(t("tags.AddTagError"))(error);
+            });
+    };
+
+    const showTagsColumn = useMemo<boolean>(() => !!tags && tags.length > 0, [tags])
+
     return (
-        <>
-            <Modal size="xl" opened={!!pdfUrl} onClose={() => setPdfUrl(null)}>
-                <object className="w-full h-[40rem]" data={pdfUrl ?? undefined} type="application/pdf">
+        <main className="w-full h-full relative overflow-hidden">
+            <h1 className="sr-only">
+                {t("invoices.Invoices")}
+            </h1>
 
-                </object>
-            </Modal>
+            <Transition mounted={!!invoices && !!tags && !!invoiceTagRelations} transition="fade-up">
+                {style => (
+                    <div className="w-full h-full p-2 flex flex-col gap-2 overflow-auto" style={style}>
+                        <Paper withBorder shadow="sm" className="p-2 flex gap-2">
+                            <Select
+                                label={t("common.Type")}
+                                value={type ?? ""}
+                                onChange={value => setType(value ? (value as typeof type) : null)}
+                                data={[
+                                    { value: "", label: t("common.All") },
+                                    ...Object.values(InvoiceType)
+                                        .filter(it => typeof it === "string")
+                                        .map(it => ({ value: it, label: translateInvoiceType(it as InvoiceType) }))
+                                ]}
+                            />
 
-            <main className="w-full h-full p-2 overflow-auto">
-                <Transition mounted={!isInvoicesLoading} duration={allowAnimations ? undefined : 0} transition="fade-up" exitDuration={0}>
-                    {style => (
-                        <div className="w-full flex flex-col gap-2" style={style}>
-                            <Paper withBorder shadow="sm" className="p-2 flex flex-col gap-2">
-                                <div className="flex gap-2">
-                                    <Select
-                                        label={t("common.Type")}
-                                        value={type ?? "all"}
-                                        data={[
-                                            { value: "all", label: t("common.All") },
-                                            ...availableInvoiceTypes
-                                        ]}
-                                        onChange={value => setType(!value || value === "all" ? null : (value as InvoiceType))}
-                                    />
+                            <Select
+                                label={t("common.Status")}
+                                value={status ?? ""}
+                                onChange={value => setStatus(value ? (value as typeof status) : null)}
+                                data={[
+                                    { value: "", label: t("common.All") },
+                                    ...Object.values(InvoiceStatus)
+                                        .filter(is => typeof is === "string")
+                                        .map(is => ({ value: is, label: translateInvoiceStatus(is as InvoiceStatus) }))
+                                ]}
+                            />
+                        </Paper>
 
-                                    <Select
-                                        label={t("common.Status")}
-                                        value={status ?? "all"}
-                                        data={[
-                                            { value: "all", label: t("common.All") },
-                                            ...availableInvoiceStatuses
-                                        ]}
-                                        onChange={value => setStatus(!value || value === "all" ? null : (value as InvoiceStatus))}
-                                    />
-                                </div>
-
-                                <RangeSlider
-                                    className="my-6"
-                                    value={[minAmount, maxAmount]}
-                                    min={lowestInvoiceAmount}
-                                    max={highestInvoiceAmount}
-                                    marks={[
-                                        { value: lowestInvoiceAmount, label: `${lowestInvoiceAmount}` },
-                                        { value: 0, label: `0` },
-                                        { value: highestInvoiceAmount, label: `${highestInvoiceAmount}` }
-                                    ]}
-                                    onChange={value => {
-                                        setMinAmount(value[0]);
-                                        setMaxAmount(value[1]);
-                                    }}
-                                />
-                            </Paper>
-
+                        <Paper withBorder shadow="sm">
                             <Table>
                                 <Table.Thead>
                                     <Table.Tr>
@@ -141,7 +141,7 @@ const Page = () => {
                                             {t("common.Type")}
                                         </Table.Td>
 
-                                        <Table.Td className="text-end">
+                                        <Table.Td align="right">
                                             {t("common.Amount")}
                                         </Table.Td>
 
@@ -161,104 +161,128 @@ const Page = () => {
                                             {t("common.Status")}
                                         </Table.Td>
 
-                                        <Table.Td className="w-0">
-                                            <span className="sr-only">
-                                                {t("common.Actions")}
-                                            </span>
-                                        </Table.Td>
+                                        {showTagsColumn ? (
+                                            <Table.Td>
+                                                {t("tags.Tags")}
+                                            </Table.Td>
+                                        ) : null}
                                     </Table.Tr>
                                 </Table.Thead>
 
                                 <Table.Tbody>
                                     {invoices
-                                        ?.filter(i => type === null || i.type === type)
-                                        .filter(i => status === null || i.status === status)
-                                        .filter(i => i.amount >= minAmount)
-                                        .filter(i => i.amount <= maxAmount)
-                                        .map(invoice => (
-                                        <Table.Tr key={invoice.id}>
-                                            <Table.Td>
-                                                {translateInvoiceType(invoice.type)}
-                                            </Table.Td>
+                                        ?.filter(i => type === null || type === i.type)
+                                        .filter(i => status === null || status === i.status)
+                                        .map(invoice => {
 
-                                            <Table.Td className="italic text-end">
-                                                {`${prettifyMoneyAmount(invoice.amount)} ${invoice.currency}`}
-                                            </Table.Td>
+                                        const tagsOnInvoice =
+                                            tags?.filter(t =>
+                                                invoiceTagRelations?.some(itr =>
+                                                    itr.invoiceId === invoice.id &&
+                                                    itr.tagId === t.id
+                                                )
+                                            );
+                                        
+                                        const tagsNotOnInvoice =
+                                            tags?.filter(t =>
+                                                !invoiceTagRelations?.some(itr =>
+                                                    itr.invoiceId === invoice.id &&
+                                                    itr.tagId === t.id
+                                                )
+                                            );
+                                        
+                                        return (
+                                            <Table.Tr className="group" key={invoice.id}>
+                                                <Table.Td>
+                                                    {translateInvoiceType(invoice.type)}
+                                                </Table.Td>
 
-                                            <Table.Td c={invoice.dueDate ? undefined : "gray"}>
-                                                {invoice.dueDate ? (
-                                                    <time dateTime={invoice.dueDate.toDateString()}>
-                                                        {prettifyDate(invoice.dueDate)}
+                                                <Table.Td align="right" c={invoice.amount < 0 ? "green" : undefined}>
+                                                    {`${prettifyMoneyAmount(invoice.amount)} ${invoice.currency}`}
+                                                </Table.Td>
+
+                                                <Table.Td c={invoice.dueDate ? undefined : "gray"}>
+                                                    {invoice.dueDate ? (
+                                                        <time dateTime={invoice.dueDate.toDateString()}>
+                                                            {prettifyDate(invoice.dueDate)}
+                                                        </time>
+                                                    ) : t("common.None")}
+                                                </Table.Td>
+
+                                                <Table.Td>
+                                                    <time dateTime={invoice.issuedDate.toDateString()}>
+                                                        {prettifyDate(invoice.issuedDate)}
                                                     </time>
-                                                ) : t("common.Never")}
-                                            </Table.Td>
+                                                </Table.Td>
 
-                                            <Table.Td>
-                                                <time dateTime={invoice.issuedDate.toDateString()}>
-                                                    {prettifyDate(invoice.issuedDate)}
-                                                </time>
-                                            </Table.Td>
+                                                <Table.Td c={invoice.paidDate ? undefined : "gray"}>
+                                                    {invoice.paidDate ? (
+                                                        <time dateTime={invoice.paidDate.toDateString()}>
+                                                            {prettifyDate(invoice.paidDate)}
+                                                        </time>
+                                                    ) : t("common.None")}
+                                                </Table.Td>
 
-                                            <Table.Td c={invoice.dueDate ? undefined : "gray"}>
-                                                {invoice.paidDate ? (
-                                                    <time dateTime={invoice.paidDate.toDateString()}>
-                                                        {prettifyDate(invoice.paidDate)}
-                                                    </time>
-                                                ) : t("common.NotPaid")}
-                                            </Table.Td>
+                                                <Table.Td>
+                                                    <InvoiceStatusChip status={invoice.status} />
+                                                </Table.Td>
 
-                                            <Table.Td>
-                                                <span className="sr-only">
-                                                    {translateInvoiceStatus(invoice.status)}
-                                                </span>
+                                                {showTagsColumn ? (
+                                                    <Table.Td>
+                                                        <ul className="flex gap-2" aria-label={t("tags.Tags")}>
+                                                            {tagsOnInvoice?.map(tag => (
+                                                                <ColoredPill
+                                                                    withRemoveButton
+                                                                    component="li"
+                                                                    color={tag.color}
+                                                                    key={tag.id}
+                                                                    onRemove={() => removeTag(invoice.id, tag.id)}>
+                                                                    {tag.name}
+                                                                </ColoredPill>
+                                                            ))}
 
-                                                <InvoiceStatusChip status={invoice.status} />
-                                            </Table.Td>
+                                                            {tagsNotOnInvoice && tagsNotOnInvoice.length > 0 ? (
+                                                                <li className="flex">
+                                                                    <Menu>
+                                                                        <Menu.Target>
+                                                                            <ActionIcon size="sm" variant="subtle">
+                                                                                <IconPlus />
+                                                                            </ActionIcon>
+                                                                        </Menu.Target>
 
-                                            <Table.Td>
-                                                <Menu>
-                                                    <Menu.Target>
-                                                        <ActionIcon variant="subtle">
-                                                            <IconDots />
-                                                        </ActionIcon>
-                                                    </Menu.Target>
-
-                                                    <Menu.Dropdown>
-                                                        <Menu.Item
-                                                            leftSection={
-                                                                invoice.status === InvoiceStatus.Unpaid
-                                                                    ? <IconCoins />
-                                                                    : <IconWorldWww />
-                                                            }
-                                                            rightSection={<IconExternalLink />}
-                                                            onClick={openInBrowserOnClick(invoice.url)}>
-                                                            {invoice.status === InvoiceStatus.Unpaid ? t("common.Pay") : t("common.ViewInBrowser")}
-                                                        </Menu.Item>
-
-                                                        <Menu.Item
-                                                            leftSection={<IconPdf />}
-                                                            rightSection={<IconExternalLink />}
-                                                            onClick={openInBrowserOnClick(`${invoice.url}&format=pdf`)}>
-                                                            {t("common.DownloadAsPdf")}
-                                                        </Menu.Item>
-
-                                                        <Menu.Item
-                                                            leftSection={<IconPdf />}
-                                                            onClick={() => setPdfUrl(`${invoice.url}&format=pdf`)}>
-                                                            {t("common.OpenPdf")}
-                                                        </Menu.Item>
-                                                    </Menu.Dropdown>
-                                                </Menu>
-                                            </Table.Td>
-                                        </Table.Tr>
-                                    ))}
+                                                                        <Menu.Dropdown>
+                                                                            {tagsNotOnInvoice?.map(tag => (
+                                                                                <Menu.Item
+                                                                                    key={tag.id}
+                                                                                    onClick={() => addTag(invoice.id, tag.id)}>
+                                                                                    {tag.name}
+                                                                                </Menu.Item>
+                                                                            ))}
+                                                                        </Menu.Dropdown>
+                                                                    </Menu>
+                                                                </li>
+                                                            ) : null}
+                                                        </ul>
+                                                    </Table.Td>
+                                                ) : null}
+                                            </Table.Tr>
+                                        );
+                                    })}
                                 </Table.Tbody>
                             </Table>
-                        </div>
-                    )}
-                </Transition>
-            </main>
-        </>
+                        </Paper>
+                    </div>
+                )}
+            </Transition>
+
+            <Transition mounted={!invoices || !tags || !invoiceTagRelations} transition="fade-up">
+                {style => (
+                    <div className="w-full h-full top-0 left-0 flex justify-center items-center absolute" style={style}>
+                        <Loader />
+                    </div>
+                )}
+            </Transition>
+        </main>
     );
 };
 

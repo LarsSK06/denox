@@ -19,7 +19,7 @@ const DomainStatusChip = ({ status }: DomainStatusChipProps) => {
     }, [status]);
 
     return (
-        <ColoredPill color={color} size="xl">
+        <ColoredPill color={color}>
             {translateDomainStatus(status)}
         </ColoredPill>
     );
