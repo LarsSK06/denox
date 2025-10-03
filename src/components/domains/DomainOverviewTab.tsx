@@ -1,10 +1,10 @@
 "use client";
 
-import { ActionIcon, CloseButton, Menu, Paper, Table, Text, Transition } from "@mantine/core";
+import { ActionIcon, Button, CloseButton, Menu, Paper, Table, Text, Transition } from "@mantine/core";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { dummyDomain } from "@/utils/globals";
 import { useEffect, useMemo, useState } from "react";
-import { IconPlus } from "@tabler/icons-react";
+import { IconAddressBook, IconBolt, IconPlus, IconRestore } from "@tabler/icons-react";
 import { t } from "i18next";
 
 import DomainPeriodProgressCircle from "./DomainPeriodProgressCircle";
@@ -22,6 +22,7 @@ import ColoredPill from "../common/ColoredPill";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 import NoteGetModel from "@/types/notes/NoteGetModel";
 import CreateNoteModal from "../notes/CreateNoteModal";
+import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
 
 const DomainOverviewTab = () => {
     const [showCreateNoteModal, setShowCreateNoteModal] = useState<boolean>(false);
@@ -230,6 +231,35 @@ const DomainOverviewTab = () => {
                                     </ActionIcon>
                                 </li>
                             </ul>
+
+                            <div className="w-full flex flex-wrap justify-center gap-2" aria-label={t("common.QuickActions")}>
+                                <Button
+                                    component="a"
+                                    href={`https://domene.shop/admin?id=${domainId}&command=renew`}
+                                    onClick={openInBrowserOnClick()}
+                                    leftSection={<IconRestore />}
+                                    variant="light">
+                                    {t("common.Renew")}
+                                </Button>
+
+                                <Button
+                                    component="a"
+                                    href={`https://domene.shop/admin?id=${domainId}&view=upgrade`}
+                                    onClick={openInBrowserOnClick()}
+                                    leftSection={<IconBolt />}
+                                    variant="light">
+                                    {t("common.Upgrade")}
+                                </Button>
+
+                                <Button
+                                    component="a"
+                                    href={`https://domene.shop/admin?id=${domainId}&edit=contacts`}
+                                    onClick={openInBrowserOnClick()}
+                                    leftSection={<IconAddressBook />}
+                                    variant="light">
+                                    {t("common.ChangeContactInfo")}
+                                </Button>
+                            </div>
 
                             <Paper withBorder shadow="sm" className="w-full">
                                 <Text className="p-2" component="h3" size="lg">

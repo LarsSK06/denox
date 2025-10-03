@@ -96,7 +96,9 @@
             "Good": "Good",
             "VeryGood": "Very good",
             "Color": "Color",
-            "Text": "Text"
+            "Text": "Text",
+            "Upgrade": "Upgrade",
+            "ChangeContactInfo": "Change contact info"
         },
         "domains": {
             "Domain": "Domain",
