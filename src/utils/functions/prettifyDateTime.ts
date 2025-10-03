@@ -7,13 +7,13 @@ const prettifyDateTime = (date: Date) => {
 
     const hours =
         getArrayFromNumber(2 - `${_hours}`.length)
-            .map(i => "0")
+            .map(() => "0")
             .join("")
         + `${_hours}`;
 
     const minutes =
         getArrayFromNumber(2 - `${_minutes}`.length)
-            .map(i => "0")
+            .map(() => "0")
             .join("")
         + `${_minutes}`;
 
