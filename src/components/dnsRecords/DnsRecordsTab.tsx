@@ -2,7 +2,7 @@
 
 import { ActionIcon, Button, Checkbox, Menu, Paper, Select, Table, Transition } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
-import { IconDots, IconPencil, IconPlus, IconRefresh, IconTrash } from "@tabler/icons-react";
+import { IconCopyPlus, IconDots, IconPencil, IconPlus, IconRefresh, IconTrash } from "@tabler/icons-react";
 import { t } from "i18next";
 
 import useSearchParam from "@/utils/hooks/useSearchParam";
@@ -12,6 +12,9 @@ import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
 import CreateEditDnsRecordModal from "./CreateEditDnsRecordModal";
 import prettifyMoneyAmount from "@/utils/functions/prettifyMoneyAmount";
 import useDnsRecordsRepository from "@/utils/repositories/dnsRecordsRepository";
+import useHttpClient from "@/utils/hooks/useHttpClient";
+import DomainGetModel from "@/types/domains/DomainGetModel";
+import Endpoint from "@/types/http/Endpoint";
 
 const DnsRecordsTab = () => {
     const [host, setHost] = useState<string | null>(null);
@@ -25,12 +28,20 @@ const DnsRecordsTab = () => {
     const domainId = useSearchParam({ key: "domainId", type: "number" });
 
     const dnsRecordsRepository = useDnsRecordsRepository({ domainId: domainId ?? -1 });
+
+    const { data: domains, call: getDomains } = useHttpClient<DomainGetModel[]>({
+        endpoint: Endpoint.Domains
+    });
     
     const filteredDnsRecords = useMemo(() =>
         (dnsRecordsRepository.dnsRecords ?? [])
             .filter(r => !host || r.host === host)
             .filter(r => !type || r.type === type)
     , [dnsRecordsRepository.dnsRecords, host, type]);
+
+    useEffect(() => {
+        getDomains();
+    }, []);
 
     useEffect(() => {
         if (!domainId) return;
@@ -59,7 +70,7 @@ const DnsRecordsTab = () => {
             />
 
             <div className="w-full h-full relative">
-                <Transition mounted={!!dnsRecordsRepository.dnsRecords} exitDuration={0} transition="fade-right">
+                <Transition mounted={!!dnsRecordsRepository.dnsRecords && !!domains} exitDuration={0} transition="fade-right">
                     {style => (
                         <div className="w-full h-full p-2 flex items-start flex-col gap-2 overflow-auto" style={style}>
                             <Paper withBorder shadow="sm" className="p-2 flex items-end gap-2" style={{ minWidth: "100%" }}>
@@ -107,14 +118,35 @@ const DnsRecordsTab = () => {
 
                                 <Transition mounted={selectedIds.length > 0} transition="fade">
                                     {buttonStyle => (
-                                        <Button
-                                            color="red"
-                                            loading={dnsRecordsRepository.isDeleteDnsRecordsLoading}
-                                            style={buttonStyle}
-                                            leftSection={<IconTrash />}
-                                            onClick={() => dnsRecordsRepository.deleteDnsRecords(selectedIds)}>
-                                            {t("dnsRecords.DeleteDnsRecords")}
-                                        </Button>
+                                        <>
+                                            <Button
+                                                color="red"
+                                                loading={dnsRecordsRepository.isDeleteDnsRecordsLoading}
+                                                style={buttonStyle}
+                                                leftSection={<IconTrash />}
+                                                onClick={() => dnsRecordsRepository.deleteDnsRecords(selectedIds)}>
+                                                {t("dnsRecords.DeleteDnsRecords")}
+                                            </Button>
+                                        
+                                            <Menu>
+                                                <Menu.Target>
+                                                    <Button
+                                                        loading={dnsRecordsRepository.isDuplicateDnsRecordsLoading}
+                                                        style={buttonStyle}
+                                                        leftSection={<IconCopyPlus />}>
+                                                        {t("dnsRecords.DuplicateDnsRecords")}
+                                                    </Button>
+                                                </Menu.Target>
+
+                                                <Menu.Dropdown>
+                                                    {domains?.toSorted((a, b) => a.id > b.id ? 1 : -1).map(d => (
+                                                        <Menu.Item onClick={() => dnsRecordsRepository.duplicateDnsRecords(selectedIds, d.id)} key={d.id}>
+                                                            {d.domain}
+                                                        </Menu.Item>
+                                                    ))}
+                                                </Menu.Dropdown>
+                                            </Menu>
+                                        </>
                                     )}
                                 </Transition>
                             </div>
@@ -250,6 +282,22 @@ const DnsRecordsTab = () => {
                                                             <Menu.Item leftSection={<IconTrash />} onClick={() => dnsRecordsRepository.deleteDnsRecords([dnsRecord.id])} color="red">
                                                                 {t("dnsRecords.DeleteDnsRecord")}
                                                             </Menu.Item>
+
+                                                            <Menu.Sub>
+                                                                <Menu.Sub.Target>
+                                                                    <Menu.Sub.Item leftSection={<IconCopyPlus />}>
+                                                                        {t("dnsRecords.DuplicateDnsRecord")}
+                                                                    </Menu.Sub.Item>
+                                                                </Menu.Sub.Target>
+
+                                                                <Menu.Sub.Dropdown>
+                                                                    {domains?.toSorted((a, b) => a.id > b.id ? 1 : -1).map(d => (
+                                                                        <Menu.Item onClick={() => dnsRecordsRepository.duplicateDnsRecords([dnsRecord.id], d.id)} key={d.id}>
+                                                                            {d.domain}
+                                                                        </Menu.Item>
+                                                                    ))}
+                                                                </Menu.Sub.Dropdown>
+                                                            </Menu.Sub>
                                                         </Menu.Dropdown>
                                                     </Menu>
                                                 </Table.Td>
@@ -262,7 +310,7 @@ const DnsRecordsTab = () => {
                     )}
                 </Transition>
 
-                <Transition mounted={!dnsRecordsRepository.dnsRecords} transition="fade-right">
+                <Transition mounted={!dnsRecordsRepository.dnsRecords || !domains} transition="fade-right">
                     {style => (
                         <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
                             <Loader />

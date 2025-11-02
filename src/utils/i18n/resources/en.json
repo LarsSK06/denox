@@ -117,7 +117,11 @@
             "DeleteDnsRecord": "Delete DNS record",
             "DeleteDnsRecordError": "Could not delete DNS record",
             "DeleteDnsRecords": "Delete DNS records",
-            "DeleteDnsRecordsError": "Coult not delete DNS records"
+            "DeleteDnsRecordsError": "Coult not delete DNS records",
+            "DuplicateDnsRecord": "Duplicate DNS record",
+            "DuplicateDnsRecordError": "Could not duplicate DNS record",
+            "DuplicateDnsRecords": "Duplicate DNS records",
+            "DuplicateDnsRecordsError": "Could not duplicate DNS records"
         },
         "profiles": {
             "Profile": "Profile",

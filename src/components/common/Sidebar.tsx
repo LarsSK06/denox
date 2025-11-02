@@ -22,6 +22,7 @@ const Sidebar = ({
 }: SidebarProps) => {
     const [width, setWidth] = useState<number>(initialWidth);
     const [isGrabbing, setIsGrabbing] = useState<boolean>(false);
+    const [isHovering, setIsHovering] = useState<boolean>(false);
 
     const paperRef = useRef<HTMLElement | null>(null);
     const mantineTheme = useMantineTheme();
@@ -74,10 +75,26 @@ const Sidebar = ({
     }, [paperRef, isGrabbing, setCache]);
 
     return (
-        <Paper withBorder component="aside" ref={paperRef} style={{ width }} className="h-full border-t-0 border-b-0 border-l-0 rounded-none relative">
-            <button onMouseDown={onMouseDown} onKeyDown={onKeyDown} className="w-[8px] h-full absolute top-0 right-[-4px] z-1 group outline-none" style={{ cursor: isGrabbing ? "grabbing" : "grab" }} aria-label={t("common.ResizeSidebar")}>
-                <div className="w-0 h-full mx-auto group-hover:w-full group-focus-visible:w-full transition-all" style={{ width: isGrabbing ? "100%" : undefined, backgroundColor: getThemeColor(mantineTheme.primaryColor, mantineTheme) }} />
-            </button>
+        <Paper
+            withBorder
+            component="aside"
+            ref={paperRef}
+            style={{
+                width,
+                borderRightColor:
+                    isGrabbing || isHovering
+                        ? getThemeColor(mantineTheme.primaryColor, mantineTheme)
+                        : undefined
+            }}
+            className="h-full border-t-0 border-b-0 border-l-0 rounded-none relative transition-colors">
+            <button
+                onMouseDown={onMouseDown}
+                onKeyDown={onKeyDown}
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+                className="w-[8px] h-full absolute top-0 right-[-4px] z-1 group outline-none cursor-e-resize"
+                aria-label={t("common.ResizeSidebar")}
+            />
 
             <div className="w-full h-full">
                 {children}

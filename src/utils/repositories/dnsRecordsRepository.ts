@@ -27,8 +27,8 @@ const useDnsRecordsRepository = ({ domainId }: UseDnsRecordsRepository) => {
     const {
         isLoading: _isCreateDnsRecordLoading,
         call: _createDnsRecord
-    } = useHttpClient<{ id: number }, DnsRecordPostModel>(body => ({
-        endpoint: [Endpoint.Domains, domainId, Endpoint.DNS],
+    } = useHttpClient<{ id: number }, DnsRecordPostModel>(([body, _domainId]) => ({
+        endpoint: [Endpoint.Domains, _domainId ?? domainId, Endpoint.DNS],
         method: "POST",
         body
     }));
@@ -73,7 +73,7 @@ const useDnsRecordsRepository = ({ domainId }: UseDnsRecordsRepository) => {
     const {
         isLoading: _isEditDnsRecordLoading,
         call: _editDnsRecord
-    } = useHttpClient<{}, DnsRecordPutModel>((id, body) => ({
+    } = useHttpClient<{}, DnsRecordPutModel>(([id, body]) => ({
         endpoint: [Endpoint.Domains, domainId, Endpoint.DNS, id],
         method: "PUT",
         body
@@ -148,6 +148,30 @@ const useDnsRecordsRepository = ({ domainId }: UseDnsRecordsRepository) => {
     });
 
 
+    const [isDuplicateDnsRecordsLoading, setIsDuplicateDnsRecordsLoading] = useState<boolean>(false);
+
+    const duplicateDnsRecords = (dnsRecordIds: number[], _domainId: number) => new Promise<boolean>(resolve => {
+        setIsDuplicateDnsRecordsLoading(true);
+
+        Promise.all(
+            dnsRecordIds.map(id => dnsRecords!.find(dr => dr.id === id)).filter(dr => !!dr).map(dr =>
+                new Promise<void>((subresolve, subreject) => {
+                    _createDnsRecord(dr, _domainId)
+                        .then(() => subresolve())
+                        .catch(error => {
+                            handleErrorMessage(t("dnsRecords.DuplicateDnsRecordError"))(error);
+
+                            subreject();
+                        });
+                })
+            )
+        )
+            .then(() => resolve(true))
+            .catch(() => resolve(false))
+            .finally(() => setIsDuplicateDnsRecordsLoading(false));
+    });
+
+
     return {
         isDnsRecordsLoading,
         dnsRecords,
@@ -160,7 +184,10 @@ const useDnsRecordsRepository = ({ domainId }: UseDnsRecordsRepository) => {
         editDnsRecord,
 
         isDeleteDnsRecordsLoading,
-        deleteDnsRecords
+        deleteDnsRecords,
+
+        isDuplicateDnsRecordsLoading,
+        duplicateDnsRecords
     };
 };
 
