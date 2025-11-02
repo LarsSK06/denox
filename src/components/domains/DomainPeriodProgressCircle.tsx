@@ -37,13 +37,13 @@ const DomainPeriodProgressCircle = ({ domain }: DomainPeriodProgressCircleProps)
                     <br />
 
                     <span>
-                        <time dateTime={domain.registeredDate.toDateString()}>
+                        <time dateTime={domain.registeredDate.toISOString().split("T")[0]}>
                             {prettifyDate(domain.registeredDate)}
                         </time>
                         {' '}
                         -
                         {' '}
-                        <time dateTime={domain.expiryDate.toDateString()}>
+                        <time dateTime={domain.expiryDate.toISOString().split("T")[0]}>
                             {prettifyDate(domain.expiryDate)}
                         </time>
                     </span>

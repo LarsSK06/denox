@@ -6,13 +6,12 @@ import { IconDots, IconPencil, IconPlus, IconRefresh, IconTrash } from "@tabler/
 import { t } from "i18next";
 
 import useSearchParam from "@/utils/hooks/useSearchParam";
-import useHttpClient from "@/utils/hooks/useHttpClient";
-import Endpoint from "@/types/http/Endpoint";
 import Loader from "../common/Loader";
 import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
 import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
 import CreateEditDnsRecordModal from "./CreateEditDnsRecordModal";
-import handleErrorMessage from "@/utils/functions/handleErrorMessage";
+import prettifyMoneyAmount from "@/utils/functions/prettifyMoneyAmount";
+import useDnsRecordsRepository from "@/utils/repositories/dnsRecordsRepository";
 
 const DnsRecordsTab = () => {
     const [host, setHost] = useState<string | null>(null);
@@ -25,29 +24,18 @@ const DnsRecordsTab = () => {
 
     const domainId = useSearchParam({ key: "domainId", type: "number" });
 
-    const {
-        data: dnsRecords,
-        setData: setDnsRecords,
-        call: getDnsRecords
-    } = useHttpClient<DnsRecordGetModel[]>({
-        endpoint: [Endpoint.Domains, domainId, Endpoint.DNS]
-    });
-
-    const { call: deleteDnsRecord } = useHttpClient(dnsRecordId => ({
-        endpoint: [Endpoint.Domains, domainId, Endpoint.DNS, dnsRecordId],
-        method: "DELETE"
-    }));
+    const dnsRecordsRepository = useDnsRecordsRepository({ domainId: domainId ?? -1 });
     
     const filteredDnsRecords = useMemo(() =>
-        (dnsRecords ?? [])
+        (dnsRecordsRepository.dnsRecords ?? [])
             .filter(r => !host || r.host === host)
             .filter(r => !type || r.type === type)
-    , [dnsRecords, host, type]);
+    , [dnsRecordsRepository.dnsRecords, host, type]);
 
     useEffect(() => {
         if (!domainId) return;
 
-        getDnsRecords();
+        dnsRecordsRepository.getDnsRecords();
     }, [domainId]);
 
     useEffect(() => {
@@ -58,19 +46,6 @@ const DnsRecordsTab = () => {
     const includeWeight = useMemo<boolean>(() => !!filteredDnsRecords?.some(r => r.weight), [filteredDnsRecords]);
     const includePort = useMemo<boolean>(() => !!filteredDnsRecords?.some(r => r.port), [filteredDnsRecords]);
 
-    const handleDeleteDnsRecord = (dnsRecordId: number) => {
-        const dnsRecordSnapshot = structuredClone(dnsRecords?.find(r => r.id === dnsRecordId)!);
-
-        setDnsRecords(prev => prev!.filter(r => r.id !== dnsRecordId));
-
-        deleteDnsRecord(dnsRecordId)
-            .catch(error => {
-                setDnsRecords(prev => [...prev!, dnsRecordSnapshot]);
-
-                handleErrorMessage(t("dnsRecords.DeleteDnsRecordError"))(error);
-            });
-    };
-
     return (
         <>
             <CreateEditDnsRecordModal
@@ -79,13 +54,12 @@ const DnsRecordsTab = () => {
                     setShowCreateEditDnsRecordModal(false);
                     setDnsRecordToEdit(null);
                 }}
-                domainId={domainId ?? -1}
                 dnsRecord={dnsRecordToEdit}
-                setDnsRecords={setDnsRecords}
+                dnsRecordsRepository={dnsRecordsRepository}
             />
 
             <div className="w-full h-full relative">
-                <Transition mounted={!!dnsRecords} exitDuration={0} transition="fade-right">
+                <Transition mounted={!!dnsRecordsRepository.dnsRecords} exitDuration={0} transition="fade-right">
                     {style => (
                         <div className="w-full h-full p-2 flex items-start flex-col gap-2 overflow-auto" style={style}>
                             <Paper withBorder shadow="sm" className="p-2 flex items-end gap-2" style={{ minWidth: "100%" }}>
@@ -95,7 +69,7 @@ const DnsRecordsTab = () => {
                                     onChange={value => setHost(value ? value : null)}
                                     data={[
                                         { value: "", label: t("common.All") },
-                                        ...(dnsRecords ?? [])
+                                        ...(dnsRecordsRepository.dnsRecords ?? [])
                                             .reduce((root, current) =>
                                                 !root.includes(current.host)
                                                     ? [...root, current.host]
@@ -111,7 +85,7 @@ const DnsRecordsTab = () => {
                                     onChange={value => setType(value ? (value as DnsRecordType) : null)}
                                     data={[
                                         { value: "", label: t("common.All") },
-                                        ...(dnsRecords ?? [])
+                                        ...(dnsRecordsRepository.dnsRecords ?? [])
                                             .reduce((root, current) =>
                                                 !root.includes(current.type)
                                                     ? [...root, current.type]
@@ -121,7 +95,7 @@ const DnsRecordsTab = () => {
                                     ]}
                                 />
 
-                                <ActionIcon size="input-sm" onClick={() => getDnsRecords()}>
+                                <ActionIcon size="input-sm" onClick={() => dnsRecordsRepository.getDnsRecords()}>
                                     <IconRefresh />
                                 </ActionIcon>
                             </Paper>
@@ -130,6 +104,19 @@ const DnsRecordsTab = () => {
                                 <Button leftSection={<IconPlus />} onClick={() => setShowCreateEditDnsRecordModal(true)}>
                                     {t("dnsRecords.CreateDnsRecord")}
                                 </Button>
+
+                                <Transition mounted={selectedIds.length > 0} transition="fade">
+                                    {buttonStyle => (
+                                        <Button
+                                            color="red"
+                                            loading={dnsRecordsRepository.isDeleteDnsRecordsLoading}
+                                            style={buttonStyle}
+                                            leftSection={<IconTrash />}
+                                            onClick={() => dnsRecordsRepository.deleteDnsRecords(selectedIds)}>
+                                            {t("dnsRecords.DeleteDnsRecords")}
+                                        </Button>
+                                    )}
+                                </Transition>
                             </div>
 
                             <Paper withBorder shadow="sm" style={{ minWidth: "100%" }}>
@@ -153,37 +140,37 @@ const DnsRecordsTab = () => {
                                                 />
                                             </Table.Td>
 
-                                            <Table.Td className="w-0">
+                                            <Table.Td className="w-0 font-bold">
                                                 {t("common.Host")}
                                             </Table.Td>
 
-                                            <Table.Td className="w-0">
+                                            <Table.Td className="w-0 font-bold">
                                                 {t("common.Ttl")}
                                             </Table.Td>
 
-                                            <Table.Td className="w-0">
+                                            <Table.Td className="w-0 font-bold">
                                                 {t("common.Type")}
                                             </Table.Td>
 
                                             {includePriority ? (
-                                                <Table.Td className="w-0">
+                                                <Table.Td className="w-0 font-bold">
                                                     {t("common.Priority")}
                                                 </Table.Td>
                                             ) : null}
 
                                             {includeWeight ? (
-                                                <Table.Td className="w-0">
+                                                <Table.Td className="w-0 font-bold">
                                                     {t("common.Weight")}
                                                 </Table.Td>
                                             ) : null}
 
                                             {includePort ? (
-                                                <Table.Td className="w-0">
+                                                <Table.Td className="w-0 font-bold">
                                                     {t("common.Port")}
                                                 </Table.Td>
                                             ) : null}
 
-                                            <Table.Td>
+                                            <Table.Td className="font-bold">
                                                 {t("common.Data")}
                                             </Table.Td>
 
@@ -203,13 +190,13 @@ const DnsRecordsTab = () => {
                                                 <Table.Td>
                                                     <Checkbox
                                                         checked={selectedIds.includes(dnsRecord.id)}
-                                                        onChange={() =>
+                                                        onChange={() => {
                                                             setSelectedIds(prev =>
                                                                 prev.includes(dnsRecord.id)
                                                                     ? prev.filter(id => id !== dnsRecord.id)
                                                                     : [...prev, dnsRecord.id]
-                                                            )
-                                                        }
+                                                            );
+                                                        }}
                                                     />
                                                 </Table.Td>
 
@@ -217,8 +204,8 @@ const DnsRecordsTab = () => {
                                                     {dnsRecord.host}
                                                 </Table.Td>
 
-                                                <Table.Td>
-                                                    {dnsRecord.ttl}
+                                                <Table.Td className="text-nowrap">
+                                                    {prettifyMoneyAmount(dnsRecord.ttl ?? 0)}
                                                 </Table.Td>
 
                                                 <Table.Td>
@@ -260,7 +247,7 @@ const DnsRecordsTab = () => {
                                                                 {t("dnsRecords.EditDnsRecord")}
                                                             </Menu.Item>
 
-                                                            <Menu.Item leftSection={<IconTrash />} onClick={() => handleDeleteDnsRecord(dnsRecord.id)} color="red">
+                                                            <Menu.Item leftSection={<IconTrash />} onClick={() => dnsRecordsRepository.deleteDnsRecords([dnsRecord.id])} color="red">
                                                                 {t("dnsRecords.DeleteDnsRecord")}
                                                             </Menu.Item>
                                                         </Menu.Dropdown>
@@ -275,7 +262,7 @@ const DnsRecordsTab = () => {
                     )}
                 </Transition>
 
-                <Transition mounted={!dnsRecords} transition="fade-right">
+                <Transition mounted={!dnsRecordsRepository.dnsRecords} transition="fade-right">
                     {style => (
                         <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
                             <Loader />

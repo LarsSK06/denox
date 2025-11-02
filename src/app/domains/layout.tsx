@@ -14,6 +14,7 @@ import { useEffect } from "react";
 import { t } from "i18next";
 import { NavLink, Skeleton } from "@mantine/core";
 import { domainSidebarWidthCacheKey } from "@/utils/globals";
+import { IconStar } from "@tabler/icons-react";
 
 const Layout = ({ children }: ParentProps) => {
 
@@ -52,6 +53,7 @@ const Layout = ({ children }: ParentProps) => {
                             ?.toSorted((a, b) => a.id > b.id ? 1 : -1)
                             .map(domain => (
                             <NavLink
+                                noWrap
                                 component={Link}
                                 href={`/domains?domainId=${domain.id}`}
                                 active={domainId === domain.id}

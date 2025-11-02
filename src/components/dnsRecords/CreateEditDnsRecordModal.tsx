@@ -1,26 +1,20 @@
 import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
 import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
-import useHttpClient from "@/utils/hooks/useHttpClient";
-import DnsRecordPostModel from "@/types/dnsRecords/DnsRecordPostModel";
-import Endpoint from "@/types/http/Endpoint";
-import handleErrorMessage from "@/utils/functions/handleErrorMessage";
-import DnsRecordPutModel from "@/types/dnsRecords/DnsRecordPutModel";
+import useDnsRecordsRepository from "@/utils/repositories/dnsRecordsRepository";
 
 import { Button, Modal, NumberInput, Select, Textarea, TextInput } from "@mantine/core";
 import { IconChevronLeft, IconDeviceFloppy } from "@tabler/icons-react";
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { t } from "i18next";
-import getHighestId from "@/utils/functions/getHighestId";
 
 type CreateEditDnsRecordModalProps = {
     show: boolean;
     onClose: () => unknown;
-    domainId: number;
     dnsRecord: DnsRecordGetModel | null;
-    setDnsRecords: Dispatch<SetStateAction<DnsRecordGetModel[] | null>>;
+    dnsRecordsRepository: ReturnType<typeof useDnsRecordsRepository>;
 };
 
-const CreateEditDnsRecordModal = ({ show, onClose, domainId, dnsRecord, setDnsRecords }: CreateEditDnsRecordModalProps) => {
+const CreateEditDnsRecordModal = ({ show, onClose, dnsRecord, dnsRecordsRepository }: CreateEditDnsRecordModalProps) => {
     const [isEditMode, setIsEditMode] = useState<boolean>(!!dnsRecord);
 
     const [host, setHost] = useState<string>("@");
@@ -62,34 +56,6 @@ const CreateEditDnsRecordModal = ({ show, onClose, domainId, dnsRecord, setDnsRe
 
     const showWeightAndPort = useMemo<boolean>(() => type === DnsRecordType.SRV, [type]);
 
-    const { call: createDnsRecord } = useHttpClient<{ id: number }, DnsRecordPostModel>({
-        endpoint: [Endpoint.Domains, domainId, Endpoint.DNS],
-        method: "POST",
-        body: {
-            host,
-            ttl,
-            type,
-            data,
-            priority: showPriority ? priority : undefined,
-            weight: showWeightAndPort ? weight : undefined,
-            port: showWeightAndPort ? port : undefined
-        }
-    });
-
-    const { call: editDnsRecord } = useHttpClient<{}, DnsRecordPutModel>({
-        endpoint: [Endpoint.Domains, domainId, Endpoint.DNS, dnsRecord?.id],
-        method: "PUT",
-        body: {
-            host,
-            ttl,
-            type,
-            data,
-            priority: showPriority ? priority : undefined,
-            weight: showWeightAndPort ? weight : undefined,
-            port: showWeightAndPort ? port : undefined
-        }
-    });
-
     const onFormSubmit = (event?: React.FormEvent) => {
         event?.preventDefault();
 
@@ -99,11 +65,10 @@ const CreateEditDnsRecordModal = ({ show, onClose, domainId, dnsRecord, setDnsRe
             return;
         }
 
-        if (dnsRecord) {
-            setDnsRecords(prev => [
-                ...prev!.filter(r => r.id !== dnsRecord.id),
+        if (dnsRecord) {            
+            dnsRecordsRepository.editDnsRecord(
+                dnsRecord.id,
                 {
-                    id: dnsRecord.id,
                     host,
                     ttl,
                     type,
@@ -112,51 +77,18 @@ const CreateEditDnsRecordModal = ({ show, onClose, domainId, dnsRecord, setDnsRe
                     weight: showWeightAndPort ? weight : undefined,
                     port: showWeightAndPort ? port : undefined
                 }
-            ]);
-
-            editDnsRecord()
-                .catch(error => {
-                    setDnsRecords(prev => [
-                        ...prev!.filter(r => r.id !== dnsRecord.id),
-                        dnsRecord
-                    ]);
-
-                    handleErrorMessage(t("dnsRecords.CreateDnsRecordError"))(error);
-                });
+            );
         }
         else {
-            const syntheticId = Date.now() + .1;
-    
-            setDnsRecords(prev => [
-                ...prev!,
-                {
-                    id: syntheticId,
-                    host,
-                    ttl,
-                    type,
-                    data,
-                    priority: showPriority ? priority : undefined,
-                    weight: showWeightAndPort ? weight : undefined,
-                    port: showWeightAndPort ? port : undefined
-                }
-            ]);
-
-            createDnsRecord()
-                .then(({ id: createdDnsRecordId }) => {
-                    console.log(createdDnsRecordId);
-
-                    setDnsRecords(prev => prev!.map(r =>
-                        r.id === syntheticId ? {
-                            ...r,
-                            id: createdDnsRecordId
-                        } : r
-                    ));
-                })
-                .catch(error => {
-                    setDnsRecords(prev => prev!.filter(r => r.id !== syntheticId));
-
-                    handleErrorMessage(t("dnsRecords.CreateDnsRecordError"))(error);
-                });
+            dnsRecordsRepository.createDnsRecord({
+                host,
+                ttl,
+                type,
+                data,
+                priority: showPriority ? priority : undefined,
+                weight: showWeightAndPort ? weight : undefined,
+                port: showWeightAndPort ? port : undefined
+            });
         }
 
         onClose();

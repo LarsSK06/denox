@@ -116,8 +116,8 @@
             "EditDnsRecordError": "Could not edit DNS record",
             "DeleteDnsRecord": "Delete DNS record",
             "DeleteDnsRecordError": "Could not delete DNS record",
-            "DeleteDnsRecords": "Delete {{count}} DNS records",
-            "DeleteDnsRecords_one": "Delete {{count}} DNS record"
+            "DeleteDnsRecords": "Delete DNS records",
+            "DeleteDnsRecordsError": "Coult not delete DNS records"
         },
         "profiles": {
             "Profile": "Profile",
@@ -166,7 +166,8 @@
             "Notes": "Notes",
             "CreateNote": "Create note",
             "CreateNoteError": "Could not create note",
-            "DeleteNoteError": "Could not delete note"
+            "DeleteNotes": "Delete notes",
+            "DeleteNotesError": "Could not delete notes"
         },
         "other": {
             "DoNotSellMyData": "Do not sell my data",

@@ -147,15 +147,15 @@ const ForwardsTab = () => {
                                                 />
                                             </Table.Td>
 
-                                            <Table.Td className="w-0">
+                                            <Table.Td className="w-0 font-bold">
                                                 {t("common.Host")}
                                             </Table.Td>
 
-                                            <Table.Td className="w-0">
+                                            <Table.Td className="w-0 font-bold">
                                                 {t("common.Frame")}
                                             </Table.Td>
 
-                                            <Table.Td>
+                                            <Table.Td className="font-bold">
                                                 {t("common.Url")}
                                             </Table.Td>
 

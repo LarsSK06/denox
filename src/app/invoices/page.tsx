@@ -17,11 +17,12 @@ import translateInvoiceType from "@/utils/functions/translateInvoiceType";
 import useDbSelect from "@/utils/hooks/useDbSelect";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 
-import { ActionIcon, Menu, Paper, Select, Table, Transition } from "@mantine/core";
+import { ActionIcon, Anchor, Menu, Paper, Select, Table, Transition } from "@mantine/core";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { IconPlus } from "@tabler/icons-react";
 import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 const Page = () => {
     const [type, setType] = useState<InvoiceType | null>(null);
@@ -137,32 +138,32 @@ const Page = () => {
                             <Table>
                                 <Table.Thead>
                                     <Table.Tr>
-                                        <Table.Td>
+                                        <Table.Td className="font-bold">
                                             {t("common.Type")}
                                         </Table.Td>
 
-                                        <Table.Td align="right">
+                                        <Table.Td className="font-bold" align="right">
                                             {t("common.Amount")}
                                         </Table.Td>
 
-                                        <Table.Td>
+                                        <Table.Td className="font-bold">
                                             {t("common.DueDate")}
                                         </Table.Td>
 
-                                        <Table.Td>
+                                        <Table.Td className="font-bold">
                                             {t("common.IssuedDate")}
                                         </Table.Td>
 
-                                        <Table.Td>
+                                        <Table.Td className="font-bold">
                                             {t("common.PaidDate")}
                                         </Table.Td>
 
-                                        <Table.Td>
+                                        <Table.Td className="font-bold">
                                             {t("common.Status")}
                                         </Table.Td>
 
                                         {showTagsColumn ? (
-                                            <Table.Td>
+                                            <Table.Td className="font-bold">
                                                 {t("tags.Tags")}
                                             </Table.Td>
                                         ) : null}
@@ -203,24 +204,24 @@ const Page = () => {
 
                                                 <Table.Td c={invoice.dueDate ? undefined : "gray"}>
                                                     {invoice.dueDate ? (
-                                                        <time dateTime={invoice.dueDate.toDateString()}>
+                                                        <time dateTime={invoice.dueDate.toISOString().split("T")[0]}>
                                                             {prettifyDate(invoice.dueDate)}
                                                         </time>
-                                                    ) : t("common.None")}
+                                                    ) : null}
                                                 </Table.Td>
 
                                                 <Table.Td>
-                                                    <time dateTime={invoice.issuedDate.toDateString()}>
+                                                    <time dateTime={invoice.issuedDate.toISOString().split("T")[0]}>
                                                         {prettifyDate(invoice.issuedDate)}
                                                     </time>
                                                 </Table.Td>
 
-                                                <Table.Td c={invoice.paidDate ? undefined : "gray"}>
+                                                <Table.Td>
                                                     {invoice.paidDate ? (
-                                                        <time dateTime={invoice.paidDate.toDateString()}>
+                                                        <time dateTime={invoice.paidDate.toISOString().split("T")[0]}>
                                                             {prettifyDate(invoice.paidDate)}
                                                         </time>
-                                                    ) : t("common.None")}
+                                                    ) : null}
                                                 </Table.Td>
 
                                                 <Table.Td>

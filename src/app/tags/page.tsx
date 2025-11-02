@@ -92,19 +92,19 @@ const Page = () => {
                                 <Table>
                                     <Table.Thead>
                                         <Table.Tr>
-                                            <Table.Td>
+                                            <Table.Td className="font-bold">
                                                 {t("common.Name")}
                                             </Table.Td>
 
-                                            <Table.Td aria-hidden>
+                                            <Table.Td className="font-bold" aria-hidden>
                                                 {t("common.Color")}
                                             </Table.Td>
 
-                                            <Table.Td>
+                                            <Table.Td className="font-bold">
                                                 {t("domains.Domains")}
                                             </Table.Td>
 
-                                            <Table.Td>
+                                            <Table.Td className="font-bold">
                                                 {t("invoices.Invoices")}
                                             </Table.Td>
 
