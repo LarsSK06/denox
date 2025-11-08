@@ -17,12 +17,12 @@ import translateInvoiceType from "@/utils/functions/translateInvoiceType";
 import useDbSelect from "@/utils/hooks/useDbSelect";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 
-import { ActionIcon, Anchor, Menu, Paper, Select, Table, Transition } from "@mantine/core";
-import { useDbContext } from "@/utils/contexts/useDbContext";
-import { IconPlus } from "@tabler/icons-react";
-import { t } from "i18next";
+import { ActionIcon, Menu, Paper, Select, Table, Transition } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useDbContext } from "@/utils/contexts/useDbContext";
+import { IconDots, IconPdf, IconPlus } from "@tabler/icons-react";
+import { t } from "i18next";
+import downloadOnClick from "@/utils/functions/downloadOnClick";
 
 const Page = () => {
     const [type, setType] = useState<InvoiceType | null>(null);
@@ -167,6 +167,12 @@ const Page = () => {
                                                 {t("tags.Tags")}
                                             </Table.Td>
                                         ) : null}
+
+                                        <Table.Td className="w-0">
+                                            <span className="sr-only">
+                                                {t("common.Actions")}
+                                            </span>
+                                        </Table.Td>
                                     </Table.Tr>
                                 </Table.Thead>
 
@@ -266,6 +272,26 @@ const Page = () => {
                                                         </ul>
                                                     </Table.Td>
                                                 ) : null}
+
+                                                <Table.Td>
+                                                    <Menu>
+                                                        <Menu.Target>
+                                                            <ActionIcon variant="subtle">
+                                                                <IconDots />
+                                                            </ActionIcon>
+                                                        </Menu.Target>
+
+                                                        <Menu.Dropdown>
+                                                            <Menu.Item
+                                                                leftSection={<IconPdf />}
+                                                                component="a"
+                                                                href={invoice.url}
+                                                                onClick={downloadOnClick()}>
+                                                                {t("common.DownloadAsPdf")}
+                                                            </Menu.Item>
+                                                        </Menu.Dropdown>
+                                                    </Menu>
+                                                </Table.Td>
                                             </Table.Tr>
                                         );
                                     })}
