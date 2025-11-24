@@ -16,7 +16,7 @@ const theme = createTheme({
 });
 
 const Providers = ({ children }: ParentProps) => (
-    <MantineProvider theme={theme}>
+    <MantineProvider theme={theme} defaultColorScheme="dark">
         <DbContextProvider>
             <SettingsContextProvider>
                 <ProfileContextProvider>
