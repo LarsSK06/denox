@@ -1,6 +1,6 @@
 [package]
 name = "Denox"
-version = "1.0.0"
+version = "1.0.1"
 description = "Denox"
 authors = ["Lars Kvihaugen"]
 license = "https://github.com/LarsSK06/denox?tab=License-1-ov-file"
