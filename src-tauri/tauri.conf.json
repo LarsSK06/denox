@@ -29,7 +29,9 @@
         "active": true,
         "targets": "all",
         "icon": [
-            "icons/logo.ico"
+            "icons/logo.ico",
+            "icons/logo.svg",
+            "icons/logo.png"
         ],
         "createUpdaterArtifacts": true,
         "copyright": "Lars Kvihaugen",
