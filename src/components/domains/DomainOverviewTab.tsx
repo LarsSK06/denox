@@ -1,10 +1,10 @@
 "use client";
 
-import { ActionIcon, CloseButton, Menu, Paper, Table, Text, Transition } from "@mantine/core";
+import { ActionIcon, Button, Checkbox, CloseButton, Divider, Menu, Paper, Table, Text, Transition } from "@mantine/core";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { dummyDomain } from "@/utils/globals";
 import { useEffect, useMemo, useState } from "react";
-import { IconPlus } from "@tabler/icons-react";
+import { IconAddressBook, IconBolt, IconPlus, IconRestore, IconTrash } from "@tabler/icons-react";
 import { t } from "i18next";
 
 import DomainPeriodProgressCircle from "./DomainPeriodProgressCircle";
@@ -20,11 +20,14 @@ import useDbSelect from "@/utils/hooks/useDbSelect";
 import TagGetModel from "@/types/tags/TagGetModel";
 import ColoredPill from "../common/ColoredPill";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
-import NoteGetModel from "@/types/notes/NoteGetModel";
 import CreateNoteModal from "../notes/CreateNoteModal";
+import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
+import useNotesRepository from "@/utils/repositories/notesRepository";
 
 const DomainOverviewTab = () => {
     const [showCreateNoteModal, setShowCreateNoteModal] = useState<boolean>(false);
+
+    const [selectedNoteIds, setSelectedNoteIds] = useState<number[]>([]);
 
     const domainId = useSearchParam({ key: "domainId", type: "number" });
 
@@ -60,16 +63,7 @@ const DomainOverviewTab = () => {
         bindValues: [domain?.domain]
     });
 
-    const {
-        data: notes,
-        setData: setNotes,
-        call: getNotes
-    } = useDbSelect<NoteGetModel[]>({
-        query: `
-            SELECT * FROM notes WHERE domain = $1
-        `,
-        bindValues: [domain?.domain]
-    });
+    const notesRepository = useNotesRepository({ domain: domain?.domain ?? "" });
 
     useEffect(() => {
         if (!domainId) return;
@@ -81,13 +75,17 @@ const DomainOverviewTab = () => {
         if (!domain) return;
 
         getTags();
-        getNotes();
+        notesRepository.getNotes();
     }, [domain]);
+
+    useEffect(() => {
+        setSelectedNoteIds(prev => prev.filter(id => notesRepository.notes?.some(n => n.id === id)));
+    }, [notesRepository.notes]);
 
     const isLoadingGenerally =
         !domain ||
         !tags ||
-        !notes;
+        !notesRepository.notes;
 
     const tagsOnDomain = useMemo(() => tags?.filter(t => t.isOnDomain) ?? [], [tags]);
     const tagsNotOnDomain = useMemo(() => tags?.filter(t => !t.isOnDomain) ?? [], [tags]);
@@ -142,26 +140,14 @@ const DomainOverviewTab = () => {
             });
     };
 
-    const deleteNote = (noteId: number) => {
-        const noteSnapshot = structuredClone(notes?.find(n => n.id === noteId)!);
-
-        setNotes(prev => prev!.filter(n => n.id !== noteId));
-
-        db.execute("DELETE FROM notes WHERE id = $1", [noteId])
-            .catch(error => {
-                setNotes(prev => [...prev!, noteSnapshot]);
-
-                handleErrorMessage(t("notes.DeleteNoteError"))(error);
-            });
-    };
+    const quickActionsLabelId = "quick-actions-label";
 
     return (
         <>
             <CreateNoteModal
                 show={showCreateNoteModal}
                 onClose={() => setShowCreateNoteModal(false)}
-                domain={domain?.domain ?? ""}
-                setNotes={setNotes}
+                notesRepository={notesRepository}
             />
 
             <div className="w-full h-full relative">
@@ -208,138 +194,197 @@ const DomainOverviewTab = () => {
                                     </li>
                                 ) : null}
                             </ul>
-                            
-                            <ul className="w-full flex items-stretch gap-2" style={{ flexWrap: "wrap" }}>
-                                {notes
-                                    ?.toSorted((a, b) => a.id > b.id ? 1 : -1)
-                                    .map(note => (
-                                    <Paper withBorder shadow="sm" component="li" key={note.id}>
-                                        <div className="w-fit ml-auto">
-                                            <CloseButton onClick={() => deleteNote(note.id)} disabled={`${note.id}`.includes(".")} />
-                                        </div>
 
-                                        <Text component="pre" className="max-w-full p-2">
-                                            {note.text}
-                                        </Text>
-                                    </Paper>
-                                ))}
+                            <Divider
+                                className="w-full mt-20"
+                                label={
+                                    <span id={quickActionsLabelId}>
+                                        {t("common.QuickActions")}
+                                    </span>
+                                }
+                            />
 
-                                <li className="h-auto">
-                                    <ActionIcon aria-haspopup="dialog" onClick={() => setShowCreateNoteModal(true)}>
-                                        <IconPlus />
-                                    </ActionIcon>
-                                </li>
-                            </ul>
+                            <div className="w-full flex flex-wrap justify-center gap-2" aria-labelledby={quickActionsLabelId}>
+                                <Button
+                                    component="a"
+                                    href={`https://domene.shop/admin?id=${domainId}&command=renew`}
+                                    onClick={openInBrowserOnClick()}
+                                    leftSection={<IconRestore />}
+                                    variant="light">
+                                    {t("common.Renew")}
+                                </Button>
 
-                            <Paper withBorder shadow="sm" className="w-full">
-                                <Text className="p-2" component="h3" size="lg">
-                                    {t("common.Services")}
-                                </Text>
+                                <Button
+                                    component="a"
+                                    href={`https://domene.shop/admin?id=${domainId}&view=upgrade`}
+                                    onClick={openInBrowserOnClick()}
+                                    leftSection={<IconBolt />}
+                                    variant="light">
+                                    {t("common.Upgrade")}
+                                </Button>
 
-                                <Table>
-                                    <Table.Tbody>
-                                        <Table.Tr>
-                                            <Table.Th>
-                                                {t("common.Registrant")}
-                                            </Table.Th>
+                                <Button
+                                    component="a"
+                                    href={`https://domene.shop/admin?id=${domainId}&edit=contacts`}
+                                    onClick={openInBrowserOnClick()}
+                                    leftSection={<IconAddressBook />}
+                                    variant="light">
+                                    {t("common.ChangeContactInfo")}
+                                </Button>
+                            </div>
 
-                                            <Table.Td align="right">
-                                                {domain?.registrant}
-                                            </Table.Td>
-                                        </Table.Tr>
+                            <Divider className="w-full mt-20" label={t("common.Services")} />
 
-                                        <Table.Tr>
-                                            <Table.Th>
-                                                {t("common.Status")}
-                                            </Table.Th>
+                            <Table aria-label={t("common.Services")}>
+                                <Table.Tbody>
+                                    <Table.Tr>
+                                        <Table.Th>
+                                            {t("common.Registrant")}
+                                        </Table.Th>
 
-                                            <Table.Td align="right">
-                                                <DomainStatusChip status={domain?.status ?? dummyDomain.status} />
-                                            </Table.Td>
-                                        </Table.Tr>
+                                        <Table.Td align="right">
+                                            {domain?.registrant}
+                                        </Table.Td>
+                                    </Table.Tr>
 
-                                        <Table.Tr>
-                                            <Table.Th>
-                                                {t("common.WebHotel")}
-                                            </Table.Th>
+                                    <Table.Tr>
+                                        <Table.Th>
+                                            {t("common.Status")}
+                                        </Table.Th>
 
-                                            <Table.Td align="right">
-                                                <DomainWebHotelSizeChip size={domain?.services.webhotel ?? dummyDomain.services.webhotel} />
-                                            </Table.Td>
-                                        </Table.Tr>
+                                        <Table.Td align="right">
+                                            <DomainStatusChip status={domain?.status ?? dummyDomain.status} />
+                                        </Table.Td>
+                                    </Table.Tr>
 
-                                        <Table.Tr>
-                                            <Table.Th>
-                                                {t("common.Renew")}
-                                            </Table.Th>
+                                    <Table.Tr>
+                                        <Table.Th>
+                                            {t("common.WebHotel")}
+                                        </Table.Th>
 
-                                            <Table.Td align="right">
-                                                <Check mode={domain?.renew ? "true" : "false"} />
-                                            </Table.Td>
-                                        </Table.Tr>
+                                        <Table.Td align="right">
+                                            <DomainWebHotelSizeChip size={domain?.services.webhotel ?? dummyDomain.services.webhotel} />
+                                        </Table.Td>
+                                    </Table.Tr>
 
-                                        <Table.Tr>
-                                            <Table.Th>
-                                                {t("common.Registrar")}
-                                            </Table.Th>
+                                    <Table.Tr>
+                                        <Table.Th>
+                                            {t("common.Renew")}
+                                        </Table.Th>
 
-                                            <Table.Td align="right">
-                                                <Check mode={domain?.services.registrar ? "true" : "false"} />
-                                            </Table.Td>
-                                        </Table.Tr>
+                                        <Table.Td align="right">
+                                            <Check mode={domain?.renew ? "true" : "false"} />
+                                        </Table.Td>
+                                    </Table.Tr>
 
-                                        <Table.Tr>
-                                            <Table.Th>
-                                                {t("common.DNS")}
-                                            </Table.Th>
+                                    <Table.Tr>
+                                        <Table.Th>
+                                            {t("common.Registrar")}
+                                        </Table.Th>
 
-                                            <Table.Td align="right">
-                                                <Check mode={domain?.services.dns ? "true" : "false"} />
-                                            </Table.Td>
-                                        </Table.Tr>
+                                        <Table.Td align="right">
+                                            <Check mode={domain?.services.registrar ? "true" : "false"} />
+                                        </Table.Td>
+                                    </Table.Tr>
 
-                                        <Table.Tr>
-                                            <Table.Th>
-                                                {t("common.Email")}
-                                            </Table.Th>
+                                    <Table.Tr>
+                                        <Table.Th>
+                                            {t("common.DNS")}
+                                        </Table.Th>
 
-                                            <Table.Td align="right">
-                                                <Check mode={domain?.services.email ? "true" : "false"} />
-                                            </Table.Td>
-                                        </Table.Tr>
-                                    </Table.Tbody>
-                                </Table>
-                            </Paper>
+                                        <Table.Td align="right">
+                                            <Check mode={domain?.services.dns ? "true" : "false"} />
+                                        </Table.Td>
+                                    </Table.Tr>
 
-                            <Paper withBorder shadow="sm" className="w-full">
-                                <Text className="p-2" component="h3" size="lg">
-                                    {t("common.Nameservers")}
-                                </Text>
+                                    <Table.Tr>
+                                        <Table.Th>
+                                            {t("common.Email")}
+                                        </Table.Th>
 
-                                <Table aria-hidden>
-                                    <Table.Tbody>
-                                        {(domain?.nameservers ?? dummyDomain.nameservers).map((ns, i) => (
-                                            <Table.Tr key={i}>
-                                                <Table.Th>
-                                                    {i + 1}
-                                                </Table.Th>
+                                        <Table.Td align="right">
+                                            <Check mode={domain?.services.email ? "true" : "false"} />
+                                        </Table.Td>
+                                    </Table.Tr>
+                                </Table.Tbody>
+                            </Table>
 
-                                                <Table.Td align="right">
-                                                    {ns}
-                                                </Table.Td>
-                                            </Table.Tr>
-                                        ))}
-                                    </Table.Tbody>
-                                </Table>
+                            <Divider className="w-full mt-20" label={t("common.Nameservers")} />
 
-                                <ol className="sr-only">
+                            <Table aria-hidden>
+                                <Table.Tbody>
                                     {(domain?.nameservers ?? dummyDomain.nameservers).map((ns, i) => (
-                                        <li key={i}>
-                                            {ns}
-                                        </li>
+                                        <Table.Tr key={i}>
+                                            <Table.Th>
+                                                {i + 1}
+                                            </Table.Th>
+
+                                            <Table.Td align="right">
+                                                {ns}
+                                            </Table.Td>
+                                        </Table.Tr>
                                     ))}
-                                </ol>
-                            </Paper>
+                                </Table.Tbody>
+                            </Table>
+
+                            <ol className="sr-only">
+                                {(domain?.nameservers ?? dummyDomain.nameservers).map((ns, i) => (
+                                    <li key={i}>
+                                        {ns}
+                                    </li>
+                                ))}
+                            </ol>
+
+                            <Divider className="w-full mt-20" label={t("notes.Notes")} />
+
+                            <div className="w-full">
+                                <div className="flex gap-2">
+                                    <Button aria-haspopup="dialog" leftSection={<IconPlus />} onClick={() => setShowCreateNoteModal(true)}>
+                                        {t("notes.CreateNote")}
+                                    </Button>
+
+                                    <Transition mounted={selectedNoteIds.length > 0} transition="fade">
+                                        {buttonStyle => (
+                                            <Button
+                                                loading={notesRepository.isDeleteNotesLoading}
+                                                leftSection={<IconTrash />}
+                                                onClick={() => notesRepository.deleteNotes(selectedNoteIds)}
+                                                color="red"
+                                                style={buttonStyle}>
+                                                {t("notes.DeleteNotes")}
+                                            </Button>
+                                        )}
+                                    </Transition>
+                                </div>
+
+                                <ul className="w-full mt-2 flex items-stretch gap-2">
+                                    {notesRepository.notes
+                                        ?.toSorted((a, b) => a.id > b.id ? 1 : -1)
+                                        .map(note => (
+                                        <Paper withBorder shadow="sm" component="li" key={note.id}>
+                                            <Paper withBorder className="flex justify-between items-center border-t-0 border-r-0 border-l-0">
+                                                <Checkbox
+                                                    checked={selectedNoteIds.includes(note.id)}
+                                                    onChange={() => {
+                                                        setSelectedNoteIds(prev =>
+                                                            prev.includes(note.id)
+                                                                ? prev.filter(id => id !== note.id)
+                                                                : [...prev, note.id]
+                                                        )
+                                                    }}
+                                                    className="mx-1"
+                                                />
+
+                                                <CloseButton onClick={() => notesRepository.deleteNotes([note.id])} disabled={`${note.id}`.includes(".")} />
+                                            </Paper>
+
+                                            <Text component="pre" className="max-w-full p-2">
+                                                {note.text}
+                                            </Text>
+                                        </Paper>
+                                    ))}
+                                </ul>
+                            </div>
                         </div>
                     )}
                 </Transition>

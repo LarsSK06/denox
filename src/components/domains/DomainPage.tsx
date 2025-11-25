@@ -2,11 +2,11 @@
 
 import DomainOverviewTab from "./DomainOverviewTab";
 import DnsRecordsTab from "../dnsRecords/DnsRecordsTab";
+import ForwardsTab from "../forwards/ForwardsTab";
 
 import { Tabs } from "@mantine/core";
 import { t } from "i18next";
 import { useState } from "react";
-import ForwardsTab from "../forwards/ForwardsTab";
 
 type Tab =
     "overview" |
@@ -22,7 +22,7 @@ const DomainPage = () => {
                 keepMounted={false}
                 value={tab}
                 onChange={value => setTab(value ? (value as Tab) : "overview")}
-                className="w-full h-full flex items-start flex-col">
+                className="w-full h-full mt-1 flex items-start flex-col">
                 <Tabs.List className="w-full h-fit">
                     <Tabs.Tab value={"overview" satisfies Tab}>
                         {t("common.Overview")}

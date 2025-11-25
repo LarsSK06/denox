@@ -17,9 +17,9 @@
     {
       "identifier": "http:default",
       "allow": [
-        {
-          "url": "https://*.domeneshop.no"
-        }
+        { "url": "https://domene.shop" },
+        { "url": "https://domeneshop.no" },
+        { "url": "https://*.domeneshop.no" }
       ]
     },
     "sql:default",
@@ -27,7 +27,8 @@
     "opener:default",
     "fs:default",
     "fs:allow-read-text-file",
-    "fs:allow-write-text-file",
-    "fs:scope-appconfig"
+    "fs:allow-write-file",
+    "fs:scope-appconfig",
+    "dialog:allow-save"
   ]
 }

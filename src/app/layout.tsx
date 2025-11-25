@@ -12,7 +12,7 @@ import "@/css/globals.css";
 const RootLayout = ({ children }: ParentProps) => (
     <html {...mantineHtmlProps}>
         <head>
-            <ColorSchemeScript />
+            <ColorSchemeScript defaultColorScheme="dark" />
         </head>
         <body className="w-[100vw] h-[100vh] antialiased overflow-hidden">
             <Providers>

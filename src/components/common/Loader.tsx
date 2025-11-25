@@ -1,18 +1,18 @@
 import { getThemeColor, useMantineTheme } from "@mantine/core";
-import { Mirage } from "ldrs/react";
+import { TailChase } from "ldrs/react";
 
-import "ldrs/react/Mirage.css";
+import "ldrs/react/TailChase.css";
 
 type LoaderProps = {
     size?: number;
 };
 
-const Loader = ({ size = 200 }: LoaderProps) => {
+const Loader = ({ size = 60 }: LoaderProps) => {
 
     const mantineTheme = useMantineTheme();
 
     return (
-        <Mirage
+        <TailChase
             size={size}
             color={getThemeColor(mantineTheme.primaryColor, mantineTheme)}
         />

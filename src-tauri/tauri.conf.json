@@ -29,8 +29,6 @@
         "active": true,
         "targets": "all",
         "icon": [
-            "icons/logo.svg",
-            "icons/logo.png",
             "icons/logo.ico"
         ],
         "createUpdaterArtifacts": true,

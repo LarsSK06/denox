@@ -1,23 +1,18 @@
-import NoteGetModel from "@/types/notes/NoteGetModel";
-import handleErrorMessage from "@/utils/functions/handleErrorMessage";
+import useNotesRepository from "@/utils/repositories/notesRepository";
 
-import { useDbContext } from "@/utils/contexts/useDbContext";
 import { Button, Modal, Textarea } from "@mantine/core";
 import { IconChevronLeft, IconDeviceFloppy } from "@tabler/icons-react";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { t } from "i18next";
 
 type CreateNoteModalProps = {
     show: boolean;
     onClose: () => unknown;
-    domain: string;
-    setNotes: Dispatch<SetStateAction<NoteGetModel[] | null>>;
+    notesRepository: ReturnType<typeof useNotesRepository>;
 };
 
-const CreateNoteModal = ({ show, onClose, domain, setNotes }: CreateNoteModalProps) => {
+const CreateNoteModal = ({ show, onClose, notesRepository }: CreateNoteModalProps) => {
     const [text, setText] = useState<string>("");
-
-    const { database: db } = useDbContext();
 
     useEffect(() => {
         if (show) return;
@@ -30,31 +25,7 @@ const CreateNoteModal = ({ show, onClose, domain, setNotes }: CreateNoteModalPro
     const onFormSubmit = (event?: React.FormEvent) => {
         event?.preventDefault();
 
-        const syntheticId = Date.now() + .1;
-
-        setNotes(prev => [
-            ...prev!,
-            {
-                id: syntheticId,
-                domain,
-                text
-            }
-        ]);
-
-        db.execute("INSERT INTO notes (domain, text) VALUES ($1, $2)", [domain, text])
-            .then(({ lastInsertId: createdNoteId }) => {
-                setNotes(prev => prev!.map(n =>
-                    n.id === syntheticId ? {
-                        ...n,
-                        id: createdNoteId!
-                    } : n
-                ));
-            })
-            .catch(error => {
-                setNotes(prev => prev!.filter(n => n.id !== syntheticId));
-
-                handleErrorMessage(t("notes.CreateNoteError"))(error);
-            });
+        notesRepository.createNote(text)
 
         onClose();
     };

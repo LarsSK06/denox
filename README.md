@@ -1,7 +1,5 @@
 NOTE: This software is not associated with Domeneshop AS. This application is created and maintained by me. The Domeneshop API is not created nor maintained by me, but by Domeneshop AS. I do not claim ownership over neither Domeneshop AS or the Domeneshop API.
 
-![Denox banner](./README/banner.jpg "Denox banner")
-
 # Denox
 
 ## What is Denox?
