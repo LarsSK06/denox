@@ -188,7 +188,10 @@
             "ValueMustBeAValidIpv6Address": "Value must be a valid IPv6 address",
             "MadeWithLoveInNorway": "Made with live in Norway",
             "MadeWith": "Made with",
-            "inNorway": "in Norway"
+            "inNorway": "in Norway",
+            "Downloading": "Downloading",
+            "DownloadComplete": "Download complete",
+            "DownloadFailed": "Download failed"
         },
         "genericErrors": {
             "404NotFound": "This page could not be found"

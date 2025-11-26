@@ -16,7 +16,6 @@ import translateInvoiceStatus from "@/utils/functions/translateInvoiceStatus";
 import translateInvoiceType from "@/utils/functions/translateInvoiceType";
 import useDbSelect from "@/utils/hooks/useDbSelect";
 import useHttpClient from "@/utils/hooks/useHttpClient";
-import downloadOnClick from "@/utils/functions/downloadOnClick";
 import invoiceProcessor from "@/utils/processors/invoiceProcessor";
 
 import { ActionIcon, Menu, Paper, Select, Table, Transition } from "@mantine/core";
@@ -24,6 +23,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { IconDots, IconPdf, IconPlus } from "@tabler/icons-react";
 import { t } from "i18next";
+import { fetch } from "@tauri-apps/plugin-http";
+import downloadOnClick from "@/utils/functions/downloadOnClick";
 
 const Page = () => {
     const [type, setType] = useState<InvoiceType | null>(null);
@@ -93,7 +94,7 @@ const Page = () => {
             });
     };
 
-    const showTagsColumn = useMemo<boolean>(() => !!tags && tags.length > 0, [tags])
+    const showTagsColumn = useMemo<boolean>(() => !!tags && tags.length > 0, [tags]);
 
     return (
         <main className="w-full h-full relative overflow-hidden">
@@ -280,9 +281,7 @@ const Page = () => {
                                                         <Menu.Dropdown>
                                                             <Menu.Item
                                                                 leftSection={<IconPdf />}
-                                                                component="a"
-                                                                href={invoice.url}
-                                                                onClick={downloadOnClick()}>
+                                                                onClick={downloadOnClick(`${invoice.url}&format=pdf`)}>
                                                                 {t("common.DownloadAsPdf")}
                                                             </Menu.Item>
                                                         </Menu.Dropdown>
