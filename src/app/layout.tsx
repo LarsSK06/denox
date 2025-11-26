@@ -8,6 +8,7 @@ import ProfileWall from "@/components/layout/ProfileWall";
 import LoaderWrapper from "@/components/layout/LoaderWrapper";
 
 import "@/css/globals.css";
+import UpdaterWrapper from "@/components/layout/UpdaterWrapper";
 
 const RootLayout = ({ children }: ParentProps) => (
     <html {...mantineHtmlProps}>
@@ -20,9 +21,11 @@ const RootLayout = ({ children }: ParentProps) => (
                     <Titlebar />
                     <div className="w-[100vw] flex-grow overflow-auto">
                         <LoaderWrapper>
-                            <ProfileWall>
-                                {children}
-                            </ProfileWall>
+                            <UpdaterWrapper>
+                                <ProfileWall>
+                                    {children}
+                                </ProfileWall>
+                            </UpdaterWrapper>
                         </LoaderWrapper>
                     </div>
                     <Footer />
