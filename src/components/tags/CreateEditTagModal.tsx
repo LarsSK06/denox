@@ -1,4 +1,4 @@
-import TagGetModel from "@/types/tags/TagGetModel";
+import Tag_GET from "@/types/tags/Tag_GET";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 
 import { useDbContext } from "@/utils/contexts/useDbContext";
@@ -10,8 +10,8 @@ import { t } from "i18next";
 type CreateEditTagModalProps = {
     show: boolean;
     onClose: () => unknown;
-    tag: (TagGetModel & { domainsCount?: number; invoicesCount?: number; }) | null;
-    setTags: Dispatch<SetStateAction<(TagGetModel & { domainsCount: number; invoicesCount: number; })[] | null>>
+    tag: (Tag_GET & { domainsCount?: number; invoicesCount?: number; }) | null;
+    setTags: Dispatch<SetStateAction<(Tag_GET & { domainsCount: number; invoicesCount: number; })[] | null>>
 };
 
 const CreateEditTagModal = ({ show, onClose, tag, setTags }: CreateEditTagModalProps) => {

@@ -5,16 +5,15 @@ import ParentProps from "@/types/common/ParentProps";
 import Endpoint from "@/types/http/Endpoint";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import getArrayFromNumber from "@/utils/functions/getArrayFromNumber";
-import DomainGetModel from "@/types/domains/DomainGetModel";
+import Domain_GET from "@/types/domains/Domain_GET";
 import useSearchParam from "@/utils/hooks/useSearchParam";
 import Link from "next/link";
 import useCache from "@/utils/hooks/useCache";
 
-import { useEffect } from "react";
 import { t } from "i18next";
+import { useEffect } from "react";
 import { NavLink, Skeleton } from "@mantine/core";
 import { domainSidebarWidthCacheKey } from "@/utils/globals";
-import { IconStar } from "@tabler/icons-react";
 
 const Layout = ({ children }: ParentProps) => {
 
@@ -25,7 +24,7 @@ const Layout = ({ children }: ParentProps) => {
         isLoading: isDomainsLoading,
         data: domains,
         call: getDomains
-    } = useHttpClient<DomainGetModel[]>({
+    } = useHttpClient<Domain_GET[]>({
         endpoint: Endpoint.Domains
     });
 

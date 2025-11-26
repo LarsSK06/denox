@@ -1,6 +1,6 @@
 "use client";
 
-import DomainGetModel from "@/types/domains/DomainGetModel";
+import Domain_GET from "@/types/domains/Domain_GET";
 import prettifyDate from "@/utils/functions/prettifyDate";
 
 import { SemiCircleProgress } from "@mantine/core";
@@ -8,7 +8,7 @@ import { t } from "i18next";
 import { useMemo } from "react";
 
 type DomainPeriodProgressCircleProps = {
-    domain: DomainGetModel;
+    domain: Domain_GET;
 };
 
 const DomainPeriodProgressCircle = ({ domain }: DomainPeriodProgressCircleProps) => {

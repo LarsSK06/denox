@@ -1,7 +1,7 @@
 "use client";
 
 import ParentProps from "@/types/common/ParentProps";
-import ProfileGetModel from "@/types/profiles/ProfileGetModel";
+import Profile_GET from "@/types/profiles/Profile_GET";
 import useDbSelect from "@/utils/hooks/useDbSelect";
 import TableBodySkeleton from "../common/TableBodySkeleton";
 import CreateEditProfileModal from "../profiles/CreateEditProfileModal";
@@ -20,7 +20,7 @@ import { lastProfileIdCacheKey } from "@/utils/globals";
 
 const ProfileWall = ({ children }: ParentProps) => {
     const [showCreateProfileModal, setShowCreateProfileModal] = useState<boolean>(false);
-    const [profileToEdit, setProfileToEdit] = useState<ProfileGetModel | null>(null);
+    const [profileToEdit, setProfileToEdit] = useState<Profile_GET | null>(null);
 
     const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
 
@@ -32,7 +32,7 @@ const ProfileWall = ({ children }: ParentProps) => {
         data: profiles,
         setData: setProfiles,
         call: getProfiles
-    } = useDbSelect<ProfileGetModel[]>({ query: "SELECT * FROM profiles" });
+    } = useDbSelect<Profile_GET[]>({ query: "SELECT * FROM profiles" });
 
     useEffect(() => {
         getProfiles();

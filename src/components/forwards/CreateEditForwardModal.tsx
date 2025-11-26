@@ -1,8 +1,8 @@
-import ForwardGetModel from "@/types/forwards/ForwardGetModel";
+import Forward_GET from "@/types/forwards/Forward_GET";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import Endpoint from "@/types/http/Endpoint";
-import ForwardPostModel from "@/types/forwards/ForwardPostModel";
-import ForwardPutModel from "@/types/forwards/ForwardPutModel";
+import Forward_POST from "@/types/forwards/Forward_POST";
+import Forward_PUT from "@/types/forwards/Forward_PUT";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 
 import { Button, Checkbox, Modal, TextInput } from "@mantine/core";
@@ -14,8 +14,8 @@ type CreateEditForwardModalProps = {
     show: boolean;
     onClose: () => unknown;
     domainId: number;
-    forward: ForwardGetModel | null;
-    setForwards: Dispatch<SetStateAction<ForwardGetModel[] | null>>;
+    forward: Forward_GET | null;
+    setForwards: Dispatch<SetStateAction<Forward_GET[] | null>>;
     setDisabledHosts: Dispatch<SetStateAction<string[]>>;
 };
 
@@ -46,7 +46,7 @@ const CreateEditForwardModal = ({ show, onClose, domainId, forward, setForwards,
         else setTimeout(setValues, 300);
     }, [forward]);
 
-    const { call: createForward } = useHttpClient<{}, ForwardPostModel>({
+    const { call: createForward } = useHttpClient<{}, Forward_POST>({
         endpoint: [Endpoint.Domains, domainId, Endpoint.Forwards],
         method: "POST",
         body: {
@@ -56,7 +56,7 @@ const CreateEditForwardModal = ({ show, onClose, domainId, forward, setForwards,
         }
     });
 
-    const { call: editForward } = useHttpClient<{}, ForwardPutModel>({
+    const { call: editForward } = useHttpClient<{}, Forward_PUT>({
         endpoint: [Endpoint.Domains, domainId, Endpoint.Forwards, forward?.host],
         method: "PUT",
         body: {

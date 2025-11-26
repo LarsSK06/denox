@@ -2,7 +2,7 @@ import Currency from "../common/Currency";
 import InvoiceStatus from "./InvoiceStatus";
 import InvoiceType from "./InvoiceType";
 
-type InvoiceGetModel = {
+type Invoice_GET = {
     id: number;
     type: InvoiceType;
     amount: number;
@@ -14,4 +14,4 @@ type InvoiceGetModel = {
     url: string;
 };
 
-export default InvoiceGetModel;
+export default Invoice_GET;

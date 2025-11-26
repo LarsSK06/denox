@@ -16,7 +16,7 @@ const LoaderWrapper = ({ children }: ParentProps) => {
     const { isReady: isSettingsReady } = useSettingsContext();
     const { isReady: isProfilesReady } = useProfileContext();
 
-    const { isDone: isSyntheticLoadingDone } = useSyntheticLoading({ delay: 3000, startOnMount: true });
+    const { isDone: isSyntheticLoadingDone } = useSyntheticLoading({ delay: 5000, startOnMount: true });
 
     const isReady =
         isDatabaseReady &&

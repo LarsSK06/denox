@@ -9,7 +9,7 @@ import useSearchParam from "@/utils/hooks/useSearchParam";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import Endpoint from "@/types/http/Endpoint";
 import Loader from "../common/Loader";
-import ForwardGetModel from "@/types/forwards/ForwardGetModel";
+import Forward_GET from "@/types/forwards/Forward_GET";
 import Check from "../common/Check";
 import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
 import CreateEditForwardModal from "./CreateEditForwardModal";
@@ -21,7 +21,7 @@ const ForwardsTab = () => {
     const [selectedHosts, setSelectedHosts] = useState<string[]>([]);
 
     const [showCreateEditForwardModal, setShowCreateEditForwardModal] = useState<boolean>(false);
-    const [forwardToEdit, setForwardToEdit] = useState<ForwardGetModel | null>(null);
+    const [forwardToEdit, setForwardToEdit] = useState<Forward_GET | null>(null);
 
     const [disabledHosts, setDisabledHosts] = useState<string[]>([]);
 
@@ -31,7 +31,7 @@ const ForwardsTab = () => {
         data: forwards,
         setData: setForwards,
         call: getForwards
-    } = useHttpClient<ForwardGetModel[]>({
+    } = useHttpClient<Forward_GET[]>({
         endpoint: [Endpoint.Domains, domainId, Endpoint.Forwards]
     });
 

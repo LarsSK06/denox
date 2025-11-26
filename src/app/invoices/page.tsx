@@ -4,11 +4,11 @@ import ColoredPill from "@/components/common/ColoredPill";
 import Loader from "@/components/common/Loader";
 import InvoiceStatusChip from "@/components/invoices/InvoiceStatusChip";
 import Endpoint from "@/types/http/Endpoint";
-import InvoiceGetModel from "@/types/invoices/InvoiceGetModel";
+import Invoice_GET from "@/types/invoices/Invoice_GET";
 import InvoiceStatus from "@/types/invoices/InvoiceStatus";
 import InvoiceType from "@/types/invoices/InvoiceType";
-import InvoiceTagRelationGetModel from "@/types/tags/InvoiceTagRelationGetModel";
-import TagGetModel from "@/types/tags/TagGetModel";
+import InvoiceTagRelation_GET from "@/types/tags/InvoiceTagRelation_GET";
+import Tag_GET from "@/types/tags/Tag_GET";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 import prettifyDate from "@/utils/functions/prettifyDate";
 import prettifyMoneyAmount from "@/utils/functions/prettifyMoneyAmount";
@@ -16,13 +16,14 @@ import translateInvoiceStatus from "@/utils/functions/translateInvoiceStatus";
 import translateInvoiceType from "@/utils/functions/translateInvoiceType";
 import useDbSelect from "@/utils/hooks/useDbSelect";
 import useHttpClient from "@/utils/hooks/useHttpClient";
+import downloadOnClick from "@/utils/functions/downloadOnClick";
+import invoiceProcessor from "@/utils/processors/invoiceProcessor";
 
 import { ActionIcon, Menu, Paper, Select, Table, Transition } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { IconDots, IconPdf, IconPlus } from "@tabler/icons-react";
 import { t } from "i18next";
-import downloadOnClick from "@/utils/functions/downloadOnClick";
 
 const Page = () => {
     const [type, setType] = useState<InvoiceType | null>(null);
@@ -31,26 +32,21 @@ const Page = () => {
     const {
         data: invoices,
         call: getInvoices
-    } = useHttpClient<InvoiceGetModel[]>({
+    } = useHttpClient<Invoice_GET[]>({
         endpoint: Endpoint.Invoices,
-        process: body => (body as any[]).map(i => ({
-            ...i,
-            dueDate: i.dueDate && new Date(i.dueDate),
-            issuedDate: new Date(i.issuedDate),
-            paidDate: i.paidDate && new Date(i.paidDate)
-        }))
+        process: invoiceProcessor
     });
 
     const {
         data: tags,
         call: getTags
-    } = useDbSelect<TagGetModel[]>({ query: "SELECT * FROM tags" });
+    } = useDbSelect<Tag_GET[]>({ query: "SELECT * FROM tags" });
 
     const {
         data: invoiceTagRelations,
         setData: setInvoiceTagRelations,
         call: getInvoiceTagRelations
-    } = useDbSelect<InvoiceTagRelationGetModel[]>({ query: "SELECT * FROM invoiceTagRelations" });
+    } = useDbSelect<InvoiceTagRelation_GET[]>({ query: "SELECT * FROM invoiceTagRelations" });
 
     useEffect(() => {
         getInvoices();

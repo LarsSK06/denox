@@ -7,13 +7,13 @@ import { t } from "i18next";
 
 import useSearchParam from "@/utils/hooks/useSearchParam";
 import Loader from "../common/Loader";
-import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
+import DnsRecord_GET from "@/types/dnsRecords/DnsRecord_GET";
 import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
 import CreateEditDnsRecordModal from "./CreateEditDnsRecordModal";
 import prettifyMoneyAmount from "@/utils/functions/prettifyMoneyAmount";
 import useDnsRecordsRepository from "@/utils/repositories/dnsRecordsRepository";
 import useHttpClient from "@/utils/hooks/useHttpClient";
-import DomainGetModel from "@/types/domains/DomainGetModel";
+import Domain_GET from "@/types/domains/Domain_GET";
 import Endpoint from "@/types/http/Endpoint";
 
 const DnsRecordsTab = () => {
@@ -23,13 +23,13 @@ const DnsRecordsTab = () => {
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
     const [showCreateEditDnsRecordModal, setShowCreateEditDnsRecordModal] = useState<boolean>(false);
-    const [dnsRecordToEdit, setDnsRecordToEdit] = useState<DnsRecordGetModel | null>(null);
+    const [dnsRecordToEdit, setDnsRecordToEdit] = useState<DnsRecord_GET | null>(null);
 
     const domainId = useSearchParam({ key: "domainId", type: "number" });
 
     const dnsRecordsRepository = useDnsRecordsRepository({ domainId: domainId ?? -1 });
 
-    const { data: domains, call: getDomains } = useHttpClient<DomainGetModel[]>({
+    const { data: domains, call: getDomains } = useHttpClient<Domain_GET[]>({
         endpoint: Endpoint.Domains
     });
     

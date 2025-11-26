@@ -2,11 +2,11 @@ import { useState } from "react";
 import { t } from "i18next";
 
 import useHttpClient from "../hooks/useHttpClient";
-import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
+import DnsRecord_GET from "@/types/dnsRecords/DnsRecord_GET";
 import Endpoint from "@/types/http/Endpoint";
-import DnsRecordPostModel from "@/types/dnsRecords/DnsRecordPostModel";
+import DnsRecord_POST from "@/types/dnsRecords/DnsRecord_POST";
 import handleErrorMessage from "../functions/handleErrorMessage";
-import DnsRecordPutModel from "@/types/dnsRecords/DnsRecordPutModel";
+import DnsRecord_PUT from "@/types/dnsRecords/DnsRecord_PUT";
 
 type UseDnsRecordsRepository = {
     domainId: number;
@@ -19,7 +19,7 @@ const useDnsRecordsRepository = ({ domainId }: UseDnsRecordsRepository) => {
         data: dnsRecords,
         call: getDnsRecords,
         setData: setDnsRecords
-    } = useHttpClient<DnsRecordGetModel[]>({
+    } = useHttpClient<DnsRecord_GET[]>({
         endpoint: [Endpoint.Domains, domainId, Endpoint.DNS]
     });
 
@@ -27,7 +27,7 @@ const useDnsRecordsRepository = ({ domainId }: UseDnsRecordsRepository) => {
     const {
         isLoading: _isCreateDnsRecordLoading,
         call: _createDnsRecord
-    } = useHttpClient<{ id: number }, DnsRecordPostModel>(([body, _domainId]) => ({
+    } = useHttpClient<{ id: number }, DnsRecord_POST>(([body, _domainId]) => ({
         endpoint: [Endpoint.Domains, _domainId ?? domainId, Endpoint.DNS],
         method: "POST",
         body
@@ -35,7 +35,7 @@ const useDnsRecordsRepository = ({ domainId }: UseDnsRecordsRepository) => {
 
     const [isCreateDnsRecordLoading, setIsCreateDnsRecordLoading] = useState<boolean>(false);
 
-    const createDnsRecord = (dnsRecord: DnsRecordPostModel) => new Promise<boolean>(resolve => {
+    const createDnsRecord = (dnsRecord: DnsRecord_POST) => new Promise<boolean>(resolve => {
         setIsCreateDnsRecordLoading(true);
 
         const syntheticId = Date.now() + .1;
@@ -73,7 +73,7 @@ const useDnsRecordsRepository = ({ domainId }: UseDnsRecordsRepository) => {
     const {
         isLoading: _isEditDnsRecordLoading,
         call: _editDnsRecord
-    } = useHttpClient<{}, DnsRecordPutModel>(([id, body]) => ({
+    } = useHttpClient<{}, DnsRecord_PUT>(([id, body]) => ({
         endpoint: [Endpoint.Domains, domainId, Endpoint.DNS, id],
         method: "PUT",
         body
@@ -81,7 +81,7 @@ const useDnsRecordsRepository = ({ domainId }: UseDnsRecordsRepository) => {
 
     const [isEditDnsRecordLoading, setIsEditDnsRecordLoading] = useState<boolean>(false);
 
-    const editDnsRecord = (dnsRecordId: number, dnsRecord: Partial<DnsRecordPutModel>) => new Promise<boolean>(resolve => {
+    const editDnsRecord = (dnsRecordId: number, dnsRecord: Partial<DnsRecord_PUT>) => new Promise<boolean>(resolve => {
         setIsEditDnsRecordLoading(true);
 
         const snapshot = structuredClone(dnsRecords!.find(dr => dr.id === dnsRecordId)!);
@@ -110,7 +110,7 @@ const useDnsRecordsRepository = ({ domainId }: UseDnsRecordsRepository) => {
     });
 
 
-    const { call: deleteDnsRecord } = useHttpClient<{}, DnsRecordPutModel>(id => ({
+    const { call: deleteDnsRecord } = useHttpClient<{}, DnsRecord_PUT>(id => ({
         endpoint: [Endpoint.Domains, domainId, Endpoint.DNS, id],
         method: "DELETE"
     }));

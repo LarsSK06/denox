@@ -1,6 +1,6 @@
-import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
+import DnsRecord_GET from "@/types/dnsRecords/DnsRecord_GET";
 import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
-import DomainGetModel from "@/types/domains/DomainGetModel";
+import Domain_GET from "@/types/domains/Domain_GET";
 import DomainStatus from "@/types/domains/DomainStatus";
 import DomainWebHotelSize from "@/types/domains/DomainWebHotelSize";
 
@@ -32,11 +32,11 @@ export const dummyDomain = {
         email: false,
         webhotel: DomainWebHotelSize.None
     }
-} satisfies DomainGetModel as DomainGetModel;
+} satisfies Domain_GET as Domain_GET;
 
 export const dummyDnsRecord = {
     id: -1,
     host: "@",
     type: DnsRecordType.A,
     data: "0.0.0.0"
-} satisfies DnsRecordGetModel as DnsRecordGetModel;
+} satisfies DnsRecord_GET as DnsRecord_GET;

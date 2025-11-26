@@ -1,7 +1,7 @@
-type NoteGetModel = {
+type Note_GET = {
     id: number;
     domain: string;
     text: string;
 };
 
-export default NoteGetModel;
+export default Note_GET;

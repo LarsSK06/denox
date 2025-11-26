@@ -1,9 +1,9 @@
 import { MantineColor } from "@mantine/core";
 
-type TagGetModel = {
+type Tag_GET = {
     id: number;
     name: string;
     color: MantineColor;
 };
 
-export default TagGetModel;
+export default Tag_GET;

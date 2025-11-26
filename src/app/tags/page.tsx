@@ -1,7 +1,7 @@
 "use client";
 
 import Loader from "@/components/common/Loader";
-import TagGetModel from "@/types/tags/TagGetModel";
+import Tag_GET from "@/types/tags/Tag_GET";
 import CreateEditTagModal from "@/components/tags/CreateEditTagModal";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 import useDbSelect from "@/utils/hooks/useDbSelect";
@@ -14,13 +14,13 @@ import { useDbContext } from "@/utils/contexts/useDbContext";
 
 const Page = () => {
     const [showCreateEditTagModal, setShowCreateEditModal] = useState<boolean>(false);
-    const [tagToEdit, setTagToEdit] = useState<TagGetModel | null>(null);
+    const [tagToEdit, setTagToEdit] = useState<Tag_GET | null>(null);
 
     const {
         data: tags,
         call: getTags,
         setData: setTags
-    } = useDbSelect<(TagGetModel & { domainsCount: number; invoicesCount: number; })[]>({
+    } = useDbSelect<(Tag_GET & { domainsCount: number; invoicesCount: number; })[]>({
         query: `
             SELECT
                 *,

@@ -1,6 +1,6 @@
 import DnsRecordType from "./DnsRecordType";
 
-type DnsRecordGetModel = {
+type DnsRecord_GET = {
     id: number;
     host: string;
     ttl?: number;
@@ -24,4 +24,4 @@ type DnsRecordGetModel = {
     port?: number;
 };
 
-export default DnsRecordGetModel;
+export default DnsRecord_GET;

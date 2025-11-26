@@ -1,7 +1,7 @@
 import DomainStatus from "./DomainStatus";
 import DomainWebHotelSize from "./DomainWebHotelSize";
 
-type DomainGetModel = {
+type Domain_GET = {
     id: number;
     domain: string;
     expiryDate: Date;
@@ -22,4 +22,4 @@ type DomainGetModel = {
     };
 };
 
-export default DomainGetModel;
+export default Domain_GET;

@@ -14,15 +14,16 @@ import Check from "../common/Check";
 import useSearchParam from "@/utils/hooks/useSearchParam";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import Endpoint from "@/types/http/Endpoint";
-import DomainGetModel from "@/types/domains/DomainGetModel";
+import Domain_GET from "@/types/domains/Domain_GET";
 import Loader from "../common/Loader";
 import useDbSelect from "@/utils/hooks/useDbSelect";
-import TagGetModel from "@/types/tags/TagGetModel";
+import Tag_GET from "@/types/tags/Tag_GET";
 import ColoredPill from "../common/ColoredPill";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 import CreateNoteModal from "../notes/CreateNoteModal";
 import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
 import useNotesRepository from "@/utils/repositories/notesRepository";
+import domainProcessor from "@/utils/processors/domainProcessor";
 
 const DomainOverviewTab = () => {
     const [showCreateNoteModal, setShowCreateNoteModal] = useState<boolean>(false);
@@ -36,20 +37,16 @@ const DomainOverviewTab = () => {
     const {
         data: domain,
         call: getDomain
-    } = useHttpClient<DomainGetModel>({
+    } = useHttpClient<Domain_GET>({
         endpoint: [Endpoint.Domains, domainId],
-        process: body => ({
-            ...body,
-            registeredDate: new Date(body.registeredDate),
-            expiryDate: new Date(body.expiryDate)
-        })
+        process: domainProcessor
     });
 
     const {
         data: tags,
         setData: setTags,
         call: getTags
-    } = useDbSelect<(TagGetModel & { isOnDomain: boolean; })[]>({
+    } = useDbSelect<(Tag_GET & { isOnDomain: boolean; })[]>({
         query: `
             SELECT
                 t.*,
