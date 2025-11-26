@@ -190,7 +190,7 @@ const ForwardsTab = () => {
                                                 </Table.Td>
 
                                                 <Table.Td>
-                                                    <Check mode={forward.frame ? "true" : "false"} />
+                                                    <Check value={forward.frame} />
                                                 </Table.Td>
 
                                                 <Table.Td>

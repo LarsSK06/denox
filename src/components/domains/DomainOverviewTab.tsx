@@ -270,7 +270,7 @@ const DomainOverviewTab = () => {
                                         </Table.Th>
 
                                         <Table.Td align="right">
-                                            <Check mode={domain?.renew ? "true" : "false"} />
+                                            <Check value={!!domain?.renew} />
                                         </Table.Td>
                                     </Table.Tr>
 
@@ -280,7 +280,7 @@ const DomainOverviewTab = () => {
                                         </Table.Th>
 
                                         <Table.Td align="right">
-                                            <Check mode={domain?.services.registrar ? "true" : "false"} />
+                                            <Check value={!!domain?.services.registrar} />
                                         </Table.Td>
                                     </Table.Tr>
 
@@ -290,7 +290,7 @@ const DomainOverviewTab = () => {
                                         </Table.Th>
 
                                         <Table.Td align="right">
-                                            <Check mode={domain?.services.dns ? "true" : "false"} />
+                                            <Check value={!!domain?.services.dns} />
                                         </Table.Td>
                                     </Table.Tr>
 
@@ -300,7 +300,7 @@ const DomainOverviewTab = () => {
                                         </Table.Th>
 
                                         <Table.Td align="right">
-                                            <Check mode={domain?.services.email ? "true" : "false"} />
+                                            <Check value={!!domain?.services.email} />
                                         </Table.Td>
                                     </Table.Tr>
                                 </Table.Tbody>
