@@ -1,4 +1,4 @@
-const prettifyMoneyAmount = (n: number) => {
+const prettifyNumber = (n: number) => {
     const isNegative = n < 0;
 
     const rawNumber =
@@ -21,4 +21,4 @@ const prettifyMoneyAmount = (n: number) => {
     return isNegative ? `- ${prettifiedNumber}` : prettifiedNumber;
 };
 
-export default prettifyMoneyAmount;
+export default prettifyNumber;

@@ -11,20 +11,19 @@ import InvoiceTagRelation_GET from "@/types/tags/InvoiceTagRelation_GET";
 import Tag_GET from "@/types/tags/Tag_GET";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 import prettifyDate from "@/utils/functions/prettifyDate";
-import prettifyMoneyAmount from "@/utils/functions/prettifyMoneyAmount";
+import prettifyNumber from "@/utils/functions/prettifyNumber";
 import translateInvoiceStatus from "@/utils/functions/translateInvoiceStatus";
 import translateInvoiceType from "@/utils/functions/translateInvoiceType";
 import useDbSelect from "@/utils/hooks/useDbSelect";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import invoiceProcessor from "@/utils/processors/invoiceProcessor";
+import downloadOnClick from "@/utils/functions/downloadOnClick";
 
 import { ActionIcon, Menu, Paper, Select, Table, Transition } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { IconDots, IconPdf, IconPlus } from "@tabler/icons-react";
 import { t } from "i18next";
-import { fetch } from "@tauri-apps/plugin-http";
-import downloadOnClick from "@/utils/functions/downloadOnClick";
 
 const Page = () => {
     const [type, setType] = useState<InvoiceType | null>(null);
@@ -202,7 +201,7 @@ const Page = () => {
                                                 </Table.Td>
 
                                                 <Table.Td align="right" c={invoice.amount < 0 ? "green" : undefined}>
-                                                    {`${prettifyMoneyAmount(invoice.amount)} ${invoice.currency}`}
+                                                    {`${prettifyNumber(invoice.amount)} ${invoice.currency}`}
                                                 </Table.Td>
 
                                                 <Table.Td c={invoice.dueDate ? undefined : "gray"}>

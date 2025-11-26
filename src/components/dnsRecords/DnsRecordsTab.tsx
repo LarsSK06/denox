@@ -10,7 +10,7 @@ import Loader from "../common/Loader";
 import DnsRecord_GET from "@/types/dnsRecords/DnsRecord_GET";
 import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
 import CreateEditDnsRecordModal from "./CreateEditDnsRecordModal";
-import prettifyMoneyAmount from "@/utils/functions/prettifyMoneyAmount";
+import prettifyNumber from "@/utils/functions/prettifyNumber";
 import useDnsRecordsRepository from "@/utils/repositories/dnsRecordsRepository";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import Domain_GET from "@/types/domains/Domain_GET";
@@ -237,7 +237,7 @@ const DnsRecordsTab = () => {
                                                 </Table.Td>
 
                                                 <Table.Td className="text-nowrap">
-                                                    {prettifyMoneyAmount(dnsRecord.ttl ?? 0)}
+                                                    {prettifyNumber(dnsRecord.ttl ?? 0)}
                                                 </Table.Td>
 
                                                 <Table.Td>
