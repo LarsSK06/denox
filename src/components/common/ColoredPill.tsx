@@ -35,8 +35,7 @@ const ColoredPill = ({ color, ...restProps }: ColoredPillProps) => {
                     backgroundColor,
                     borderColor: foregroundColor,
                     borderWidth: "1px",
-                    color: foregroundColor,
-                    borderRadius: 0
+                    color: foregroundColor
                 },
                 label: {
                     transform: "translateY(-1px)"

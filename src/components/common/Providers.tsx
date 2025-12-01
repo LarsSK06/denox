@@ -11,8 +11,7 @@ import { Notifications } from "@mantine/notifications";
 import "@/utils/i18n";
 
 const theme = createTheme({
-    primaryColor: "grape",
-    defaultRadius: 0
+    primaryColor: "grape"
 });
 
 const Providers = ({ children }: ParentProps) => (

@@ -3,12 +3,15 @@
 import ParentProps from "@/types/common/ParentProps";
 import useSyntheticLoading from "@/utils/hooks/useSyntheticLoading";
 import Logo from "../common/Logo";
+import useUpdater from "@/utils/hooks/useUpdater";
 
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
+import { useEffect } from "react";
 
 const LoaderWrapper = ({ children }: ParentProps) => {
+
     const { isReady: isDatabaseReady } = useDbContext();
     const { isReady: isSettingsReady } = useSettingsContext();
     const { isReady: isProfilesReady } = useProfileContext();
@@ -20,6 +23,12 @@ const LoaderWrapper = ({ children }: ParentProps) => {
         isSettingsReady &&
         isProfilesReady &&
         isSyntheticLoadingDone;
+    
+    const { execute } = useUpdater();
+
+    useEffect(() => {
+        execute();
+    }, []);
 
     return isReady ? children : (
         <div className="w-full h-full flex justify-center items-center">
