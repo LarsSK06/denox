@@ -39,7 +39,8 @@ const downloadOnClick = (url?: string) => async (event: React.MouseEvent) => {
             id: notificationId,
             icon: createElement(IconCircleCheck),
             message: t("other.DownloadComplete"),
-            color: "green"
+            color: "green",
+            autoClose: true
         });
     }
     catch (error: any) {

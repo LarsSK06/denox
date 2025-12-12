@@ -102,7 +102,8 @@
             "Ignore": "Ignore",
             "InstallNow": "Install now",
             "Installing": "Installing",
-            "RelaunchNow": "Relaunch now"
+            "RelaunchNow": "Relaunch now",
+            "Reset": "Reset"
         },
         "domains": {
             "Domain": "Domain",
@@ -196,7 +197,13 @@
             "HostForwardConflict": "Forward with this host already exists",
             "ValueMustBeDivisibleBy": "Value must be divisible by {{count}}",
             "ValueMustBeAValidIpv4Address": "Value must be a valid IPv4 address",
-            "ValueMustBeAValidIpv6Address": "Value must be a valid IPv6 address"
+            "ValueMustBeAValidIpv6Address": "Value must be a valid IPv6 address",
+            "Downloading": "Downloading",
+            "DownloadComplete": "Download complete",
+            "UnclaimedCreditNotasAlert": "You have {{amount}} {{currency}} worth of unclaimed credit notas",
+            "UnpaidInvoicesAlert": "You have unpaid invoices at a total of {{amount}} {{currency}}",
+            "SeeUnclaimed": "See unclaimed",
+            "SeeUnpaid": "See unpaid"
         },
         "genericErrors": {
             "404NotFound": "This page could not be found"
