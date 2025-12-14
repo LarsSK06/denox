@@ -13,6 +13,7 @@ import Forward_GET from "@/types/forwards/Forward_GET";
 import Check from "../common/Check";
 import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
 import CreateEditForwardModal from "./CreateEditForwardModal";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 
 const ForwardsTab = () => {
     const [search, setSearch] = useState<string>("");
@@ -79,6 +80,8 @@ const ForwardsTab = () => {
             });
     };
 
+    const settings = useSettingsContext();
+
     return (
         <>
             <CreateEditForwardModal
@@ -94,7 +97,11 @@ const ForwardsTab = () => {
             />
 
             <div className="w-full h-full relative">
-                <Transition mounted={!!forwards} exitDuration={0} transition="fade-right">
+                <Transition
+                    duration={settings.allowAnimations ? undefined : 0}
+                    exitDuration={0}
+                    mounted={!!forwards}
+                    transition="fade-right">
                     {style => (
                         <div className="w-full h-full p-2 flex items-start flex-col gap-2 overflow-auto" style={style}>
                             <Paper withBorder shadow="sm" className="p-2 flex items-end gap-2" style={{ minWidth: "100%" }}>
@@ -227,7 +234,11 @@ const ForwardsTab = () => {
                     )}
                 </Transition>
 
-                <Transition mounted={!forwards} transition="fade-right">
+                <Transition
+                    duration={settings.allowAnimations ? undefined : 0}
+                    exitDuration={settings.allowAnimations ? undefined : 0}
+                    mounted={!forwards}
+                    transition="fade-right">
                     {style => (
                         <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
                             <Loader />

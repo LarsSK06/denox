@@ -3,6 +3,7 @@
 import { ActionIcon, Button, Checkbox, Code, Menu, Paper, Select, Table, Tooltip, Transition } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { IconCopyPlus, IconDots, IconPencil, IconPlus, IconRefresh, IconTrash } from "@tabler/icons-react";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 import { t } from "i18next";
 
 import useSearchParam from "@/utils/hooks/useSearchParam";
@@ -16,6 +17,7 @@ import useHttpClient from "@/utils/hooks/useHttpClient";
 import Domain_GET from "@/types/domains/Domain_GET";
 import Endpoint from "@/types/http/Endpoint";
 import PreviewDnsRecordDataModal from "@/components/dnsRecords/PreviewDnsRecordDataModal";
+import domainProcessor from "@/utils/processors/domainProcessor";
 
 const DnsRecordsTab = () => {
     const [host, setHost] = useState<string | null>(null);
@@ -33,7 +35,8 @@ const DnsRecordsTab = () => {
     const dnsRecordsRepository = useDnsRecordsRepository({ domainId: domainId ?? -1 });
 
     const { data: domains, call: getDomains } = useHttpClient<Domain_GET[]>({
-        endpoint: Endpoint.Domains
+        endpoint: Endpoint.Domains,
+        process: domainProcessor
     });
     
     const filteredDnsRecords = useMemo(() =>
@@ -60,6 +63,8 @@ const DnsRecordsTab = () => {
     const includeWeight = useMemo<boolean>(() => !!filteredDnsRecords?.some(r => r.weight), [filteredDnsRecords]);
     const includePort = useMemo<boolean>(() => !!filteredDnsRecords?.some(r => r.port), [filteredDnsRecords]);
 
+    const settings = useSettingsContext();
+
     return (
         <>
             <PreviewDnsRecordDataModal
@@ -78,7 +83,11 @@ const DnsRecordsTab = () => {
             />
 
             <div className="w-full h-full relative">
-                <Transition mounted={!!dnsRecordsRepository.dnsRecords && !!domains} exitDuration={0} transition="fade-right">
+                <Transition
+                    mounted={!!dnsRecordsRepository.dnsRecords && !!domains}
+                    duration={settings.allowAnimations ? undefined : 0}
+                    exitDuration={0}
+                    transition="fade-right">
                     {style => (
                         <div className="w-full h-full p-2 flex items-start flex-col gap-2 overflow-auto" style={style}>
                             <Paper withBorder shadow="sm" className="p-2 flex items-end gap-2" style={{ minWidth: "100%" }}>
@@ -124,7 +133,11 @@ const DnsRecordsTab = () => {
                                     {t("dnsRecords.CreateDnsRecord")}
                                 </Button>
 
-                                <Transition mounted={selectedIds.length > 0} transition="fade">
+                                <Transition
+                                    duration={settings.allowAnimations ? undefined : 0}
+                                    exitDuration={settings.allowAnimations ? undefined : 0}
+                                    mounted={selectedIds.length > 0}
+                                    transition="fade">
                                     {buttonStyle => (
                                         <>
                                             <Button
@@ -149,7 +162,11 @@ const DnsRecordsTab = () => {
                                                 <Menu.Dropdown>
                                                     {domains?.toSorted((a, b) => a.id > b.id ? 1 : -1).map(d => (
                                                         <Menu.Item onClick={() => dnsRecordsRepository.duplicateDnsRecords(selectedIds, d.id)} key={d.id}>
-                                                            {d.domain}
+                                                            {
+                                                                settings.capitalizeDomainNames
+                                                                    ? d.domain.toUpperCase()
+                                                                    : d.domain.toLowerCase()
+                                                            }
                                                         </Menu.Item>
                                                     ))}
                                                 </Menu.Dropdown>
@@ -317,7 +334,11 @@ const DnsRecordsTab = () => {
                                                                 <Menu.Sub.Dropdown>
                                                                     {domains?.toSorted((a, b) => a.id > b.id ? 1 : -1).map(d => (
                                                                         <Menu.Item onClick={() => dnsRecordsRepository.duplicateDnsRecords([dnsRecord.id], d.id)} key={d.id}>
-                                                                            {d.domain}
+                                                                            {
+                                                                                settings.capitalizeDomainNames
+                                                                                    ? d.domain.toUpperCase()
+                                                                                    : d.domain.toLowerCase()
+                                                                            }
                                                                         </Menu.Item>
                                                                     ))}
                                                                 </Menu.Sub.Dropdown>
@@ -334,7 +355,11 @@ const DnsRecordsTab = () => {
                     )}
                 </Transition>
 
-                <Transition mounted={!dnsRecordsRepository.dnsRecords || !domains} transition="fade-right">
+                <Transition
+                    duration={settings.allowAnimations ? undefined : 0}
+                    exitDuration={settings.allowAnimations ? undefined : 0}
+                    mounted={!dnsRecordsRepository.dnsRecords || !domains}
+                    transition="fade-right">
                     {style => (
                         <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
                             <Loader />

@@ -24,6 +24,7 @@ import CreateNoteModal from "../notes/CreateNoteModal";
 import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
 import useNotesRepository from "@/utils/repositories/notesRepository";
 import domainProcessor from "@/utils/processors/domainProcessor";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 
 const DomainOverviewTab = () => {
     const [showCreateNoteModal, setShowCreateNoteModal] = useState<boolean>(false);
@@ -137,6 +138,8 @@ const DomainOverviewTab = () => {
             });
     };
 
+    const settings = useSettingsContext();
+
     return (
         <>
             <CreateNoteModal
@@ -146,14 +149,22 @@ const DomainOverviewTab = () => {
             />
 
             <div className="w-full h-full relative">
-                <Transition mounted={!isLoadingGenerally} transition="fade-right">
+                <Transition
+                    duration={settings.allowAnimations ? undefined : 0}
+                    exitDuration={settings.allowAnimations ? undefined : 0}
+                    mounted={!isLoadingGenerally}
+                    transition="fade-right">
                     {style => (
                         <div className="w-full h-full p-2 flex flex-col items-center gap-8 overflow-auto" style={style}>
                             <DomainPeriodProgressCircle domain={domain ?? dummyDomain} />
 
                             <div className="flex items-center gap-2">
                                 <Text component="h2" size="xl" aria-hidden>
-                                    {domain?.domain ?? dummyDomain.domain}
+                                    {
+                                        settings.capitalizeDomainNames
+                                            ? (domain?.domain ?? dummyDomain.domain).toUpperCase()
+                                            : (domain?.domain ?? dummyDomain.domain).toLowerCase()
+                                    }
                                 </Text>
 
                                 <Menu position="right-start">
@@ -339,7 +350,11 @@ const DomainOverviewTab = () => {
                                         {t("notes.CreateNote")}
                                     </Button>
 
-                                    <Transition mounted={selectedNoteIds.length > 0} transition="fade">
+                                    <Transition
+                                        duration={settings.allowAnimations ? undefined : 0}
+                                        exitDuration={settings.allowAnimations ? undefined : 0}
+                                        mounted={selectedNoteIds.length > 0}
+                                        transition="fade">
                                         {buttonStyle => (
                                             <Button
                                                 loading={notesRepository.isDeleteNotesLoading}
@@ -385,7 +400,11 @@ const DomainOverviewTab = () => {
                     )}
                 </Transition>
 
-                <Transition mounted={isLoadingGenerally} transition="fade-right">
+                <Transition
+                    duration={settings.allowAnimations ? undefined : 0}
+                    exitDuration={settings.allowAnimations ? undefined : 0}
+                    mounted={isLoadingGenerally}
+                    transition="fade-right">
                     {style => (
                         <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
                             <Loader />

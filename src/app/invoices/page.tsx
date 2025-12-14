@@ -37,6 +37,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import {IconAlertCircle, IconDots, IconExclamationCircle, IconInfoCircle, IconPdf, IconPlus} from "@tabler/icons-react";
 import { t } from "i18next";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 
 const Page = () => {
     const [type, setType] = useState<InvoiceType | null>(null);
@@ -127,16 +128,14 @@ const Page = () => {
                 : root
         , [] as string[]).join("/");
 
-    // const unpaidInvoicesTotal =
-    //     invoices?.reduce((root, current) =>
-    //         current.amount > 0 &&
-    //         current.type === InvoiceType.Invoice &&
-    //         current.status === InvoiceStatus.Unpaid
-    //             ? root + Math.abs(current.amount)
-    //             : root
-    //     , 0);
-
-    const unpaidInvoicesTotal = 10000;
+    const unpaidInvoicesTotal =
+        invoices?.reduce((root, current) =>
+            current.amount > 0 &&
+            current.type === InvoiceType.Invoice &&
+            current.status === InvoiceStatus.Unpaid
+                ? root + Math.abs(current.amount)
+                : root
+        , 0);
 
     const unpaidInvoicesCurrencies =
         invoices?.reduce((root, current) =>
@@ -148,13 +147,19 @@ const Page = () => {
                 : root
         , [] as string[]).join("/");
 
+    const settings = useSettingsContext();
+
     return (
         <main className="w-full h-full relative overflow-hidden">
             <h1 className="sr-only">
                 {t("invoices.Invoices")}
             </h1>
 
-            <Transition mounted={!!invoices && !!tags && !!invoiceTagRelations} transition="fade-up">
+            <Transition
+                duration={settings.allowAnimations ? undefined : 0}
+                exitDuration={settings.allowAnimations ? undefined : 0}
+                mounted={!!invoices && !!tags && !!invoiceTagRelations}
+                transition="fade-up">
                 {style => (
                     <div className="w-full h-full p-2 flex flex-col gap-2 overflow-auto" style={style}>
                         <Paper withBorder shadow="sm" className="p-2 flex gap-2">
@@ -379,7 +384,11 @@ const Page = () => {
                 )}
             </Transition>
 
-            <Transition mounted={!invoices || !tags || !invoiceTagRelations} transition="fade-up">
+            <Transition
+                duration={settings.allowAnimations ? undefined : 0}
+                exitDuration={settings.allowAnimations ? undefined : 0}
+                mounted={!invoices || !tags || !invoiceTagRelations}
+                transition="fade-up">
                 {style => (
                     <div className="w-full h-full top-0 left-0 flex justify-center items-center absolute" style={style}>
                         <Loader />

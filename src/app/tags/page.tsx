@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { t } from "i18next";
 import { IconDots, IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useDbContext } from "@/utils/contexts/useDbContext";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 
 const Page = () => {
     const [showCreateEditTagModal, setShowCreateEditModal] = useState<boolean>(false);
@@ -62,6 +63,8 @@ const Page = () => {
             });
     };
 
+    const settings = useSettingsContext();
+
     return (
         <>
             <CreateEditTagModal
@@ -79,7 +82,11 @@ const Page = () => {
                     {t("tags.Tags")}
                 </h1>
 
-                <Transition mounted={!!tags} transition="fade-up">
+                <Transition
+                    duration={settings.allowAnimations ? undefined : 0}
+                    exitDuration={settings.allowAnimations ? undefined : 0}
+                    mounted={!!tags}
+                    transition="fade-up">
                     {style => (
                         <div className="w-full h-full p-2 flex flex-col gap-2 overflow-auto" style={style}>
                             <div className="">
@@ -170,7 +177,11 @@ const Page = () => {
                     )}
                 </Transition>
 
-                <Transition mounted={!tags} transition="fade-up">
+                <Transition
+                    duration={settings.allowAnimations ? undefined : 0}
+                    exitDuration={settings.allowAnimations ? undefined : 0}
+                    mounted={!tags}
+                    transition="fade-up">
                     {style => (
                         <div className="w-full h-full top-0 left-0 flex justify-center items-center absolute" style={style}>
                             <Loader />

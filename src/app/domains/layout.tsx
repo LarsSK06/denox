@@ -15,6 +15,7 @@ import { t } from "i18next";
 import { useEffect } from "react";
 import { NavLink, Skeleton } from "@mantine/core";
 import { domainSidebarWidthCacheKey } from "@/utils/globals";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 
 const Layout = ({ children }: ParentProps) => {
 
@@ -33,6 +34,8 @@ const Layout = ({ children }: ParentProps) => {
     useEffect(() => {
         getDomains();
     }, []);
+
+    const settings = useSettingsContext();
 
     return (
         <div className="w-full h-full flex">
@@ -58,7 +61,11 @@ const Layout = ({ children }: ParentProps) => {
                                 component={Link}
                                 href={`/domains?domainId=${domain.id}`}
                                 active={domainId === domain.id}
-                                label={domain.domain}
+                                label={
+                                    settings.capitalizeDomainNames
+                                        ? domain.domain.toUpperCase()
+                                        : domain.domain.toLowerCase()
+                                }
                                 key={domain.id}
                             />
                         ))

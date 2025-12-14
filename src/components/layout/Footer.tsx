@@ -1,7 +1,7 @@
 "use client";
 
 import { ActionIcon, Menu, Paper, Skeleton, Text } from "@mantine/core";
-import { IconDots, IconInfoCircle, IconShieldLock } from "@tabler/icons-react";
+import { IconDots, IconInfoCircle, IconSettings, IconShieldLock } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { t } from "i18next";
 
@@ -22,7 +22,7 @@ const Footer = () => {
             withBorder
             component="footer"
             className="border-r-0 border-b-0 border-l-0 rounded-none">
-            <nav className="p-1 flex gap-2">
+            <nav className="p-1 flex justify-between">
                 <Menu>
                     <Menu.Target>
                         <ActionIcon variant="subtle">
@@ -41,25 +41,9 @@ const Footer = () => {
                     </Menu.Dropdown>
                 </Menu>
 
-                <table>
-                    <tbody>
-                        <tr aria-busy={!version}>
-                            <th className="sr-only">
-                                {t("common.Version")}
-                            </th>
-
-                            <td>
-                                {version ? (
-                                    <Text c="gray">
-                                        {version}
-                                    </Text>
-                                ) : (
-                                    <Skeleton width={32.81} height={24.8} />
-                                )}
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <ActionIcon variant="subtle" component={Link} href="/settings">
+                    <IconSettings />
+                </ActionIcon>
             </nav>
         </Paper>
     );
