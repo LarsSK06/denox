@@ -5,10 +5,13 @@ import useSyntheticLoading from "@/utils/hooks/useSyntheticLoading";
 import Logo from "../common/Logo";
 import useUpdater from "@/utils/hooks/useUpdater";
 
+import * as tauri from "@tauri-apps/api";
+
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 import { useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
 
 const LoaderWrapper = ({ children }: ParentProps) => {
 
@@ -29,6 +32,12 @@ const LoaderWrapper = ({ children }: ParentProps) => {
     useEffect(() => {
         execute();
     }, []);
+
+    useEffect(() => {
+        if (!isReady) return;
+
+        invoke("init_main_window");
+    }, [isReady]);
 
     return isReady ? children : (
         <div className="w-full h-full flex justify-center items-center">
