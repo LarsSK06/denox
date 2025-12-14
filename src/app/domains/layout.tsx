@@ -9,6 +9,7 @@ import Domain_GET from "@/types/domains/Domain_GET";
 import useSearchParam from "@/utils/hooks/useSearchParam";
 import Link from "next/link";
 import useCache from "@/utils/hooks/useCache";
+import domainProcessor from "@/utils/processors/domainProcessor";
 
 import { t } from "i18next";
 import { useEffect } from "react";
@@ -25,7 +26,8 @@ const Layout = ({ children }: ParentProps) => {
         data: domains,
         call: getDomains
     } = useHttpClient<Domain_GET[]>({
-        endpoint: Endpoint.Domains
+        endpoint: Endpoint.Domains,
+        process: domainProcessor
     });
 
     useEffect(() => {

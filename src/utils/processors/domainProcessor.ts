@@ -1,7 +1,10 @@
+import punycode from "punycode/punycode";
+
 const process = (body: any) => ({
     ...body,
-    registeredDate: new Date(body.registeredDate),
-    expiryDate: new Date(body.expiryDate)
+    domain: punycode.toUnicode(body.domain),
+    expiryDate: new Date(body.expiryDate),
+    registeredDate: new Date(body.registeredDate)
 });
 
 const domainProcessor = (body: any) =>
