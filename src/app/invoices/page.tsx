@@ -20,10 +20,22 @@ import invoiceProcessor from "@/utils/processors/invoiceProcessor";
 import downloadOnClick from "@/utils/functions/downloadOnClick";
 import useColorPair from "@/utils/hooks/useColorPair";
 
-import { ActionIcon, Anchor, Menu, Paper, Select, Table, Text, Transition, useMantineTheme } from "@mantine/core";
+import {
+    ActionIcon,
+    Alert,
+    Anchor,
+    getThemeColor,
+    Menu,
+    Paper,
+    Select,
+    Table,
+    Text,
+    Transition,
+    useMantineTheme
+} from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { useDbContext } from "@/utils/contexts/useDbContext";
-import { IconDots, IconExclamationCircle, IconInfoCircle, IconPdf, IconPlus } from "@tabler/icons-react";
+import {IconAlertCircle, IconDots, IconExclamationCircle, IconInfoCircle, IconPdf, IconPlus} from "@tabler/icons-react";
 import { t } from "i18next";
 
 const Page = () => {
@@ -96,11 +108,6 @@ const Page = () => {
 
     const showTagsColumn = useMemo<boolean>(() => !!tags && tags.length > 0, [tags]);
 
-    const [greenBgColor, greenFgColor] = useColorPair("green");
-    const [redBgColor, redFgColor] = useColorPair("red");
-
-    const mantineTheme = useMantineTheme();
-
     const unclaimedCreditNotasTotal =
         invoices?.reduce((root, current) =>
             current.amount < 0 &&
@@ -120,14 +127,16 @@ const Page = () => {
                 : root
         , [] as string[]).join("/");
 
-    const unpaidInvoicesTotal =
-        invoices?.reduce((root, current) =>
-            current.amount > 0 &&
-            current.type === InvoiceType.Invoice &&
-            current.status === InvoiceStatus.Unpaid
-                ? root + Math.abs(current.amount)
-                : root
-        , 0);
+    // const unpaidInvoicesTotal =
+    //     invoices?.reduce((root, current) =>
+    //         current.amount > 0 &&
+    //         current.type === InvoiceType.Invoice &&
+    //         current.status === InvoiceStatus.Unpaid
+    //             ? root + Math.abs(current.amount)
+    //             : root
+    //     , 0);
+
+    const unpaidInvoicesTotal = 10000;
 
     const unpaidInvoicesCurrencies =
         invoices?.reduce((root, current) =>
@@ -175,73 +184,33 @@ const Page = () => {
                         </Paper>
 
                         {unclaimedCreditNotasTotal ? (
-                            <Paper
-                                withBorder
-                                shadow="sm"
-                                className="p-2 flex gap-2"
-                                style={{
-                                    borderColor: greenFgColor,
-                                    backgroundColor: greenBgColor
-                                }}>
-                                <div className="h-full flex items-center">
-                                    <IconInfoCircle color={greenFgColor} />
-                                </div>
-
-                                <Text className="w-0 grow" c={greenFgColor}>
+                            <div className="w-full h-fit">
+                                <Alert
+                                    color="green"
+                                    variant="outline"
+                                    icon={<IconInfoCircle />}
+                                    title={t("other.UnclaimedCreditNotas")}>
                                     {t("other.UnclaimedCreditNotasAlert", {
                                         amount: prettifyNumber(unclaimedCreditNotasTotal),
                                         currency: unclaimedCreditNotasCurrencies
                                     })}
-                                </Text>
-
-                                <div className="h-full flex items-center">
-                                    <Anchor
-                                        underline="always"
-                                        c={greenFgColor}
-                                        component="button"
-                                        onClick={() => {
-                                            setType(InvoiceType.CreditNote);
-                                            setStatus(InvoiceStatus.Unpaid);
-                                        }}>
-                                        {t("other.SeeUnclaimed")}
-                                    </Anchor>
-                                </div>
-                            </Paper>
+                                </Alert>
+                            </div>
                         ) : null}
 
                         {unpaidInvoicesTotal ? (
-                            <Paper
-                                withBorder
-                                shadow="sm"
-                                className="p-2 flex gap-2"
-                                style={{
-                                    borderColor: redFgColor,
-                                    backgroundColor: redBgColor
-                                }}>
-                                <div className="h-full flex items-center">
-                                    <IconExclamationCircle color={redFgColor} />
-                                </div>
-
-                                <Text c={redFgColor} className="w-0 grow">
+                            <div className="w-full h-fit">
+                                <Alert
+                                    color="red"
+                                    variant="outline"
+                                    icon={<IconAlertCircle />}
+                                    title={t("other.UnpaidInvoices")}>
                                     {t("other.UnpaidInvoicesAlert", {
                                         amount: prettifyNumber(unpaidInvoicesTotal),
                                         currency: unpaidInvoicesCurrencies
                                     })}
-                                </Text>
-
-                                <div className="h-full flex items-center">
-                                    <Anchor
-                                        underline="always"
-                                        c={redFgColor}
-                                        component="button"
-                                        onClick={() => {
-                                            setType(InvoiceType.Invoice);
-                                            setStatus(InvoiceStatus.Unpaid);
-                                        }}>
-                                        {t("other.SeeUnclaimed")}
-                                    </Anchor>
-                                </div>
-                            </Paper>
+                                </Alert>
+                            </div>
                         ) : null}
 
                         <Paper withBorder shadow="sm">

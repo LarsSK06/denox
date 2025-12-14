@@ -200,10 +200,13 @@
             "ValueMustBeAValidIpv6Address": "Value must be a valid IPv6 address",
             "Downloading": "Downloading",
             "DownloadComplete": "Download complete",
+            "UnclaimedCreditNotas": "Unclaimed credit notas",
             "UnclaimedCreditNotasAlert": "You have {{amount}} {{currency}} worth of unclaimed credit notas",
+            "UnpaidInvoices": "Unpaid invoices",
             "UnpaidInvoicesAlert": "You have unpaid invoices at a total of {{amount}} {{currency}}",
             "SeeUnclaimed": "See unclaimed",
-            "SeeUnpaid": "See unpaid"
+            "SeeUnpaid": "See unpaid",
+            "SeeData": "See data"
         },
         "genericErrors": {
             "404NotFound": "This page could not be found"

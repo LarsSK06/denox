@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionIcon, Button, Divider, MantineColor, Paper } from "@mantine/core";
+import {ActionIcon, Button, Divider, MantineColor, Paper, Tabs} from "@mantine/core";
 import { IconAntenna, IconCurrencyDollar, IconMaximize, IconMinus, IconTag, IconUser, IconX } from "@tabler/icons-react";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
 import { useEffect, useMemo, useState } from "react";

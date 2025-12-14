@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionIcon, Button, Checkbox, Menu, Paper, Select, Table, Transition } from "@mantine/core";
+import { ActionIcon, Button, Checkbox, Code, Menu, Paper, Select, Table, Tooltip, Transition } from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { IconCopyPlus, IconDots, IconPencil, IconPlus, IconRefresh, IconTrash } from "@tabler/icons-react";
 import { t } from "i18next";
@@ -15,6 +15,7 @@ import useDnsRecordsRepository from "@/utils/repositories/dnsRecordsRepository";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import Domain_GET from "@/types/domains/Domain_GET";
 import Endpoint from "@/types/http/Endpoint";
+import PreviewDnsRecordDataModal from "@/components/dnsRecords/PreviewDnsRecordDataModal";
 
 const DnsRecordsTab = () => {
     const [host, setHost] = useState<string | null>(null);
@@ -24,6 +25,8 @@ const DnsRecordsTab = () => {
 
     const [showCreateEditDnsRecordModal, setShowCreateEditDnsRecordModal] = useState<boolean>(false);
     const [dnsRecordToEdit, setDnsRecordToEdit] = useState<DnsRecord_GET | null>(null);
+
+    const [dataToPreview, setDataToPreview] = useState<string | null>(null);
 
     const domainId = useSearchParam({ key: "domainId", type: "number" });
 
@@ -59,6 +62,11 @@ const DnsRecordsTab = () => {
 
     return (
         <>
+            <PreviewDnsRecordDataModal
+                data={dataToPreview}
+                onClose={() => setDataToPreview(null)}
+            />
+
             <CreateEditDnsRecordModal
                 show={showCreateEditDnsRecordModal || !!dnsRecordToEdit}
                 onClose={() => {
@@ -263,7 +271,23 @@ const DnsRecordsTab = () => {
                                                 ) : null}
 
                                                 <Table.Td>
-                                                    {dnsRecord.data}
+                                                    {dnsRecord.data.length < 65 ? (
+                                                        <Code className="text-nowrap">
+                                                            {dnsRecord.data}
+                                                        </Code>
+                                                    ) : (
+                                                        <Tooltip label={t("other.SeeData")} position="right">
+                                                            <Button variant="outline" size="compact-xs" onClick={() => setDataToPreview(dnsRecord.data)}>
+                                                                <span aria-hidden>
+                                                                    ...
+                                                                </span>
+
+                                                                <span className="sr-only">
+                                                                    {t("other.SeeData")}
+                                                                </span>
+                                                            </Button>
+                                                        </Tooltip>
+                                                    )}
                                                 </Table.Td>
 
                                                 <Table.Td>
