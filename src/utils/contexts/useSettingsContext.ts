@@ -15,6 +15,8 @@ type SettingsContextValue = {
     allowAnimations: boolean;
 
     capitalizeDomainNames: boolean;
+
+    showRecordIds: boolean;
 };
 
 const SettingsContext = createContext<SettingsContextValue | undefined>(undefined);
@@ -24,6 +26,7 @@ export const SettingsContextProvider = ({ children }: ParentProps) => {
 
     const [allowAnimations, setAllowAnimations] = useState<boolean>(true);
     const [capitalizeDomainNames, setCapitalizeDomainNames] = useState<boolean>(false);
+    const [showRecordIds, setShowRecordIds] = useState<boolean>(false);
 
     const { i18n } = useTranslation();
     const { colorScheme, setColorScheme } = useMantineColorScheme();
@@ -37,6 +40,7 @@ export const SettingsContextProvider = ({ children }: ParentProps) => {
                         setCapitalizeDomainNames(prev => settings.capitalizeDomainNames ?? prev);
                         setColorScheme(settings.colorScheme ?? colorScheme);
                         await i18n.changeLanguage(settings.language ?? i18n.language);
+                        setShowRecordIds(prev => settings.showRecordIds ?? prev);
                     })
                     .catch((error) => {
                         console.log(error)
@@ -50,7 +54,8 @@ export const SettingsContextProvider = ({ children }: ParentProps) => {
         isReady,
         allowAnimations,
         capitalizeDomainNames,
-    }), [isReady, allowAnimations, capitalizeDomainNames]);
+        showRecordIds
+    }), [isReady, allowAnimations, capitalizeDomainNames, showRecordIds]);
 
     return createElement(SettingsContext.Provider, { value }, children);
 };

@@ -222,41 +222,47 @@ const Page = () => {
                             <Table>
                                 <Table.Thead>
                                     <Table.Tr>
-                                        <Table.Td className="font-bold">
-                                            {t("common.Type")}
-                                        </Table.Td>
-
-                                        <Table.Td className="font-bold" align="right">
-                                            {t("common.Amount")}
-                                        </Table.Td>
-
-                                        <Table.Td className="font-bold">
-                                            {t("common.DueDate")}
-                                        </Table.Td>
-
-                                        <Table.Td className="font-bold">
-                                            {t("common.IssuedDate")}
-                                        </Table.Td>
-
-                                        <Table.Td className="font-bold">
-                                            {t("common.PaidDate")}
-                                        </Table.Td>
-
-                                        <Table.Td className="font-bold">
-                                            {t("common.Status")}
-                                        </Table.Td>
-
-                                        {showTagsColumn ? (
-                                            <Table.Td className="font-bold">
-                                                {t("tags.Tags")}
-                                            </Table.Td>
+                                        {settings.showRecordIds ? (
+                                            <Table.Th>
+                                                {t("common.Id")}
+                                            </Table.Th>
                                         ) : null}
 
-                                        <Table.Td className="w-0">
+                                        <Table.Th>
+                                            {t("common.Type")}
+                                        </Table.Th>
+
+                                        <Table.Th align="right">
+                                            {t("common.Amount")}
+                                        </Table.Th>
+
+                                        <Table.Th>
+                                            {t("common.DueDate")}
+                                        </Table.Th>
+
+                                        <Table.Th>
+                                            {t("common.IssuedDate")}
+                                        </Table.Th>
+
+                                        <Table.Th>
+                                            {t("common.PaidDate")}
+                                        </Table.Th>
+
+                                        <Table.Th>
+                                            {t("common.Status")}
+                                        </Table.Th>
+
+                                        {showTagsColumn ? (
+                                            <Table.Th>
+                                                {t("tags.Tags")}
+                                            </Table.Th>
+                                        ) : null}
+
+                                        <Table.Th className="w-0">
                                             <span className="sr-only">
                                                 {t("common.Actions")}
                                             </span>
-                                        </Table.Td>
+                                        </Table.Th>
                                     </Table.Tr>
                                 </Table.Thead>
 
@@ -284,6 +290,12 @@ const Page = () => {
                                         
                                         return (
                                             <Table.Tr className="group" key={invoice.id}>
+                                                {settings.showRecordIds ? (
+                                                    <Table.Td>
+                                                        {prettifyNumber(invoice.id)}
+                                                    </Table.Td>
+                                                ) : null}
+
                                                 <Table.Td>
                                                     {translateInvoiceType(invoice.type)}
                                                 </Table.Td>

@@ -6,16 +6,16 @@ import { Button, Checkbox, Container, Divider, Select, Text, useMantineColorSche
 import { useTranslation } from "react-i18next";
 import { settingsFileName } from "@/utils/globals";
 import { t } from "i18next";
+import { notifications } from "@mantine/notifications";
+import { IconAlertCircle } from "@tabler/icons-react";
 
-import * as fs from "@tauri-apps/plugin-fs";
-import * as process from "@tauri-apps/plugin-process";
-import * as path from "@tauri-apps/api/path";
+import * as tauri_fs from "@tauri-apps/plugin-fs";
+import * as tauri_process from "@tauri-apps/plugin-process";
+import * as tauri_path from "@tauri-apps/api/path";
 
 import AppColorScheme from "@/types/common/AppColorScheme";
 import AppLang from "@/types/common/AppLang";
 import Settings_GET from "@/types/settings/Settings_GET";
-import { notifications } from "@mantine/notifications";
-import { IconAlertCircle } from "@tabler/icons-react";
 
 const Page = () => {
 
@@ -30,30 +30,33 @@ const Page = () => {
     const [capitalizeDomainNames, setCapitalizeDomainNames] = useState<boolean>(false);
     const [colorScheme, setColorScheme] = useState<AppColorScheme>(AppColorScheme.Auto);
     const [language, setLanguage] = useState<AppLang>(AppLang.English);
+    const [showRecordIds, setShowRecordIds] = useState<boolean>(false);
 
     useEffect(() => {
         setAllowAnimations(settings.allowAnimations);
         setCapitalizeDomainNames(settings.capitalizeDomainNames);
         setColorScheme(_colorScheme as AppColorScheme);
         setLanguage(i18n.language as AppLang);
+        setShowRecordIds(settings.showRecordIds);
     }, [settings]);
 
     const saveToFile = async (relaunch?: boolean) => {
         setIsSaveLoading(true);
 
         try {
-            await fs.writeTextFile(
+            await tauri_fs.writeTextFile(
                 settingsFileName,
                 JSON.stringify({
                     allowAnimations,
                     capitalizeDomainNames,
                     colorScheme,
-                    language
+                    language,
+                    showRecordIds
                 } satisfies Settings_GET),
-                { baseDir: path.BaseDirectory.AppConfig }
+                { baseDir: tauri_path.BaseDirectory.AppConfig }
             );
 
-            if (relaunch) process.relaunch();
+            if (relaunch) tauri_process.relaunch();
             else setIsSaveLoading(false);
         }
         catch (error) {
@@ -62,8 +65,6 @@ const Page = () => {
                 icon: <IconAlertCircle />,
                 message: t("settings.errors.save_error")
             });
-
-            console.log(error)
 
             setIsSaveLoading(false);
         }
@@ -134,6 +135,18 @@ const Page = () => {
                         }))
                     }
                     size="xs"
+                />
+            </div>
+
+            <div className="flex justify-between items-center">
+                <Text component="label" htmlFor="show_record_ids" className="my-1">
+                    {t("settings.literals.show_record_ids")}
+                </Text>
+
+                <Checkbox
+                    id="show_record_ids"
+                    checked={showRecordIds}
+                    onChange={event => setShowRecordIds(event.target.checked)}
                 />
             </div>
 

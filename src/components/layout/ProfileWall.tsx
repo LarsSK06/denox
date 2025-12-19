@@ -17,6 +17,8 @@ import { useDbContext } from "@/utils/contexts/useDbContext";
 import { notifications } from "@mantine/notifications";
 import { t } from "i18next";
 import { lastProfileIdCacheKey } from "@/utils/globals";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
+import prettifyNumber from "@/utils/functions/prettifyNumber";
 
 const ProfileWall = ({ children }: ParentProps) => {
     const [showCreateProfileModal, setShowCreateProfileModal] = useState<boolean>(false);
@@ -66,6 +68,8 @@ const ProfileWall = ({ children }: ParentProps) => {
             .finally(() => getProfiles());
     };
 
+    const settings = useSettingsContext();
+
     return currentProfile ? children : (
         <>
             <CreateEditProfileModal
@@ -79,7 +83,7 @@ const ProfileWall = ({ children }: ParentProps) => {
             />
 
             <div className="w-full h-full flex justify-center items-center">
-                <Paper withBorder shadow="xs" component="form" className="w-[40rem] p-4 flex flex-col items-start gap-2">
+                <Paper withBorder shadow="xs" component="form" className="w-fit max-w-[60rem] p-4 flex flex-col items-start gap-2">
                     <Text size="xl">
                         {t("profiles.SelectProfile")}
                     </Text>
@@ -88,7 +92,7 @@ const ProfileWall = ({ children }: ParentProps) => {
                         <Table>
                             <Table.Thead>
                                 <Table.Tr>
-                                    <Table.Td className="w-0">
+                                    <Table.Th className="w-0">
                                         <Radio
                                             size="xs"
                                             checked={!selectedProfileId}
@@ -96,25 +100,31 @@ const ProfileWall = ({ children }: ParentProps) => {
                                                 if (event.currentTarget.checked) setSelectedProfileId(null);
                                             }}
                                         />
-                                    </Table.Td>
+                                    </Table.Th>
 
-                                    <Table.Td className="font-bold">
+                                    {settings.showRecordIds ? (
+                                        <Table.Th>
+                                            {t("common.Id")}
+                                        </Table.Th>
+                                    ) : null}
+
+                                    <Table.Th>
                                         {t("common.Name")}
-                                    </Table.Td>
+                                    </Table.Th>
 
-                                    <Table.Td className="font-bold">
+                                    <Table.Th>
                                         {t("common.CreatedAt")}
-                                    </Table.Td>
+                                    </Table.Th>
 
-                                    <Table.Td className="font-bold">
+                                    <Table.Th>
                                         {t("common.EditedAt")}
-                                    </Table.Td>
+                                    </Table.Th>
 
-                                    <Table.Td className="w-0">
+                                    <Table.Th className="w-0">
                                         <span className="sr-only">
                                             {t("common.Actions")}
                                         </span>
-                                    </Table.Td>
+                                    </Table.Th>
                                 </Table.Tr>
                             </Table.Thead>
 
@@ -133,6 +143,12 @@ const ProfileWall = ({ children }: ParentProps) => {
                                                     }}
                                                 />
                                             </Table.Td>
+
+                                            {settings.showRecordIds ? (
+                                                <Table.Td>
+                                                    {prettifyNumber(profile.id)}
+                                                </Table.Td>
+                                            ) : null}
 
                                             <Table.Td>
                                                 {profile.name}

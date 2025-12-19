@@ -180,7 +180,7 @@ const DnsRecordsTab = () => {
                                 <Table>
                                     <Table.Thead>
                                         <Table.Tr>
-                                            <Table.Td className="w-0">
+                                            <Table.Th className="w-0">
                                                 <Checkbox
                                                     indeterminate={
                                                         selectedIds.length < filteredDnsRecords.length &&
@@ -195,47 +195,53 @@ const DnsRecordsTab = () => {
                                                         )
                                                     }
                                                 />
-                                            </Table.Td>
+                                            </Table.Th>
 
-                                            <Table.Td className="w-0 font-bold">
+                                            {settings.showRecordIds ? (
+                                                <Table.Th>
+                                                    {t("common.Id")}
+                                                </Table.Th>
+                                            ) : null}
+
+                                            <Table.Th className="w-0">
                                                 {t("common.Host")}
-                                            </Table.Td>
+                                            </Table.Th>
 
-                                            <Table.Td className="w-0 font-bold">
+                                            <Table.Th className="w-0">
                                                 {t("common.Ttl")}
-                                            </Table.Td>
+                                            </Table.Th>
 
-                                            <Table.Td className="w-0 font-bold">
+                                            <Table.Th className="w-0">
                                                 {t("common.Type")}
-                                            </Table.Td>
+                                            </Table.Th>
 
                                             {includePriority ? (
-                                                <Table.Td className="w-0 font-bold">
+                                                <Table.Th className="w-0">
                                                     {t("common.Priority")}
-                                                </Table.Td>
+                                                </Table.Th>
                                             ) : null}
 
                                             {includeWeight ? (
-                                                <Table.Td className="w-0 font-bold">
+                                                <Table.Th className="w-0">
                                                     {t("common.Weight")}
-                                                </Table.Td>
+                                                </Table.Th>
                                             ) : null}
 
                                             {includePort ? (
-                                                <Table.Td className="w-0 font-bold">
+                                                <Table.Th className="w-0">
                                                     {t("common.Port")}
-                                                </Table.Td>
+                                                </Table.Th>
                                             ) : null}
 
-                                            <Table.Td className="font-bold">
+                                            <Table.Th>
                                                 {t("common.Data")}
-                                            </Table.Td>
+                                            </Table.Th>
 
-                                            <Table.Td className="w-0">
+                                            <Table.Th className="w-0">
                                                 <span className="sr-only">
                                                     {t("common.Actions")}
                                                 </span>
-                                            </Table.Td>
+                                            </Table.Th>
                                         </Table.Tr>
                                     </Table.Thead>
 
@@ -256,6 +262,12 @@ const DnsRecordsTab = () => {
                                                         }}
                                                     />
                                                 </Table.Td>
+
+                                                {settings.showRecordIds ? (
+                                                    <Table.Td>
+                                                        {prettifyNumber(dnsRecord.id)}
+                                                    </Table.Td>
+                                                ) : null}
 
                                                 <Table.Td>
                                                     {dnsRecord.host}

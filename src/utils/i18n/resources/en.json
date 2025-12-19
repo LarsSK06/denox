@@ -103,7 +103,8 @@
             "InstallNow": "Install now",
             "Installing": "Installing",
             "RelaunchNow": "Relaunch now",
-            "Reset": "Reset"
+            "Reset": "Reset",
+            "Id": "Id"
         },
         "domains": {
             "Domain": "Domain",
@@ -224,7 +225,8 @@
                 "allow_animations": "Allow animations",
                 "capitalize_domain_names": "Capitalize domain names",
                 "color_scheme": "Color scheme",
-                "language": "Language"
+                "language": "Language",
+                "show_record_ids": "Show record IDs"
             },
             "buttons": {
                 "save": "Save",

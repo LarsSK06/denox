@@ -6,6 +6,7 @@ type Settings_GET = {
     capitalizeDomainNames: boolean | null;
     colorScheme: AppColorScheme | null;
     language: AppLang | null;
+    showRecordIds: boolean | null;
 };
 
 export default Settings_GET;

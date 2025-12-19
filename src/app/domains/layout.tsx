@@ -13,9 +13,10 @@ import domainProcessor from "@/utils/processors/domainProcessor";
 
 import { t } from "i18next";
 import { useEffect } from "react";
-import { NavLink, Skeleton } from "@mantine/core";
+import { Code, NavLink, Skeleton } from "@mantine/core";
 import { domainSidebarWidthCacheKey } from "@/utils/globals";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
+import prettifyNumber from "@/utils/functions/prettifyNumber";
 
 const Layout = ({ children }: ParentProps) => {
 
@@ -62,9 +63,24 @@ const Layout = ({ children }: ParentProps) => {
                                 href={`/domains?domainId=${domain.id}`}
                                 active={domainId === domain.id}
                                 label={
-                                    settings.capitalizeDomainNames
-                                        ? domain.domain.toUpperCase()
-                                        : domain.domain.toLowerCase()
+                                    <span>
+                                        <span>
+                                            {
+                                                settings.capitalizeDomainNames
+                                                    ? domain.domain.toUpperCase()
+                                                    : domain.domain.toLowerCase()
+                                            }
+                                        </span>
+
+                                        {settings.showRecordIds ? (
+                                            <>
+                                                &nbsp;
+                                                <Code>
+                                                    {prettifyNumber(domain.id)}
+                                                </Code>
+                                            </>
+                                        ) : null}
+                                    </span>
                                 }
                                 key={domain.id}
                             />

@@ -12,6 +12,7 @@ import { t } from "i18next";
 import { IconDots, IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
+import prettifyNumber from "@/utils/functions/prettifyNumber";
 
 const Page = () => {
     const [showCreateEditTagModal, setShowCreateEditModal] = useState<boolean>(false);
@@ -99,33 +100,45 @@ const Page = () => {
                                 <Table>
                                     <Table.Thead>
                                         <Table.Tr>
-                                            <Table.Td className="font-bold">
-                                                {t("common.Name")}
-                                            </Table.Td>
+                                            {settings.showRecordIds ? (
+                                                <Table.Th>
+                                                    {t("common.Id")}
+                                                </Table.Th>
+                                            ) : null}
 
-                                            <Table.Td className="font-bold" aria-hidden>
+                                            <Table.Th>
+                                                {t("common.Name")}
+                                            </Table.Th>
+
+                                            <Table.Td aria-hidden>
                                                 {t("common.Color")}
                                             </Table.Td>
 
-                                            <Table.Td className="font-bold">
+                                            <Table.Th>
                                                 {t("domains.Domains")}
-                                            </Table.Td>
+                                            </Table.Th>
 
-                                            <Table.Td className="font-bold">
+                                            <Table.Th>
                                                 {t("invoices.Invoices")}
-                                            </Table.Td>
+                                            </Table.Th>
 
-                                            <Table.Td className="w-0">
+                                            <Table.Th className="w-0">
                                                 <span className="sr-only">
                                                     {t("common.Actions")}
                                                 </span>
-                                            </Table.Td>
+                                            </Table.Th>
                                         </Table.Tr>
                                     </Table.Thead>
 
                                     <Table.Tbody>
                                         {tags?.map(tag => (
                                             <Table.Tr key={tag.id}>
+                                                {settings.showRecordIds ? (
+                                                    <Table.Td>
+                                                        {prettifyNumber(tag.id)}
+                                                    </Table.Td>
+                                                ) : null}
+
                                                 <Table.Td>
                                                     {tag.name}
                                                 </Table.Td>
