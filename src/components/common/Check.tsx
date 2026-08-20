@@ -1,58 +1,74 @@
 "use client";
 
-import { getThemeColor, Tooltip, useMantineTheme } from "@mantine/core";
 import { IconCheck, IconCircleCheck, IconCircleMinus, IconCircleX } from "@tabler/icons-react";
-import { t } from "i18next";
+import { getThemeColor, Tooltip, useMantineTheme } from "@mantine/core";
 import { ComponentProps } from "react";
+import { t } from "i18next";
 
 type CheckProps = {
-    mode: "true" | "false" | "indeterminate";
-    trueLabel?: string;
-    falseLabel?: string;
-    indeterminateLabel?: string;
+    value: boolean | "true" | "false" | "indeterminate" | null;
+    labels?: {
+        true?: string;
+        false?: string;
+        indeterminate?: string;
+    };
 } & ComponentProps<typeof IconCheck>;
 
 const Check = ({
-    mode,
-    trueLabel = t("common.Yes"),
-    falseLabel = t("common.No"),
-    indeterminateLabel = t("common.Indeterminate"),
+    value,
+    labels: _labels = {
+        true: t("common.Yes"),
+        false: t("common.No"),
+        indeterminate: t("common.Indeterminate")
+    },
     ...restProps
 }: CheckProps) => {
 
     const mantineTheme = useMantineTheme();
 
-    switch (mode) {
+    const labels = {
+        true: t("common.Yes"),
+        false: t("common.No"),
+        indeterminate: t("common.Indeterminate"),
+        ..._labels
+    };
+
+    switch (value) {
+        case true:
         case "true": return (
             <>
-                <Tooltip label={trueLabel}>
+                <Tooltip label={labels.true}>
                     <IconCircleCheck color={getThemeColor("green", mantineTheme)} aria-hidden {...restProps} />
                 </Tooltip>
 
                 <span className="sr-only">
-                    {trueLabel}
+                    {labels.true}
                 </span>
             </>
         );
+
+        case false:
         case "false": return (
             <>
-                <Tooltip label={falseLabel}>
+                <Tooltip label={labels.false}>
                     <IconCircleX color={getThemeColor("red", mantineTheme)} aria-hidden {...restProps} />
                 </Tooltip>
 
                 <span className="sr-only">
-                    {falseLabel}
+                    {labels.false}
                 </span>
             </>
         );
+
+        case null:
         case "indeterminate": return (
             <>
-                <Tooltip label={indeterminateLabel}>
+                <Tooltip label={labels.indeterminate}>
                     <IconCircleMinus color={getThemeColor("gray", mantineTheme)} aria-hidden {...restProps} />
                 </Tooltip>
 
                 <span className="sr-only">
-                    {indeterminateLabel}
+                    {labels.indeterminate}
                 </span>
             </>
         );

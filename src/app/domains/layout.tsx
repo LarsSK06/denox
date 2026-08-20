@@ -5,16 +5,18 @@ import ParentProps from "@/types/common/ParentProps";
 import Endpoint from "@/types/http/Endpoint";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import getArrayFromNumber from "@/utils/functions/getArrayFromNumber";
-import DomainGetModel from "@/types/domains/DomainGetModel";
+import Domain_GET from "@/types/domains/Domain_GET";
 import useSearchParam from "@/utils/hooks/useSearchParam";
 import Link from "next/link";
 import useCache from "@/utils/hooks/useCache";
+import domainProcessor from "@/utils/processors/domainProcessor";
 
-import { useEffect } from "react";
 import { t } from "i18next";
-import { NavLink, Skeleton } from "@mantine/core";
+import { useEffect } from "react";
+import { Code, NavLink, Skeleton } from "@mantine/core";
 import { domainSidebarWidthCacheKey } from "@/utils/globals";
-import { IconStar } from "@tabler/icons-react";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
+import prettifyNumber from "@/utils/functions/prettifyNumber";
 
 const Layout = ({ children }: ParentProps) => {
 
@@ -25,13 +27,16 @@ const Layout = ({ children }: ParentProps) => {
         isLoading: isDomainsLoading,
         data: domains,
         call: getDomains
-    } = useHttpClient<DomainGetModel[]>({
-        endpoint: Endpoint.Domains
+    } = useHttpClient<Domain_GET[]>({
+        endpoint: Endpoint.Domains,
+        process: domainProcessor
     });
 
     useEffect(() => {
         getDomains();
     }, []);
+
+    const settings = useSettingsContext();
 
     return (
         <div className="w-full h-full flex">
@@ -57,7 +62,26 @@ const Layout = ({ children }: ParentProps) => {
                                 component={Link}
                                 href={`/domains?domainId=${domain.id}`}
                                 active={domainId === domain.id}
-                                label={domain.domain}
+                                label={
+                                    <span>
+                                        <span>
+                                            {
+                                                settings.capitalizeDomainNames
+                                                    ? domain.domain.toUpperCase()
+                                                    : domain.domain.toLowerCase()
+                                            }
+                                        </span>
+
+                                        {settings.showRecordIds ? (
+                                            <>
+                                                &nbsp;
+                                                <Code>
+                                                    {prettifyNumber(domain.id)}
+                                                </Code>
+                                            </>
+                                        ) : null}
+                                    </span>
+                                }
                                 key={domain.id}
                             />
                         ))

@@ -9,10 +9,11 @@ import useSearchParam from "@/utils/hooks/useSearchParam";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import Endpoint from "@/types/http/Endpoint";
 import Loader from "../common/Loader";
-import ForwardGetModel from "@/types/forwards/ForwardGetModel";
+import Forward_GET from "@/types/forwards/Forward_GET";
 import Check from "../common/Check";
 import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
 import CreateEditForwardModal from "./CreateEditForwardModal";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 
 const ForwardsTab = () => {
     const [search, setSearch] = useState<string>("");
@@ -21,7 +22,7 @@ const ForwardsTab = () => {
     const [selectedHosts, setSelectedHosts] = useState<string[]>([]);
 
     const [showCreateEditForwardModal, setShowCreateEditForwardModal] = useState<boolean>(false);
-    const [forwardToEdit, setForwardToEdit] = useState<ForwardGetModel | null>(null);
+    const [forwardToEdit, setForwardToEdit] = useState<Forward_GET | null>(null);
 
     const [disabledHosts, setDisabledHosts] = useState<string[]>([]);
 
@@ -31,7 +32,7 @@ const ForwardsTab = () => {
         data: forwards,
         setData: setForwards,
         call: getForwards
-    } = useHttpClient<ForwardGetModel[]>({
+    } = useHttpClient<Forward_GET[]>({
         endpoint: [Endpoint.Domains, domainId, Endpoint.Forwards]
     });
 
@@ -79,6 +80,8 @@ const ForwardsTab = () => {
             });
     };
 
+    const settings = useSettingsContext();
+
     return (
         <>
             <CreateEditForwardModal
@@ -94,7 +97,11 @@ const ForwardsTab = () => {
             />
 
             <div className="w-full h-full relative">
-                <Transition mounted={!!forwards} exitDuration={0} transition="fade-right">
+                <Transition
+                    duration={settings.allowAnimations ? undefined : 0}
+                    exitDuration={0}
+                    mounted={!!forwards}
+                    transition="fade-right">
                     {style => (
                         <div className="w-full h-full p-2 flex items-start flex-col gap-2 overflow-auto" style={style}>
                             <Paper withBorder shadow="sm" className="p-2 flex items-end gap-2" style={{ minWidth: "100%" }}>
@@ -190,7 +197,7 @@ const ForwardsTab = () => {
                                                 </Table.Td>
 
                                                 <Table.Td>
-                                                    <Check mode={forward.frame ? "true" : "false"} />
+                                                    <Check value={forward.frame} />
                                                 </Table.Td>
 
                                                 <Table.Td>
@@ -227,7 +234,11 @@ const ForwardsTab = () => {
                     )}
                 </Transition>
 
-                <Transition mounted={!forwards} transition="fade-right">
+                <Transition
+                    duration={settings.allowAnimations ? undefined : 0}
+                    exitDuration={settings.allowAnimations ? undefined : 0}
+                    mounted={!forwards}
+                    transition="fade-right">
                     {style => (
                         <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
                             <Loader />

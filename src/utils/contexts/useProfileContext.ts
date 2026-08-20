@@ -1,5 +1,5 @@
 import ParentProps from "@/types/common/ParentProps";
-import ProfileGetModel from "@/types/profiles/ProfileGetModel";
+import Profile_GET from "@/types/profiles/Profile_GET";
 
 import { createContext, createElement, Dispatch, SetStateAction, useContext, useEffect, useMemo, useState } from "react";
 import { invalidContextUsageError, lastProfileIdCacheKey } from "../globals";
@@ -8,15 +8,15 @@ import { useDbContext } from "./useDbContext";
 type ProfileContextValue = {
     isReady: boolean;
 
-    profile: ProfileGetModel;
-    setProfile: Dispatch<SetStateAction<ProfileGetModel>>;
+    profile: Profile_GET;
+    setProfile: Dispatch<SetStateAction<Profile_GET>>;
 };
 
 const ProfileContext = createContext<ProfileContextValue | undefined>(undefined);
 
 export const ProfileContextProvider = ({ children }: ParentProps) => {
     const [isReady, setIsReady] = useState<boolean>(false);
-    const [profile, setProfile] = useState<ProfileGetModel>(null!);
+    const [profile, setProfile] = useState<Profile_GET>(null!);
 
     const { database } = useDbContext();
 
@@ -29,7 +29,7 @@ export const ProfileContextProvider = ({ children }: ParentProps) => {
 
         if (Number.isNaN(profileId)) return setIsReady(true);
 
-        database.select<ProfileGetModel[]>("SELECT * FROM profiles WHERE id = $1", [profileId])
+        database.select<Profile_GET[]>("SELECT * FROM profiles WHERE id = $1", [profileId])
             .then(relevantProfiles => {
                 if (relevantProfiles.length > 0)
                     setProfile(relevantProfiles[0]);

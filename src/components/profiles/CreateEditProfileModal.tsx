@@ -1,4 +1,4 @@
-import ProfileGetModel from "@/types/profiles/ProfileGetModel";
+import Profile_GET from "@/types/profiles/Profile_GET";
 
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { Button, Checkbox, Collapse, Modal, PasswordInput, TextInput } from "@mantine/core";
@@ -9,13 +9,13 @@ import { t } from "i18next";
 
 type CreateEditProfileModalProps = {
     show?: boolean;
-    profile: ProfileGetModel | null;
+    profile: Profile_GET | null;
     refresh?: () => unknown;
     onClose: () => unknown;
 };
 
 const CreateEditProfileModal = ({ show, profile, refresh, onClose }: CreateEditProfileModalProps) => {
-    const [localProfile, setLocalProfile] = useState<ProfileGetModel | null>(null);
+    const [localProfile, setLocalProfile] = useState<Profile_GET | null>(null);
 
     const [name, setName] = useState<string>("");
     const [token, setToken] = useState<string>("");

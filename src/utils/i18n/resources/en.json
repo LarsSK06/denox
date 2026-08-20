@@ -98,7 +98,13 @@
             "Color": "Color",
             "Text": "Text",
             "Upgrade": "Upgrade",
-            "ChangeContactInfo": "Change contact info"
+            "ChangeContactInfo": "Change contact info",
+            "Ignore": "Ignore",
+            "InstallNow": "Install now",
+            "Installing": "Installing",
+            "RelaunchNow": "Relaunch now",
+            "Reset": "Reset",
+            "Id": "Id"
         },
         "domains": {
             "Domain": "Domain",
@@ -173,6 +179,13 @@
             "DeleteNotes": "Delete notes",
             "DeleteNotesError": "Could not delete notes"
         },
+        "updater": {
+            "CheckingForUpdates": "Checking for updates",
+            "UpdateFound": "Update found",
+            "NoUpdateFound": "No update found",
+            "VersionIsReadyForInstallation": "Version {{version}} is ready for installation",
+            "UpdateInstalled": "Update installed"
+        },
         "other": {
             "DoNotSellMyData": "Do not sell my data",
             "EditItem": "Edit <i>{{item}}</i>",
@@ -186,9 +199,42 @@
             "ValueMustBeDivisibleBy": "Value must be divisible by {{count}}",
             "ValueMustBeAValidIpv4Address": "Value must be a valid IPv4 address",
             "ValueMustBeAValidIpv6Address": "Value must be a valid IPv6 address",
-            "MadeWithLoveInNorway": "Made with live in Norway",
-            "MadeWith": "Made with",
-            "inNorway": "in Norway"
+            "Downloading": "Downloading",
+            "DownloadComplete": "Download complete",
+            "UnclaimedCreditNotas": "Unclaimed credit notas",
+            "UnclaimedCreditNotasAlert": "You have {{amount}} {{currency}} worth of unclaimed credit notas",
+            "UnpaidInvoices": "Unpaid invoices",
+            "UnpaidInvoicesAlert": "You have unpaid invoices at a total of {{amount}} {{currency}}",
+            "SeeUnclaimed": "See unclaimed",
+            "SeeUnpaid": "See unpaid",
+            "SeeData": "See data"
+        },
+        "languages": {
+            "en": "English"
+        },
+        "color_schemes": {
+            "auto": "Auto",
+            "dark": "Dark",
+            "light": "Light"
+        },
+        "settings": {
+            "common": {
+                "settings": "Settings"
+            },
+            "literals": {
+                "allow_animations": "Allow animations",
+                "capitalize_domain_names": "Capitalize domain names",
+                "color_scheme": "Color scheme",
+                "language": "Language",
+                "show_record_ids": "Show record IDs"
+            },
+            "buttons": {
+                "save": "Save",
+                "save_and_restart": "Save & restart"
+            },
+            "errors": {
+                "save_error": "Could not write settings to file"
+            }
         },
         "genericErrors": {
             "404NotFound": "This page could not be found"

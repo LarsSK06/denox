@@ -7,16 +7,20 @@ import { SettingsContextProvider } from "@/utils/contexts/useSettingsContext";
 import { ProfileContextProvider } from "@/utils/contexts/useProfileContext";
 import { DbContextProvider } from "@/utils/contexts/useDbContext";
 import { Notifications } from "@mantine/notifications";
+import { Inter_Tight } from "next/font/google";
 
 import "@/utils/i18n";
 
+const fontFamily = Inter_Tight({ subsets: ["latin"] });
+
 const theme = createTheme({
     primaryColor: "grape",
-    defaultRadius: 0
+    fontFamily: fontFamily.style.fontFamily,
+    defaultRadius: "xs"
 });
 
 const Providers = ({ children }: ParentProps) => (
-    <MantineProvider theme={theme} defaultColorScheme="dark">
+    <MantineProvider theme={theme}>
         <DbContextProvider>
             <SettingsContextProvider>
                 <ProfileContextProvider>

@@ -4,7 +4,7 @@ import { ActionIcon, Button, Checkbox, CloseButton, Divider, Menu, Paper, Table,
 import { useDbContext } from "@/utils/contexts/useDbContext";
 import { dummyDomain } from "@/utils/globals";
 import { useEffect, useMemo, useState } from "react";
-import { IconAddressBook, IconBolt, IconPlus, IconRestore, IconTrash } from "@tabler/icons-react";
+import { IconAddressBook, IconBolt, IconDots, IconPlus, IconRestore, IconTrash } from "@tabler/icons-react";
 import { t } from "i18next";
 
 import DomainPeriodProgressCircle from "./DomainPeriodProgressCircle";
@@ -14,15 +14,17 @@ import Check from "../common/Check";
 import useSearchParam from "@/utils/hooks/useSearchParam";
 import useHttpClient from "@/utils/hooks/useHttpClient";
 import Endpoint from "@/types/http/Endpoint";
-import DomainGetModel from "@/types/domains/DomainGetModel";
+import Domain_GET from "@/types/domains/Domain_GET";
 import Loader from "../common/Loader";
 import useDbSelect from "@/utils/hooks/useDbSelect";
-import TagGetModel from "@/types/tags/TagGetModel";
+import Tag_GET from "@/types/tags/Tag_GET";
 import ColoredPill from "../common/ColoredPill";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 import CreateNoteModal from "../notes/CreateNoteModal";
 import openInBrowserOnClick from "@/utils/functions/openInBrowserOnClick";
 import useNotesRepository from "@/utils/repositories/notesRepository";
+import domainProcessor from "@/utils/processors/domainProcessor";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 
 const DomainOverviewTab = () => {
     const [showCreateNoteModal, setShowCreateNoteModal] = useState<boolean>(false);
@@ -36,20 +38,16 @@ const DomainOverviewTab = () => {
     const {
         data: domain,
         call: getDomain
-    } = useHttpClient<DomainGetModel>({
+    } = useHttpClient<Domain_GET>({
         endpoint: [Endpoint.Domains, domainId],
-        process: body => ({
-            ...body,
-            registeredDate: new Date(body.registeredDate),
-            expiryDate: new Date(body.expiryDate)
-        })
+        process: domainProcessor
     });
 
     const {
         data: tags,
         setData: setTags,
         call: getTags
-    } = useDbSelect<(TagGetModel & { isOnDomain: boolean; })[]>({
+    } = useDbSelect<(Tag_GET & { isOnDomain: boolean; })[]>({
         query: `
             SELECT
                 t.*,
@@ -140,7 +138,7 @@ const DomainOverviewTab = () => {
             });
     };
 
-    const quickActionsLabelId = "quick-actions-label";
+    const settings = useSettingsContext();
 
     return (
         <>
@@ -151,14 +149,61 @@ const DomainOverviewTab = () => {
             />
 
             <div className="w-full h-full relative">
-                <Transition mounted={!isLoadingGenerally} transition="fade-right">
+                <Transition
+                    duration={settings.allowAnimations ? undefined : 0}
+                    exitDuration={settings.allowAnimations ? undefined : 0}
+                    mounted={!isLoadingGenerally}
+                    transition="fade-right">
                     {style => (
                         <div className="w-full h-full p-2 flex flex-col items-center gap-8 overflow-auto" style={style}>
                             <DomainPeriodProgressCircle domain={domain ?? dummyDomain} />
 
-                            <Text component="h2" size="xl" aria-hidden>
-                                {domain?.domain ?? dummyDomain.domain}
-                            </Text>
+                            <div className="flex items-center gap-2">
+                                <Text component="h2" size="xl" aria-hidden>
+                                    {
+                                        settings.capitalizeDomainNames
+                                            ? (domain?.domain ?? dummyDomain.domain).toUpperCase()
+                                            : (domain?.domain ?? dummyDomain.domain).toLowerCase()
+                                    }
+                                </Text>
+
+                                <Menu position="right-start">
+                                    <Menu.Target>
+                                        <ActionIcon size="sm" variant="light" aria-label={t("common.QuickActions")}>
+                                            <IconDots />
+                                        </ActionIcon>
+                                    </Menu.Target>
+
+                                    <Menu.Dropdown>
+                                        <Menu.Item
+                                            component="a"
+                                            href={`https://domene.shop/admin?id=${domainId}&command=renew`}
+                                            onClick={openInBrowserOnClick()}
+                                            leftSection={<IconRestore />}
+                                            variant="light">
+                                            {t("common.Renew")}
+                                        </Menu.Item>
+
+                                        <Menu.Item
+                                            component="a"
+                                            href={`https://domene.shop/admin?id=${domainId}&view=upgrade`}
+                                            onClick={openInBrowserOnClick()}
+                                            leftSection={<IconBolt />}
+                                            variant="light">
+                                            {t("common.Upgrade")}
+                                        </Menu.Item>
+
+                                        <Menu.Item
+                                            component="a"
+                                            href={`https://domene.shop/admin?id=${domainId}&edit=contacts`}
+                                            onClick={openInBrowserOnClick()}
+                                            leftSection={<IconAddressBook />}
+                                            variant="light">
+                                            {t("common.ChangeContactInfo")}
+                                        </Menu.Item>
+                                    </Menu.Dropdown>
+                                </Menu>
+                            </div>
 
                             <ul className="flex gap-2" aria-label={t("tags.Tags")}>
                                 {tagsOnDomain.map(tag => (
@@ -194,44 +239,6 @@ const DomainOverviewTab = () => {
                                     </li>
                                 ) : null}
                             </ul>
-
-                            <Divider
-                                className="w-full mt-20"
-                                label={
-                                    <span id={quickActionsLabelId}>
-                                        {t("common.QuickActions")}
-                                    </span>
-                                }
-                            />
-
-                            <div className="w-full flex flex-wrap justify-center gap-2" aria-labelledby={quickActionsLabelId}>
-                                <Button
-                                    component="a"
-                                    href={`https://domene.shop/admin?id=${domainId}&command=renew`}
-                                    onClick={openInBrowserOnClick()}
-                                    leftSection={<IconRestore />}
-                                    variant="light">
-                                    {t("common.Renew")}
-                                </Button>
-
-                                <Button
-                                    component="a"
-                                    href={`https://domene.shop/admin?id=${domainId}&view=upgrade`}
-                                    onClick={openInBrowserOnClick()}
-                                    leftSection={<IconBolt />}
-                                    variant="light">
-                                    {t("common.Upgrade")}
-                                </Button>
-
-                                <Button
-                                    component="a"
-                                    href={`https://domene.shop/admin?id=${domainId}&edit=contacts`}
-                                    onClick={openInBrowserOnClick()}
-                                    leftSection={<IconAddressBook />}
-                                    variant="light">
-                                    {t("common.ChangeContactInfo")}
-                                </Button>
-                            </div>
 
                             <Divider className="w-full mt-20" label={t("common.Services")} />
 
@@ -273,7 +280,7 @@ const DomainOverviewTab = () => {
                                         </Table.Th>
 
                                         <Table.Td align="right">
-                                            <Check mode={domain?.renew ? "true" : "false"} />
+                                            <Check value={!!domain?.renew} />
                                         </Table.Td>
                                     </Table.Tr>
 
@@ -283,7 +290,7 @@ const DomainOverviewTab = () => {
                                         </Table.Th>
 
                                         <Table.Td align="right">
-                                            <Check mode={domain?.services.registrar ? "true" : "false"} />
+                                            <Check value={!!domain?.services.registrar} />
                                         </Table.Td>
                                     </Table.Tr>
 
@@ -293,7 +300,7 @@ const DomainOverviewTab = () => {
                                         </Table.Th>
 
                                         <Table.Td align="right">
-                                            <Check mode={domain?.services.dns ? "true" : "false"} />
+                                            <Check value={!!domain?.services.dns} />
                                         </Table.Td>
                                     </Table.Tr>
 
@@ -303,7 +310,7 @@ const DomainOverviewTab = () => {
                                         </Table.Th>
 
                                         <Table.Td align="right">
-                                            <Check mode={domain?.services.email ? "true" : "false"} />
+                                            <Check value={!!domain?.services.email} />
                                         </Table.Td>
                                     </Table.Tr>
                                 </Table.Tbody>
@@ -343,7 +350,11 @@ const DomainOverviewTab = () => {
                                         {t("notes.CreateNote")}
                                     </Button>
 
-                                    <Transition mounted={selectedNoteIds.length > 0} transition="fade">
+                                    <Transition
+                                        duration={settings.allowAnimations ? undefined : 0}
+                                        exitDuration={settings.allowAnimations ? undefined : 0}
+                                        mounted={selectedNoteIds.length > 0}
+                                        transition="fade">
                                         {buttonStyle => (
                                             <Button
                                                 loading={notesRepository.isDeleteNotesLoading}
@@ -389,7 +400,11 @@ const DomainOverviewTab = () => {
                     )}
                 </Transition>
 
-                <Transition mounted={isLoadingGenerally} transition="fade-right">
+                <Transition
+                    duration={settings.allowAnimations ? undefined : 0}
+                    exitDuration={settings.allowAnimations ? undefined : 0}
+                    mounted={isLoadingGenerally}
+                    transition="fade-right">
                     {style => (
                         <div className="w-full h-full left-0 top-0 flex justify-center items-center absolute" style={style}>
                             <Loader />

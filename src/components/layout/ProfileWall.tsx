@@ -1,7 +1,7 @@
 "use client";
 
 import ParentProps from "@/types/common/ParentProps";
-import ProfileGetModel from "@/types/profiles/ProfileGetModel";
+import Profile_GET from "@/types/profiles/Profile_GET";
 import useDbSelect from "@/utils/hooks/useDbSelect";
 import TableBodySkeleton from "../common/TableBodySkeleton";
 import CreateEditProfileModal from "../profiles/CreateEditProfileModal";
@@ -17,10 +17,12 @@ import { useDbContext } from "@/utils/contexts/useDbContext";
 import { notifications } from "@mantine/notifications";
 import { t } from "i18next";
 import { lastProfileIdCacheKey } from "@/utils/globals";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
+import prettifyNumber from "@/utils/functions/prettifyNumber";
 
 const ProfileWall = ({ children }: ParentProps) => {
     const [showCreateProfileModal, setShowCreateProfileModal] = useState<boolean>(false);
-    const [profileToEdit, setProfileToEdit] = useState<ProfileGetModel | null>(null);
+    const [profileToEdit, setProfileToEdit] = useState<Profile_GET | null>(null);
 
     const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
 
@@ -32,7 +34,7 @@ const ProfileWall = ({ children }: ParentProps) => {
         data: profiles,
         setData: setProfiles,
         call: getProfiles
-    } = useDbSelect<ProfileGetModel[]>({ query: "SELECT * FROM profiles" });
+    } = useDbSelect<Profile_GET[]>({ query: "SELECT * FROM profiles" });
 
     useEffect(() => {
         getProfiles();
@@ -66,6 +68,8 @@ const ProfileWall = ({ children }: ParentProps) => {
             .finally(() => getProfiles());
     };
 
+    const settings = useSettingsContext();
+
     return currentProfile ? children : (
         <>
             <CreateEditProfileModal
@@ -79,7 +83,7 @@ const ProfileWall = ({ children }: ParentProps) => {
             />
 
             <div className="w-full h-full flex justify-center items-center">
-                <Paper withBorder shadow="xs" component="form" className="w-[40rem] p-4 flex flex-col items-start gap-2">
+                <Paper withBorder shadow="xs" component="form" className="w-fit max-w-[60rem] p-4 flex flex-col items-start gap-2">
                     <Text size="xl">
                         {t("profiles.SelectProfile")}
                     </Text>
@@ -88,7 +92,7 @@ const ProfileWall = ({ children }: ParentProps) => {
                         <Table>
                             <Table.Thead>
                                 <Table.Tr>
-                                    <Table.Td className="w-0">
+                                    <Table.Th className="w-0">
                                         <Radio
                                             size="xs"
                                             checked={!selectedProfileId}
@@ -96,25 +100,31 @@ const ProfileWall = ({ children }: ParentProps) => {
                                                 if (event.currentTarget.checked) setSelectedProfileId(null);
                                             }}
                                         />
-                                    </Table.Td>
+                                    </Table.Th>
 
-                                    <Table.Td className="font-bold">
+                                    {settings.showRecordIds ? (
+                                        <Table.Th>
+                                            {t("common.Id")}
+                                        </Table.Th>
+                                    ) : null}
+
+                                    <Table.Th>
                                         {t("common.Name")}
-                                    </Table.Td>
+                                    </Table.Th>
 
-                                    <Table.Td className="font-bold">
+                                    <Table.Th>
                                         {t("common.CreatedAt")}
-                                    </Table.Td>
+                                    </Table.Th>
 
-                                    <Table.Td className="font-bold">
+                                    <Table.Th>
                                         {t("common.EditedAt")}
-                                    </Table.Td>
+                                    </Table.Th>
 
-                                    <Table.Td className="w-0">
+                                    <Table.Th className="w-0">
                                         <span className="sr-only">
                                             {t("common.Actions")}
                                         </span>
-                                    </Table.Td>
+                                    </Table.Th>
                                 </Table.Tr>
                             </Table.Thead>
 
@@ -133,6 +143,12 @@ const ProfileWall = ({ children }: ParentProps) => {
                                                     }}
                                                 />
                                             </Table.Td>
+
+                                            {settings.showRecordIds ? (
+                                                <Table.Td>
+                                                    {prettifyNumber(profile.id)}
+                                                </Table.Td>
+                                            ) : null}
 
                                             <Table.Td>
                                                 {profile.name}

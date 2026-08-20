@@ -1,30 +1,15 @@
-import useColorScheme from "@/utils/hooks/useConciseColorScheme";
+import useColorPair from "@/utils/hooks/useColorPair";
 
-import { MantineColor, Pill, useMantineTheme } from "@mantine/core";
-import { ComponentProps, useMemo } from "react";
+import { MantineColor, Pill } from "@mantine/core";
+import { ComponentProps } from "react";
 
 type ColoredPillProps = {
     color: MantineColor;
 } & ComponentProps<typeof Pill>;
 
 const ColoredPill = ({ color, ...restProps }: ColoredPillProps) => {
-    const { isDark: isColorSchemeDark } = useColorScheme();
 
-    const mantineTheme = useMantineTheme();
-
-    const [backgroundColor, foregroundColor] = useMemo(() => {
-        const mantineColorTuple = mantineTheme.colors[color];
-
-        return (
-            isColorSchemeDark ? [
-                "transparent",
-                mantineColorTuple[4]
-            ] : [
-                mantineColorTuple[1],
-                mantineColorTuple[9]
-            ]
-        ) satisfies [string, string];
-    }, [color, isColorSchemeDark]);
+    const [bgColor, fgColor] = useColorPair(color);
 
     return (
         <Pill
@@ -32,11 +17,10 @@ const ColoredPill = ({ color, ...restProps }: ColoredPillProps) => {
             styles={{
                 ...restProps.styles,
                 root: {
-                    backgroundColor,
-                    borderColor: foregroundColor,
+                    bgColor,
+                    borderColor: fgColor,
                     borderWidth: "1px",
-                    color: foregroundColor,
-                    borderRadius: 0
+                    color: fgColor
                 },
                 label: {
                     transform: "translateY(-1px)"

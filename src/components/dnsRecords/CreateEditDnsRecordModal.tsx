@@ -1,4 +1,4 @@
-import DnsRecordGetModel from "@/types/dnsRecords/DnsRecordGetModel";
+import DnsRecord_GET from "@/types/dnsRecords/DnsRecord_GET";
 import DnsRecordType from "@/types/dnsRecords/DnsRecordType";
 import useDnsRecordsRepository from "@/utils/repositories/dnsRecordsRepository";
 
@@ -10,7 +10,7 @@ import { t } from "i18next";
 type CreateEditDnsRecordModalProps = {
     show: boolean;
     onClose: () => unknown;
-    dnsRecord: DnsRecordGetModel | null;
+    dnsRecord: DnsRecord_GET | null;
     dnsRecordsRepository: ReturnType<typeof useDnsRecordsRepository>;
 };
 

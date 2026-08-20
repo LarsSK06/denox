@@ -1,7 +1,7 @@
-type ForwardGetModel = {
+type Forward_GET = {
     host: string;
     frame: boolean;
     url: string;
 };
 
-export default ForwardGetModel;
+export default Forward_GET;

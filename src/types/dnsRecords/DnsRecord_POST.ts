@@ -1,6 +1,6 @@
 import DnsRecordType from "./DnsRecordType";
 
-type DnsRecordPostModel = {
+type DnsRecord_POST = {
     host: string;
     ttl?: number;
     type: DnsRecordType;
@@ -10,4 +10,4 @@ type DnsRecordPostModel = {
     port?: number;
 };
 
-export default DnsRecordPostModel;
+export default DnsRecord_POST;

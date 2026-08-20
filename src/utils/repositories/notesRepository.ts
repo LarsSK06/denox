@@ -1,4 +1,4 @@
-import NoteGetModel from "@/types/notes/NoteGetModel";
+import Note_GET from "@/types/notes/Note_GET";
 import handleErrorMessage from "../functions/handleErrorMessage";
 
 import { useState } from "react";
@@ -14,12 +14,12 @@ const useNotesRepository = ({ domain }: UseNotesRepository) => {
 
 
     const [isNotesLoading, setIsNotesLoading] = useState<boolean>(false);
-    const [notes, setNotes] = useState<NoteGetModel[] | null>(null);
+    const [notes, setNotes] = useState<Note_GET[] | null>(null);
 
-    const getNotes = () => new Promise<NoteGetModel[]>((resolve, reject) => {
+    const getNotes = () => new Promise<Note_GET[]>((resolve, reject) => {
         setIsNotesLoading(true);
 
-        db.select<NoteGetModel[]>("SELECT * FROM notes WHERE domain = $1", [domain])
+        db.select<Note_GET[]>("SELECT * FROM notes WHERE domain = $1", [domain])
             .then(value => {
                 setNotes(value);
                 resolve(value);

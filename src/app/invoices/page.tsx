@@ -4,25 +4,40 @@ import ColoredPill from "@/components/common/ColoredPill";
 import Loader from "@/components/common/Loader";
 import InvoiceStatusChip from "@/components/invoices/InvoiceStatusChip";
 import Endpoint from "@/types/http/Endpoint";
-import InvoiceGetModel from "@/types/invoices/InvoiceGetModel";
+import Invoice_GET from "@/types/invoices/Invoice_GET";
 import InvoiceStatus from "@/types/invoices/InvoiceStatus";
 import InvoiceType from "@/types/invoices/InvoiceType";
-import InvoiceTagRelationGetModel from "@/types/tags/InvoiceTagRelationGetModel";
-import TagGetModel from "@/types/tags/TagGetModel";
+import InvoiceTagRelation_GET from "@/types/tags/InvoiceTagRelation_GET";
+import Tag_GET from "@/types/tags/Tag_GET";
 import handleErrorMessage from "@/utils/functions/handleErrorMessage";
 import prettifyDate from "@/utils/functions/prettifyDate";
-import prettifyMoneyAmount from "@/utils/functions/prettifyMoneyAmount";
+import prettifyNumber from "@/utils/functions/prettifyNumber";
 import translateInvoiceStatus from "@/utils/functions/translateInvoiceStatus";
 import translateInvoiceType from "@/utils/functions/translateInvoiceType";
 import useDbSelect from "@/utils/hooks/useDbSelect";
 import useHttpClient from "@/utils/hooks/useHttpClient";
+import invoiceProcessor from "@/utils/processors/invoiceProcessor";
+import downloadOnClick from "@/utils/functions/downloadOnClick";
+import useColorPair from "@/utils/hooks/useColorPair";
 
-import { ActionIcon, Menu, Paper, Select, Table, Transition } from "@mantine/core";
+import {
+    ActionIcon,
+    Alert,
+    Anchor,
+    getThemeColor,
+    Menu,
+    Paper,
+    Select,
+    Table,
+    Text,
+    Transition,
+    useMantineTheme
+} from "@mantine/core";
 import { useEffect, useMemo, useState } from "react";
 import { useDbContext } from "@/utils/contexts/useDbContext";
-import { IconDots, IconPdf, IconPlus } from "@tabler/icons-react";
+import {IconAlertCircle, IconDots, IconExclamationCircle, IconInfoCircle, IconPdf, IconPlus} from "@tabler/icons-react";
 import { t } from "i18next";
-import downloadOnClick from "@/utils/functions/downloadOnClick";
+import { useSettingsContext } from "@/utils/contexts/useSettingsContext";
 
 const Page = () => {
     const [type, setType] = useState<InvoiceType | null>(null);
@@ -31,26 +46,21 @@ const Page = () => {
     const {
         data: invoices,
         call: getInvoices
-    } = useHttpClient<InvoiceGetModel[]>({
+    } = useHttpClient<Invoice_GET[]>({
         endpoint: Endpoint.Invoices,
-        process: body => (body as any[]).map(i => ({
-            ...i,
-            dueDate: i.dueDate && new Date(i.dueDate),
-            issuedDate: new Date(i.issuedDate),
-            paidDate: i.paidDate && new Date(i.paidDate)
-        }))
+        process: invoiceProcessor
     });
 
     const {
         data: tags,
         call: getTags
-    } = useDbSelect<TagGetModel[]>({ query: "SELECT * FROM tags" });
+    } = useDbSelect<Tag_GET[]>({ query: "SELECT * FROM tags" });
 
     const {
         data: invoiceTagRelations,
         setData: setInvoiceTagRelations,
         call: getInvoiceTagRelations
-    } = useDbSelect<InvoiceTagRelationGetModel[]>({ query: "SELECT * FROM invoiceTagRelations" });
+    } = useDbSelect<InvoiceTagRelation_GET[]>({ query: "SELECT * FROM invoiceTagRelations" });
 
     useEffect(() => {
         getInvoices();
@@ -97,7 +107,47 @@ const Page = () => {
             });
     };
 
-    const showTagsColumn = useMemo<boolean>(() => !!tags && tags.length > 0, [tags])
+    const showTagsColumn = useMemo<boolean>(() => !!tags && tags.length > 0, [tags]);
+
+    const unclaimedCreditNotasTotal =
+        invoices?.reduce((root, current) =>
+            current.amount < 0 &&
+            current.type === InvoiceType.CreditNote &&
+            current.status === InvoiceStatus.Unpaid
+                ? root + Math.abs(current.amount)
+                : root
+        , 0);
+
+    const unclaimedCreditNotasCurrencies =
+        invoices?.reduce((root, current) =>
+            !root.includes(current.currency) &&
+            current.amount < 0 &&
+            current.type === InvoiceType.CreditNote &&
+            current.status === InvoiceStatus.Unpaid
+                ? [...root, current.currency]
+                : root
+        , [] as string[]).join("/");
+
+    const unpaidInvoicesTotal =
+        invoices?.reduce((root, current) =>
+            current.amount > 0 &&
+            current.type === InvoiceType.Invoice &&
+            current.status === InvoiceStatus.Unpaid
+                ? root + Math.abs(current.amount)
+                : root
+        , 0);
+
+    const unpaidInvoicesCurrencies =
+        invoices?.reduce((root, current) =>
+            !root.includes(current.currency) &&
+            current.amount > 0 &&
+            current.type === InvoiceType.Invoice &&
+            current.status === InvoiceStatus.Unpaid
+                ? [...root, current.currency]
+                : root
+        , [] as string[]).join("/");
+
+    const settings = useSettingsContext();
 
     return (
         <main className="w-full h-full relative overflow-hidden">
@@ -105,7 +155,11 @@ const Page = () => {
                 {t("invoices.Invoices")}
             </h1>
 
-            <Transition mounted={!!invoices && !!tags && !!invoiceTagRelations} transition="fade-up">
+            <Transition
+                duration={settings.allowAnimations ? undefined : 0}
+                exitDuration={settings.allowAnimations ? undefined : 0}
+                mounted={!!invoices && !!tags && !!invoiceTagRelations}
+                transition="fade-up">
                 {style => (
                     <div className="w-full h-full p-2 flex flex-col gap-2 overflow-auto" style={style}>
                         <Paper withBorder shadow="sm" className="p-2 flex gap-2">
@@ -134,45 +188,81 @@ const Page = () => {
                             />
                         </Paper>
 
+                        {unclaimedCreditNotasTotal ? (
+                            <div className="w-full h-fit">
+                                <Alert
+                                    color="green"
+                                    variant="outline"
+                                    icon={<IconInfoCircle />}
+                                    title={t("other.UnclaimedCreditNotas")}>
+                                    {t("other.UnclaimedCreditNotasAlert", {
+                                        amount: prettifyNumber(unclaimedCreditNotasTotal),
+                                        currency: unclaimedCreditNotasCurrencies
+                                    })}
+                                </Alert>
+                            </div>
+                        ) : null}
+
+                        {unpaidInvoicesTotal ? (
+                            <div className="w-full h-fit">
+                                <Alert
+                                    color="red"
+                                    variant="outline"
+                                    icon={<IconAlertCircle />}
+                                    title={t("other.UnpaidInvoices")}>
+                                    {t("other.UnpaidInvoicesAlert", {
+                                        amount: prettifyNumber(unpaidInvoicesTotal),
+                                        currency: unpaidInvoicesCurrencies
+                                    })}
+                                </Alert>
+                            </div>
+                        ) : null}
+
                         <Paper withBorder shadow="sm">
                             <Table>
                                 <Table.Thead>
                                     <Table.Tr>
-                                        <Table.Td className="font-bold">
-                                            {t("common.Type")}
-                                        </Table.Td>
-
-                                        <Table.Td className="font-bold" align="right">
-                                            {t("common.Amount")}
-                                        </Table.Td>
-
-                                        <Table.Td className="font-bold">
-                                            {t("common.DueDate")}
-                                        </Table.Td>
-
-                                        <Table.Td className="font-bold">
-                                            {t("common.IssuedDate")}
-                                        </Table.Td>
-
-                                        <Table.Td className="font-bold">
-                                            {t("common.PaidDate")}
-                                        </Table.Td>
-
-                                        <Table.Td className="font-bold">
-                                            {t("common.Status")}
-                                        </Table.Td>
-
-                                        {showTagsColumn ? (
-                                            <Table.Td className="font-bold">
-                                                {t("tags.Tags")}
-                                            </Table.Td>
+                                        {settings.showRecordIds ? (
+                                            <Table.Th>
+                                                {t("common.Id")}
+                                            </Table.Th>
                                         ) : null}
 
-                                        <Table.Td className="w-0">
+                                        <Table.Th>
+                                            {t("common.Type")}
+                                        </Table.Th>
+
+                                        <Table.Th align="right">
+                                            {t("common.Amount")}
+                                        </Table.Th>
+
+                                        <Table.Th>
+                                            {t("common.DueDate")}
+                                        </Table.Th>
+
+                                        <Table.Th>
+                                            {t("common.IssuedDate")}
+                                        </Table.Th>
+
+                                        <Table.Th>
+                                            {t("common.PaidDate")}
+                                        </Table.Th>
+
+                                        <Table.Th>
+                                            {t("common.Status")}
+                                        </Table.Th>
+
+                                        {showTagsColumn ? (
+                                            <Table.Th>
+                                                {t("tags.Tags")}
+                                            </Table.Th>
+                                        ) : null}
+
+                                        <Table.Th className="w-0">
                                             <span className="sr-only">
                                                 {t("common.Actions")}
                                             </span>
-                                        </Table.Td>
+                                        </Table.Th>
                                     </Table.Tr>
                                 </Table.Thead>
 
@@ -200,12 +290,18 @@ const Page = () => {
                                         
                                         return (
                                             <Table.Tr className="group" key={invoice.id}>
+                                                {settings.showRecordIds ? (
+                                                    <Table.Td>
+                                                        {prettifyNumber(invoice.id)}
+                                                    </Table.Td>
+                                                ) : null}
+
                                                 <Table.Td>
                                                     {translateInvoiceType(invoice.type)}
                                                 </Table.Td>
 
                                                 <Table.Td align="right" c={invoice.amount < 0 ? "green" : undefined}>
-                                                    {`${prettifyMoneyAmount(invoice.amount)} ${invoice.currency}`}
+                                                    {`${prettifyNumber(invoice.amount)} ${invoice.currency}`}
                                                 </Table.Td>
 
                                                 <Table.Td c={invoice.dueDate ? undefined : "gray"}>
@@ -284,9 +380,7 @@ const Page = () => {
                                                         <Menu.Dropdown>
                                                             <Menu.Item
                                                                 leftSection={<IconPdf />}
-                                                                component="a"
-                                                                href={invoice.url}
-                                                                onClick={downloadOnClick()}>
+                                                                onClick={downloadOnClick(`${invoice.url}&format=pdf`)}>
                                                                 {t("common.DownloadAsPdf")}
                                                             </Menu.Item>
                                                         </Menu.Dropdown>
@@ -302,7 +396,11 @@ const Page = () => {
                 )}
             </Transition>
 
-            <Transition mounted={!invoices || !tags || !invoiceTagRelations} transition="fade-up">
+            <Transition
+                duration={settings.allowAnimations ? undefined : 0}
+                exitDuration={settings.allowAnimations ? undefined : 0}
+                mounted={!invoices || !tags || !invoiceTagRelations}
+                transition="fade-up">
                 {style => (
                     <div className="w-full h-full top-0 left-0 flex justify-center items-center absolute" style={style}>
                         <Loader />

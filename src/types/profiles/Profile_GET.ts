@@ -1,4 +1,4 @@
-type ProfileGetModel = {
+type Profile_GET = {
     id: number;
     name: string;
     token: string;
@@ -7,4 +7,4 @@ type ProfileGetModel = {
     editedAt: number | null;
 };
 
-export default ProfileGetModel;
+export default Profile_GET;

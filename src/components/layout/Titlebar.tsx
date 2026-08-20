@@ -1,6 +1,6 @@
 "use client";
 
-import { ActionIcon, Button, Divider, MantineColor, Paper } from "@mantine/core";
+import {ActionIcon, Button, Divider, MantineColor, Paper, Tabs} from "@mantine/core";
 import { IconAntenna, IconCurrencyDollar, IconMaximize, IconMinus, IconTag, IconUser, IconX } from "@tabler/icons-react";
 import { useProfileContext } from "@/utils/contexts/useProfileContext";
 import { useEffect, useMemo, useState } from "react";
@@ -54,15 +54,15 @@ const Titlebar = () => {
                 <Divider orientation="vertical" />
 
                 <nav className="h-full flex items-center gap-2">
-                    <Button variant="light" component={Link} href="/domains" leftSection={<IconAntenna />} size="compact-md">
+                    <Button variant="light" component={Link} href="/domains" size="compact-md">
                         {t("domains.Domains")}
                     </Button>
 
-                    <Button variant="light" component={Link} href="/invoices" leftSection={<IconCurrencyDollar />} size="compact-md">
+                    <Button variant="light" component={Link} href="/invoices" size="compact-md">
                         {t("invoices.Invoices")}
                     </Button>
 
-                    <Button variant="light" component={Link} href="/tags" leftSection={<IconTag />} size="compact-md">
+                    <Button variant="light" component={Link} href="/tags" size="compact-md">
                         {t("tags.Tags")}
                     </Button>
                 </nav>
